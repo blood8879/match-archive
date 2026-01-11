@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Match Archive - 팀 검색</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#06e076",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f2319",
+                        "surface-dark": "#162e24", 
+                        "glass-border": "rgba(255, 255, 255, 0.08)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f2319; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #214a36; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06e076; 
+        }
+        
+        .glass-card {
+            background: rgba(22, 46, 36, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .glass-input {
+            background: rgba(33, 74, 54, 0.4);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-x-hidden min-h-screen flex flex-col">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 w-full border-b border-white/5 bg-background-dark/80 backdrop-blur-md">
+<div class="flex h-16 items-center justify-between px-6 lg:px-10 max-w-7xl mx-auto w-full">
+<div class="flex items-center gap-4 text-white">
+<div class="flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">sports_soccer</span>
+</div>
+<h2 class="text-white text-xl font-bold tracking-tight">Match Archive</h2>
+</div>
+<!-- Desktop Nav -->
+<nav class="hidden md:flex flex-1 justify-end gap-8 items-center">
+<div class="flex items-center gap-6 lg:gap-10">
+<a class="text-gray-400 hover:text-white text-sm font-medium transition-colors" href="#">홈</a>
+<a class="text-primary text-sm font-bold transition-colors" href="#">팀 검색</a>
+<a class="text-gray-400 hover:text-white text-sm font-medium transition-colors" href="#">매칭 관리</a>
+<a class="text-gray-400 hover:text-white text-sm font-medium transition-colors" href="#">기록실</a>
+</div>
+<div class="h-6 w-px bg-white/10"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden lg:block">
+<p class="text-xs font-medium text-white">김철수</p>
+<p class="text-[10px] text-primary">아마추어 3부</p>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 ring-2 ring-white/10" data-alt="User profile picture placeholder with abstract gradient" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCI4z2YkBROwECdc8-1yFjLbS7dZE2MQeSy2_N4wT8MZoUYY696XOwsmBdSfKpyIi9jJ2cuTbEsxFK5iqzJlnwNDiSRSFvZ-pu2O3sKv5wdQmMWzzriJjFlDdu0nGEAlJT5Pn0r2Z9yEV92og2EMi_FsOfIew-7SXZJZsQGNeIcQEvRUyv0VCiQCk88imdbyJQKxO3OxeVrzYkmfQlPUHoNLUBrIiJUx-NG9KPQXbQr3Owoj-PgB7LIFN052WjCNMU2I0IJsDwl8p0V");'>
+</div>
+</div>
+</nav>
+<!-- Mobile Menu Button -->
+<button class="md:hidden text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8">
+<!-- Page Heading & Search Section -->
+<div class="flex flex-col gap-8 mb-10">
+<div class="flex flex-col gap-2">
+<h1 class="text-3xl md:text-4xl font-black text-white tracking-tight">
+                    새로운 팀을 <span class="text-primary">찾아보세요</span>
+</h1>
+<p class="text-gray-400 text-base md:text-lg max-w-2xl">
+                    나의 실력과 지역에 맞는 최고의 팀을 검색하고 가입하세요. 함께 뛸 동료들이 기다리고 있습니다.
+                </p>
+</div>
+<!-- Search Bar -->
+<div class="glass-card rounded-2xl p-2 md:p-3 shadow-xl shadow-black/20">
+<div class="flex w-full items-center">
+<div class="pl-4 pr-2 text-primary">
+<span class="material-symbols-outlined text-2xl">search</span>
+</div>
+<input class="w-full bg-transparent border-none text-white placeholder-gray-500 focus:ring-0 text-lg py-3" placeholder="팀명, 지역명으로 검색 (예: FC 타이거, 강남구)" type="text"/>
+<button class="hidden sm:flex bg-primary hover:bg-green-400 text-black font-bold py-2 px-6 rounded-xl transition-colors items-center gap-1">
+<span>검색</span>
+</button>
+</div>
+</div>
+<!-- Filters -->
+<div class="flex flex-wrap gap-3 items-center">
+<span class="text-gray-400 text-sm font-medium mr-2">필터:</span>
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-dark border border-white/5 hover:border-primary/50 text-gray-300 hover:text-white transition-all text-sm group">
+<span>지역: 전체</span>
+<span class="material-symbols-outlined text-base text-gray-500 group-hover:text-primary">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-dark border border-white/5 hover:border-primary/50 text-gray-300 hover:text-white transition-all text-sm group">
+<span>활동 요일</span>
+<span class="material-symbols-outlined text-base text-gray-500 group-hover:text-primary">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-dark border border-white/5 hover:border-primary/50 text-gray-300 hover:text-white transition-all text-sm group">
+<span>실력: 전체</span>
+<span class="material-symbols-outlined text-base text-gray-500 group-hover:text-primary">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-dark border border-white/5 hover:border-primary/50 text-gray-300 hover:text-white transition-all text-sm group">
+<span>모집 상태</span>
+<span class="material-symbols-outlined text-base text-gray-500 group-hover:text-primary">expand_more</span>
+</button>
+<div class="flex-1"></div>
+<div class="flex items-center gap-2 text-gray-400 text-sm">
+<span class="material-symbols-outlined text-base">sort</span>
+<span>최신순</span>
+</div>
+</div>
+</div>
+<!-- Search Results Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+<!-- Card 1 -->
+<div class="glass-card group relative flex flex-col items-center rounded-2xl p-6 transition-all hover:translate-y-[-4px] hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30 cursor-pointer">
+<div class="absolute top-4 right-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/20">
+                        모집중
+                    </span>
+</div>
+<div class="w-24 h-24 mb-4 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 ring-4 ring-white/5 group-hover:ring-primary/50 transition-all flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Emblem of FC Tiger showing a roaring tiger face" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB6eDhxeaZYWlMUYFK1V8mfRvt8tdn4iAsZKjifyIj0OjHj8Whf36fMFXHi6yAzsLzM73mFFflXvfPykWS5U7Ejd9A3F4PoXnI9lV7u47VCC32tvLfr_H6Iosw4O6C5YAmOR08EVxghXvMgWFY6pRhe9cTBCA_OXgzWXpBy_vwkhxCbei6pXDDZM_F7XWb7wgnlh6w0_ILJmq5Or689zvY9xO85xveR71ioQBjVl0MTBGFvTZWPbsrRmIdbF6DLdJQEyJVkGHbRq0r_');"></div>
+</div>
+<h3 class="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">FC 타이거</h3>
+<div class="flex items-center gap-1 text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>서울 강남구</span>
+</div>
+<div class="w-full grid grid-cols-2 gap-2 text-center text-xs text-gray-400 bg-black/20 rounded-lg p-3 mb-4">
+<div class="flex flex-col border-r border-white/5">
+<span class="text-white font-semibold text-sm">34명</span>
+<span>멤버수</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-semibold text-sm">아마추어1</span>
+<span>팀 레벨</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-surface-dark hover:bg-primary hover:text-black text-white font-medium text-sm transition-all duration-300 border border-white/5">
+                    상세 보기
+                </button>
+</div>
+<!-- Card 2 -->
+<div class="glass-card group relative flex flex-col items-center rounded-2xl p-6 transition-all hover:translate-y-[-4px] hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30 cursor-pointer">
+<div class="absolute top-4 right-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/20">
+                        마감 임박
+                    </span>
+</div>
+<div class="w-24 h-24 mb-4 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 ring-4 ring-white/5 group-hover:ring-primary/50 transition-all flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Emblem of Gangnam Shooters with a soccer ball graphic" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA6rjjNKF5wZhPDv_wWifHjxSrcfVWebrjg6k7KGYPiADyQ6R_q7JXuEPd0xCjufaZUzMwCIEPUFJaBctOfP2C-MJ7vreB7DPLOUbBSpovEQRRCS3hT--YSjjYOOXDvtZ3aXNfrpU41XVo6ReJxrwFHCWSCHuo7lXFHNrSbArfGif1eiUpMxGbXXyy7NDrTxpVXReoSmdCp6Y842edJttMkiIsTw0dABstS5hk0sMPh7b4bHF_mLsq6bMC1q0KjpHFsU-wqgWu0P7t8');"></div>
+</div>
+<h3 class="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">강남 슛돌이</h3>
+<div class="flex items-center gap-1 text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>서울 강남구</span>
+</div>
+<div class="w-full grid grid-cols-2 gap-2 text-center text-xs text-gray-400 bg-black/20 rounded-lg p-3 mb-4">
+<div class="flex flex-col border-r border-white/5">
+<span class="text-white font-semibold text-sm">28명</span>
+<span>멤버수</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-semibold text-sm">세미프로</span>
+<span>팀 레벨</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-surface-dark hover:bg-primary hover:text-black text-white font-medium text-sm transition-all duration-300 border border-white/5">
+                    상세 보기
+                </button>
+</div>
+<!-- Card 3 -->
+<div class="glass-card group relative flex flex-col items-center rounded-2xl p-6 transition-all hover:translate-y-[-4px] hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30 cursor-pointer">
+<div class="absolute top-4 right-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/20">
+                        모집중
+                    </span>
+</div>
+<div class="w-24 h-24 mb-4 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 ring-4 ring-white/5 group-hover:ring-primary/50 transition-all flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Emblem of Mapo United minimal design" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCXiVlKj6FwTQiQtZKSuipAe5YZL254CORiHexza16P2nBKPz0ZOrZxP2iViZWECZsHVoxPxdY2biVsLs-kuLUUZcQ3Pb51016tOk6VJmtD0Obrq-TevVjCpUJAUY8PERPV5pfdiepL85RPudvCNRb9MmPDlTHAelaXMbKvaIbcpd0i-vhyHmxwV7FETqOBZkdcFA9-hMdy02is4M2tjmdnPYythlm1zub9k4yT-bonq7taN3nRFFY6Nj0SCkewZK0Ch5_loNB-JUbw');"></div>
+</div>
+<h3 class="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">마포 유나이티드</h3>
+<div class="flex items-center gap-1 text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>서울 마포구</span>
+</div>
+<div class="w-full grid grid-cols-2 gap-2 text-center text-xs text-gray-400 bg-black/20 rounded-lg p-3 mb-4">
+<div class="flex flex-col border-r border-white/5">
+<span class="text-white font-semibold text-sm">42명</span>
+<span>멤버수</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-semibold text-sm">아마추어2</span>
+<span>팀 레벨</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-surface-dark hover:bg-primary hover:text-black text-white font-medium text-sm transition-all duration-300 border border-white/5">
+                    상세 보기
+                </button>
+</div>
+<!-- Card 4 -->
+<div class="glass-card group relative flex flex-col items-center rounded-2xl p-6 transition-all hover:translate-y-[-4px] hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30 cursor-pointer">
+<div class="absolute top-4 right-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/20">
+                        모집중
+                    </span>
+</div>
+<div class="w-24 h-24 mb-4 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 ring-4 ring-white/5 group-hover:ring-primary/50 transition-all flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Emblem of Songpa Thunder featuring a lightning bolt" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAZNGKUBjtHn4zWDwwqWtUW-f2xMmIN1b-UvKU5Y0odATDue8PqLwIIp1xnpzOdsx-TiRBZGaEePxxCuvpVv-7SI9DYvu3vVh8NylveiYmbKAzDEL8L7xxudKkq5tjj2KqP7TV7orbZW2A-3LTpKHn7dl8MuqepDN_Ekp_V8vsjFWJF9G7Gt2gSYahEuQtbc1HldXeQFd7nbRDlDkIgn3f37YN5GYNM4ilITeZ_e2Gn2sMeSnTWwct5YDXTJfqViI8fok8YYaEqd290');"></div>
+</div>
+<h3 class="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">송파 썬더</h3>
+<div class="flex items-center gap-1 text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>서울 송파구</span>
+</div>
+<div class="w-full grid grid-cols-2 gap-2 text-center text-xs text-gray-400 bg-black/20 rounded-lg p-3 mb-4">
+<div class="flex flex-col border-r border-white/5">
+<span class="text-white font-semibold text-sm">15명</span>
+<span>멤버수</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-semibold text-sm">루키</span>
+<span>팀 레벨</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-surface-dark hover:bg-primary hover:text-black text-white font-medium text-sm transition-all duration-300 border border-white/5">
+                    상세 보기
+                </button>
+</div>
+<!-- Card 5 -->
+<div class="glass-card group relative flex flex-col items-center rounded-2xl p-6 transition-all hover:translate-y-[-4px] hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30 cursor-pointer">
+<div class="absolute top-4 right-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-500/20">
+                        대기 가능
+                    </span>
+</div>
+<div class="w-24 h-24 mb-4 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 ring-4 ring-white/5 group-hover:ring-primary/50 transition-all flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Emblem of Busan Seagulls with ocean wave motif" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBkk6hu9OpA4agXhtOTPHtlcYjxOWzAb_DSj3P5PBCwwrghOPNxI438ewb3DHRMZfe4XaYR-6ZPItogZU5zsDLoFwee9qcLjgJPJRA0P0S2s5AA35MBHIKnsx4T_h8vQxUxiGavK-XFEBSBM65jj5xlHk_IY02s04eMeKcqy7EloXctZ_pOpDmKE-cLkNqPx0ZrrBaf63UoYgStvTUnRrPo1vEaWX731UcnkkH9XZ41AutwNug4GI4A5ec1rVlB4DmkzvAP9cNa41EW');"></div>
+</div>
+<h3 class="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">부산 갈매기</h3>
+<div class="flex items-center gap-1 text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>부산 해운대구</span>
+</div>
+<div class="w-full grid grid-cols-2 gap-2 text-center text-xs text-gray-400 bg-black/20 rounded-lg p-3 mb-4">
+<div class="flex flex-col border-r border-white/5">
+<span class="text-white font-semibold text-sm">50명</span>
+<span>멤버수</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-semibold text-sm">아마추어3</span>
+<span>팀 레벨</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-surface-dark hover:bg-primary hover:text-black text-white font-medium text-sm transition-all duration-300 border border-white/5">
+                    상세 보기
+                </button>
+</div>
+<!-- Card 6 -->
+<div class="glass-card group relative flex flex-col items-center rounded-2xl p-6 transition-all hover:translate-y-[-4px] hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30 cursor-pointer">
+<div class="absolute top-4 right-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/20">
+                        모집중
+                    </span>
+</div>
+<div class="w-24 h-24 mb-4 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 ring-4 ring-white/5 group-hover:ring-primary/50 transition-all flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Emblem of Daejeon Citizen with shield shape" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCeGDYL_pqqXiQKMVHQyRmaqJn5n_k4gBvY6tzpUg1S13XXDWdPxcAo5RTUnNOgaXybRTQeldzDavwreUi-x2mbDwBm8WE5IRQEulzarerscIWbtOjCv6OznYLEJzkzMqhG0DaZc1KFC-z9aaacbbYAkJTFv_GfkbiZ1krz5UVZILJ_MIJeBAIKkmKJW4Ozzc8sWnudDTvzzrObTq4-34BTF9w9oEMyskWM6QKLGX2aDfb9LDVhwRMMWmYN-TpolO6J-IYGJzTSLofu');"></div>
+</div>
+<h3 class="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">대전 시티즌</h3>
+<div class="flex items-center gap-1 text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>대전 서구</span>
+</div>
+<div class="w-full grid grid-cols-2 gap-2 text-center text-xs text-gray-400 bg-black/20 rounded-lg p-3 mb-4">
+<div class="flex flex-col border-r border-white/5">
+<span class="text-white font-semibold text-sm">22명</span>
+<span>멤버수</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-semibold text-sm">아마추어1</span>
+<span>팀 레벨</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-surface-dark hover:bg-primary hover:text-black text-white font-medium text-sm transition-all duration-300 border border-white/5">
+                    상세 보기
+                </button>
+</div>
+<!-- Card 7 -->
+<div class="glass-card group relative flex flex-col items-center rounded-2xl p-6 transition-all hover:translate-y-[-4px] hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30 cursor-pointer">
+<div class="absolute top-4 right-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/20">
+                        초보 환영
+                    </span>
+</div>
+<div class="w-24 h-24 mb-4 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 ring-4 ring-white/5 group-hover:ring-primary/50 transition-all flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Emblem of Gwangju Phoenix with flame accents" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC3tSUxqgn1CdCZOiZhHybXaq1xzV67RroZDRVWNLU3utG7TdBbvhwXLjSEmpx9J4fHBF-4BOz1GYgnwQmk6HggDfGPaxLZW-LAfJZnmv0Eb9xJFw6SN8HKXOjCVluern61fo2VAy2CNS78l6tC7ETrozjk7r-mIMunwi_v-NTRn2YTGwfvQ8nzQ4fL8Z1ZTmpM4gcwVhXxf1clbZaWfKskYNBfLrjqUFc8JvL2VKb5HAGjlahDnAYyQfxnzh0lSxK68OylYOeHPIxW');"></div>
+</div>
+<h3 class="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">광주 피닉스</h3>
+<div class="flex items-center gap-1 text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>광주 북구</span>
+</div>
+<div class="w-full grid grid-cols-2 gap-2 text-center text-xs text-gray-400 bg-black/20 rounded-lg p-3 mb-4">
+<div class="flex flex-col border-r border-white/5">
+<span class="text-white font-semibold text-sm">18명</span>
+<span>멤버수</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-semibold text-sm">루키</span>
+<span>팀 레벨</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-surface-dark hover:bg-primary hover:text-black text-white font-medium text-sm transition-all duration-300 border border-white/5">
+                    상세 보기
+                </button>
+</div>
+<!-- Card 8 -->
+<div class="glass-card group relative flex flex-col items-center rounded-2xl p-6 transition-all hover:translate-y-[-4px] hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30 cursor-pointer">
+<div class="absolute top-4 right-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/20">
+                        상시 모집
+                    </span>
+</div>
+<div class="w-24 h-24 mb-4 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 ring-4 ring-white/5 group-hover:ring-primary/50 transition-all flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Emblem of Incheon Wave with stylized text" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB6AGQIDfBfOf19eRgmlRn_femRvadU2oCf-X7ct2fPopza9nUECUHWLOWSt3-0l27Pug34EeMVmBKGhyK0QwvLSxzfZ2s6INWSNxXjQWROCgt6mD6XuIEG5Oh844XZNv4Q-VW0sqrbinzqHL2HD5bWqFv_I7z9j97tNtuHZVtOOemirVyqMDNFgC25S474_8TrVl3bkRG4tDjisP9mWp9nuOkKhM98qVwi37L2BZMaUUxc77bCvnmNcNoWK1hgDp7t9v0kBTxV3r9M');"></div>
+</div>
+<h3 class="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">인천 웨이브</h3>
+<div class="flex items-center gap-1 text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>인천 연수구</span>
+</div>
+<div class="w-full grid grid-cols-2 gap-2 text-center text-xs text-gray-400 bg-black/20 rounded-lg p-3 mb-4">
+<div class="flex flex-col border-r border-white/5">
+<span class="text-white font-semibold text-sm">30명</span>
+<span>멤버수</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-semibold text-sm">아마추어2</span>
+<span>팀 레벨</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-surface-dark hover:bg-primary hover:text-black text-white font-medium text-sm transition-all duration-300 border border-white/5">
+                    상세 보기
+                </button>
+</div>
+</div>
+<!-- Pagination -->
+<div class="flex justify-center mt-12 gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-dark border border-white/5 text-gray-400 hover:text-white hover:border-primary/50 transition-all">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-black font-bold border border-primary">
+                1
+            </button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-dark border border-white/5 text-gray-400 hover:text-white hover:border-primary/50 transition-all">
+                2
+            </button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-dark border border-white/5 text-gray-400 hover:text-white hover:border-primary/50 transition-all">
+                3
+            </button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-dark border border-white/5 text-gray-400 hover:text-white hover:border-primary/50 transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-white/5 bg-background-dark/80 mt-10">
+<div class="max-w-7xl mx-auto px-6 lg:px-10 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="flex items-center gap-2 text-gray-500">
+<span class="material-symbols-outlined text-lg">copyright</span>
+<span class="text-sm font-medium">2024 Match Archive. All rights reserved.</span>
+</div>
+<div class="flex gap-6 text-sm text-gray-500">
+<a class="hover:text-white transition-colors" href="#">이용약관</a>
+<a class="hover:text-white transition-colors" href="#">개인정보처리방침</a>
+<a class="hover:text-white transition-colors" href="#">고객센터</a>
+</div>
+</div>
+</footer>
+</body></html>

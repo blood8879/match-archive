@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Match Archive - 팀원 초대</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#06e076",
+                        "primary-hover": "#05c568",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f2319",
+                        "surface-dark": "#162e24",
+                        "surface-glass": "rgba(22, 46, 36, 0.7)",
+                        "border-glass": "rgba(255, 255, 255, 0.1)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans KR", "sans-serif"],
+                        "body": ["Inter", "Noto Sans KR", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>/* Custom scrollbar for webkit */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px
+    }
+::-webkit-scrollbar-track {
+    background: #0f2319
+    }
+::-webkit-scrollbar-thumb {
+    background: #214a36;
+    border-radius: 4px
+    }
+.glass-panel {
+    background: rgba(22, 46, 36, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1)
+    }
+/* Select arrow custom styling */
+select {
+    appearance: none;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuDVVUgVje9EjD-GR2bfyRfUS-C1ZyqFr1F31-x4TTVIs0dHN7hw0S9LvPWeXbH1CFxyO3eA7VzEyUxnCVWeJ2xjxkhO6xz_3uV7RzHnHXgcLwxLAcqhpR7WXgpSlh-ulyk8zmqQJ6a7KBKAv00_ElLS2dRlrJHRKVKICupYMhfFaDio0DV6DRSbVNIsdILGqAbcyW-YHeAr-qySOUv4IggassDN5yyVBSq3Tpbr_AdnAaQtlkFOrT8_Tm-l3TtZem1aEDjUmObx-e2q);
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em
+    }</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased selection:bg-primary selection:text-background-dark overflow-hidden">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Side Navigation -->
+<aside class="flex w-72 flex-col border-r border-border-glass bg-surface-dark/50 hidden md:flex">
+<div class="flex h-full flex-col justify-between p-4">
+<div class="flex flex-col gap-6">
+<div class="flex flex-col px-3 mt-2">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded bg-primary flex items-center justify-center text-background-dark">
+<span class="material-symbols-outlined font-bold">sports_soccer</span>
+</div>
+<div>
+<h1 class="text-white text-lg font-bold leading-tight">Match Archive</h1>
+<p class="text-[#8eccae] text-xs font-medium">Admin Console</p>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#8eccae] hover:bg-white/5 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">dashboard</span>
+<span class="text-sm font-medium">대시보드</span>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/10 text-primary border border-primary/20" href="#">
+<span class="material-symbols-outlined fill-current">group</span>
+<span class="text-sm font-bold">팀 관리</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#8eccae] hover:bg-white/5 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">list_alt</span>
+<span class="text-sm font-medium">매치 기록</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#8eccae] hover:bg-white/5 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">tactic</span>
+<span class="text-sm font-medium">전술 보드</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#8eccae] hover:bg-white/5 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">settings</span>
+<span class="text-sm font-medium">설정</span>
+</a>
+</nav>
+</div>
+<div class="flex items-center gap-3 px-3 py-4 border-t border-border-glass">
+<div class="size-10 rounded-full bg-cover bg-center" data-alt="User profile picture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCoo5Uf0C4A8EabNIga837NdGSgg4P7CWbvTC6IutHO4iCD-M0P17D4YAQJdIAWx1-DoARoMru_jx9ozJwU_hjUt9PN3fLVeG4skKdfYwWxZyjW_C87WJvbN-hWOC8KnxvxIQm058t_vjJ01yRIGUZPk4DeeSWFrASGiBkA4CR0zor05MvbZe7xhRlGU4Kj5Zu0mJXvQ5CWSizGDGzMUVGs7cYFblZdZKMv41iOWqRsLma46NsL3unuHxTXu-6rz8RCQ65j_Ngau049');"></div>
+<div class="flex flex-col">
+<p class="text-white text-sm font-medium">김철수</p>
+<p class="text-[#8eccae] text-xs">FC 썬더볼트 • 관리자</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex flex-1 flex-col h-full relative overflow-hidden">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between border-b border-border-glass bg-surface-dark/30 backdrop-blur-md px-8 py-4 z-10">
+<div class="flex items-center gap-4 flex-1">
+<button class="md:hidden text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Search Bar -->
+<div class="hidden md:flex max-w-md w-full items-center relative group">
+<span class="material-symbols-outlined absolute left-3 text-[#8eccae] group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-dark/50 border border-border-glass rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-[#5d8570] focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all" placeholder="선수, 기록, 매치 검색..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative text-[#8eccae] hover:text-white transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 size-2 bg-red-500 rounded-full border-2 border-background-dark"></span>
+</button>
+<button class="text-[#8eccae] hover:text-white transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content Area -->
+<main class="flex-1 overflow-y-auto p-8 relative">
+<!-- Background decorative elements -->
+<div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="max-w-[1000px] mx-auto flex flex-col gap-8 relative z-0">
+<!-- Breadcrumbs -->
+<div class="flex flex-wrap items-center gap-2 text-sm">
+<a class="text-[#8eccae] hover:text-primary transition-colors" href="#">홈</a>
+<span class="material-symbols-outlined text-[#8eccae] text-xs">chevron_right</span>
+<a class="text-[#8eccae] hover:text-primary transition-colors" href="#">팀 관리</a>
+<span class="material-symbols-outlined text-[#8eccae] text-xs">chevron_right</span>
+<span class="text-white font-medium">팀원 초대</span>
+</div>
+<!-- Page Header -->
+<div class="flex flex-col gap-2">
+<h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">팀원 초대</h2>
+<p class="text-[#8eccae] text-base font-normal max-w-2xl">
+                            새로운 팀원에게 공유할 초대 링크를 생성하세요. 링크를 통해 가입한 멤버는 자동으로 팀에 등록됩니다.
+                        </p>
+</div>
+<!-- Main Invite Card (Glassmorphism) -->
+<div class="glass-panel rounded-2xl p-8 md:p-10 flex flex-col gap-8 w-full shadow-2xl">
+<!-- Settings Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="flex flex-col gap-3">
+<label class="text-white text-sm font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">timer</span>
+                                    링크 유효 기간
+                                </label>
+<div class="relative">
+<select class="w-full bg-[#0f2319] border border-[#2f6a4d] text-white text-sm rounded-lg focus:ring-primary focus:border-primary block p-3.5 pr-10 shadow-sm transition-all hover:border-[#3d8560]">
+<option value="30m">30분</option>
+<option selected="" value="24h">24시간 (기본)</option>
+<option value="7d">7일</option>
+<option value="unlimited">무제한 (보안 주의)</option>
+</select>
+</div>
+<p class="text-xs text-[#8eccae]/70 px-1">설정된 시간이 지나면 링크가 만료되어 사용할 수 없습니다.</p>
+</div>
+<div class="flex flex-col gap-3">
+<label class="text-white text-sm font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">admin_panel_settings</span>
+                                    부여 권한
+                                </label>
+<div class="relative">
+<input class="w-full bg-[#0f2319]/50 border border-[#2f6a4d]/50 text-[#8eccae] text-sm rounded-lg block p-3.5 cursor-not-allowed opacity-70" disabled="" type="text" value="일반 멤버 (Player)"/>
+</div>
+<p class="text-xs text-[#8eccae]/70 px-1">기본 권한은 설정 페이지에서 변경할 수 있습니다.</p>
+</div>
+</div>
+<!-- Divider -->
+<div class="h-px w-full bg-gradient-to-r from-transparent via-[#2f6a4d] to-transparent"></div>
+<!-- Link Generation & Copy Section -->
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-end mb-1">
+<label class="text-white text-sm font-semibold">생성된 초대 링크</label>
+<span class="flex items-center gap-1 text-primary text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+<span class="size-2 rounded-full bg-primary animate-pulse"></span>
+                                    유효함 (23:59:59 남음)
+                                </span>
+</div>
+<div class="flex flex-col md:flex-row gap-3">
+<div class="relative flex-1 group">
+<div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+<span class="material-symbols-outlined text-[#8eccae]">link</span>
+</div>
+<input class="bg-[#0f2319] border border-[#2f6a4d] text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full pl-10 p-3.5 font-mono selection:bg-primary selection:text-black transition-colors hover:border-[#3d8560]" readonly="" type="text" value="https://match-archive.com/invite/tk-8291-xc92-k29s"/>
+</div>
+<button class="flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-[#0f2319] font-bold py-3.5 px-6 rounded-lg transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-95 whitespace-nowrap">
+<span class="material-symbols-outlined text-xl">content_copy</span>
+                                    링크 복사
+                                </button>
+<button class="flex items-center justify-center gap-2 bg-[#214a36] hover:bg-[#2f6a4d] text-white font-medium py-3.5 px-6 rounded-lg transition-all border border-[#2f6a4d] hover:border-[#3d8560] active:scale-95 whitespace-nowrap">
+<span class="material-symbols-outlined text-xl">refresh</span>
+                                    재생성
+                                </button>
+</div>
+</div>
+<!-- Share Options -->
+<div class="flex flex-col gap-4 pt-2">
+<label class="text-white text-sm font-semibold">간편 공유</label>
+<div class="flex flex-wrap gap-3">
+<button class="flex items-center gap-3 bg-[#FAE100] hover:bg-[#EAC900] text-[#371D1E] px-4 py-3 rounded-lg text-sm font-medium transition-colors w-full sm:w-auto justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+                                    카카오톡 공유
+                                </button>
+<button class="flex items-center gap-3 bg-white hover:bg-gray-100 text-gray-800 px-4 py-3 rounded-lg text-sm font-medium transition-colors w-full sm:w-auto justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">mail</span>
+                                    이메일 발송
+                                </button>
+<button class="flex items-center gap-3 bg-[#1e1e1e] border border-white/10 hover:bg-white/10 text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors w-full sm:w-auto justify-center">
+<span class="material-symbols-outlined">qr_code_2</span>
+                                    QR 코드 보기
+                                </button>
+</div>
+</div>
+</div>
+<!-- Info Alert -->
+<div class="flex items-start gap-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
+<span class="material-symbols-outlined text-primary mt-0.5">info</span>
+<div class="flex flex-col gap-1">
+<p class="text-white text-sm font-semibold">안내 사항</p>
+<p class="text-[#8eccae] text-sm leading-relaxed">
+                                초대 링크가 외부에 유출되지 않도록 주의해주세요. 승인되지 않은 사용자가 링크를 통해 가입할 경우, [팀 관리] &gt; [가입 대기] 목록에서 승인을 거부할 수 있습니다.
+                            </p>
+</div>
+</div>
+</div>
+<!-- Bottom spacing -->
+<div class="h-20"></div>
+</main>
+</div>
+</div>
+</body></html>

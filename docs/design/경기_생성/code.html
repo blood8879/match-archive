@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Match Archive - 경기 생성</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=Noto+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#06e076",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f2319",
+                        "surface-dark": "#183527",
+                        "border-dark": "#2f6a4d",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans KR", "sans-serif"],
+                        "sans": ["Inter", "Noto Sans KR", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for dark mode vibe */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f2319; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2f6a4d; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06e076; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased selection:bg-primary selection:text-background-dark">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 flex items-center justify-between border-b border-solid border-border-dark bg-background-dark/80 backdrop-blur-md px-6 py-4 lg:px-10">
+<div class="flex items-center gap-4 text-white">
+<div class="flex size-8 items-center justify-center rounded-lg bg-primary/20 text-primary">
+<span class="material-symbols-outlined text-2xl">sports_soccer</span>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-tight">Match Archive</h2>
+</div>
+<nav class="hidden md:flex flex-1 justify-center gap-8">
+<a class="text-gray-300 hover:text-primary transition-colors text-sm font-medium" href="#">대시보드</a>
+<a class="text-white text-sm font-medium" href="#">경기 일정</a>
+<a class="text-gray-300 hover:text-primary transition-colors text-sm font-medium" href="#">팀 관리</a>
+<a class="text-gray-300 hover:text-primary transition-colors text-sm font-medium" href="#">설정</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border-2 border-surface-dark" data-alt="User profile avatar showing a silhouette" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDtYr-XCYSavpFvgfbfFOnaVzOJJvDTM3auEpp8y-ahjNRiitlkJpkJWuEWSa4MY6krh_32d947xHYaz-Ga206Fv7OOS3wmSYMoMUUEx32WBUVIvGIxBX9DVsqDbwSp0Gj69cCGIa8dSLmkobjyDneGb1J5LvzlnoiOnudur6fjQkUODyax-F6lnkUl6wtrFejTxA4i6qo-v-eciroHuoK6uJ4Ff92C7MdGKD47lue9AapxNBUGMmSMttEoQ7hBrQQbMrBiCfVFosqi");'></div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
+<div class="w-full max-w-[800px] flex flex-col gap-8">
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-2 text-sm">
+<a class="text-gray-400 hover:text-primary transition-colors" href="#">홈</a>
+<span class="text-gray-600">/</span>
+<a class="text-gray-400 hover:text-primary transition-colors" href="#">일정 관리</a>
+<span class="text-gray-600">/</span>
+<span class="text-primary font-medium">경기 생성</span>
+</div>
+<!-- Page Heading -->
+<div class="flex flex-col gap-2">
+<h1 class="text-3xl md:text-4xl font-black text-white tracking-tight">경기 생성</h1>
+<p class="text-gray-400 text-lg font-light">새로운 매치 일정을 기록하고 팀원들에게 알립니다.</p>
+</div>
+<!-- Form Container -->
+<form class="flex flex-col gap-8 bg-surface-dark/30 rounded-2xl p-6 md:p-8 border border-border-dark/50 shadow-xl">
+<!-- Section: Basic Info -->
+<div class="space-y-6">
+<div class="flex items-center gap-2 border-b border-border-dark pb-2 mb-4">
+<span class="material-symbols-outlined text-primary">calendar_clock</span>
+<h3 class="text-white font-semibold text-lg">기본 정보</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Date & Time -->
+<label class="flex flex-col gap-2 group">
+<span class="text-gray-300 text-sm font-medium group-focus-within:text-primary transition-colors">경기 일시</span>
+<div class="relative">
+<input class="w-full bg-surface-dark border border-border-dark rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none" placeholder="YYYY-MM-DD HH:MM" type="datetime-local"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none group-focus-within:text-primary transition-colors">event</span>
+</div>
+</label>
+<!-- Match Type -->
+<div class="flex flex-col gap-2">
+<span class="text-gray-300 text-sm font-medium">경기 유형</span>
+<div class="grid grid-cols-3 gap-2 h-[54px]">
+<label class="cursor-pointer relative">
+<input checked="" class="peer sr-only" name="matchType" type="radio"/>
+<div class="h-full flex items-center justify-center rounded-xl border border-border-dark bg-surface-dark text-gray-400 peer-checked:bg-primary/20 peer-checked:text-primary peer-checked:border-primary transition-all hover:bg-surface-dark/80 text-sm font-medium">
+                                            친선
+                                        </div>
+</label>
+<label class="cursor-pointer relative">
+<input class="peer sr-only" name="matchType" type="radio"/>
+<div class="h-full flex items-center justify-center rounded-xl border border-border-dark bg-surface-dark text-gray-400 peer-checked:bg-primary/20 peer-checked:text-primary peer-checked:border-primary transition-all hover:bg-surface-dark/80 text-sm font-medium">
+                                            리그
+                                        </div>
+</label>
+<label class="cursor-pointer relative">
+<input class="peer sr-only" name="matchType" type="radio"/>
+<div class="h-full flex items-center justify-center rounded-xl border border-border-dark bg-surface-dark text-gray-400 peer-checked:bg-primary/20 peer-checked:text-primary peer-checked:border-primary transition-all hover:bg-surface-dark/80 text-sm font-medium">
+                                            토너먼트
+                                        </div>
+</label>
+</div>
+</div>
+</div>
+<!-- Location -->
+<label class="flex flex-col gap-2 group">
+<span class="text-gray-300 text-sm font-medium group-focus-within:text-primary transition-colors">장소</span>
+<div class="relative">
+<input class="w-full bg-surface-dark border border-border-dark rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="경기장 이름 또는 주소 검색" type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-primary transition-colors">location_on</span>
+</div>
+<div class="h-40 w-full mt-2 rounded-xl overflow-hidden relative group/map">
+<div class="absolute inset-0 bg-gray-800 animate-pulse flex items-center justify-center text-gray-500">
+<span class="material-symbols-outlined text-4xl">map</span>
+</div>
+<div class="absolute inset-0 bg-cover bg-center opacity-60 group-hover/map:opacity-80 transition-opacity" data-alt="Abstract map showing location pins on dark mode interface" data-location="Seoul" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAZKfS4ei4Osvb9c-uOSbyar9z4vgdnXpPZfmX9X3KAKtOIunAOfnC2S7-Jb1HUgoua2i_dzZstNTlu7seeK20HtJ0B3M55W1ayfIIkpAtFWKOdmEc-Ts09o62oIDEwiSHOuPEgAuEuIwPLUsTJsctd9hNAJn06y-1bQywJj2Fig_zEuhMUAvK3lxue5e2FgyNJCRSG02HJ7HGwFEGQNy_IOqK0ez0qLuhCpq2tMrXHz3SRVgP5DbdWLEogVw8dF_6I01OG7aBBzCew");'></div>
+</div>
+</label>
+</div>
+<!-- Section: Opponent Info -->
+<div class="space-y-6">
+<div class="flex items-center justify-between border-b border-border-dark pb-2 mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">groups</span>
+<h3 class="text-white font-semibold text-lg">상대팀 정보</h3>
+</div>
+<!-- Unknown Toggle -->
+<label class="flex items-center gap-3 cursor-pointer group">
+<span class="text-sm text-gray-400 group-hover:text-gray-200 transition-colors">상대팀 미정</span>
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-dark border border-border-dark peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-checked:after:bg-white peer-checked:border-primary"></div>
+</div>
+</label>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<label class="flex flex-col gap-2 group md:col-span-2">
+<span class="text-gray-300 text-sm font-medium group-focus-within:text-primary transition-colors">상대팀 검색</span>
+<div class="flex w-full items-stretch rounded-xl shadow-sm">
+<div class="relative flex-1">
+<input class="w-full bg-surface-dark border border-border-dark rounded-xl rounded-r-none border-r-0 px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all z-10 relative" placeholder="팀 이름 검색..." type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">search</span>
+</div>
+<button class="bg-surface-dark border border-border-dark hover:bg-border-dark/50 text-primary px-6 rounded-r-xl font-medium transition-colors border-l-0" type="button">
+                                        검색
+                                    </button>
+</div>
+</label>
+</div>
+</div>
+<!-- Section: Extra -->
+<div class="space-y-6">
+<div class="flex items-center gap-2 border-b border-border-dark pb-2 mb-4">
+<span class="material-symbols-outlined text-primary">notes</span>
+<h3 class="text-white font-semibold text-lg">메모</h3>
+</div>
+<label class="flex flex-col gap-2">
+<textarea class="w-full bg-surface-dark border border-border-dark rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none min-h-[100px]" placeholder="준비물, 유니폼 색상, 주의사항 등 메모를 입력하세요."></textarea>
+</label>
+</div>
+<!-- Actions -->
+<div class="flex flex-col-reverse md:flex-row items-center justify-end gap-4 pt-4 border-t border-border-dark/50 mt-4">
+<button class="w-full md:w-auto px-8 py-3.5 rounded-xl text-gray-300 font-medium hover:text-white hover:bg-surface-dark transition-colors" type="button">
+                            취소
+                        </button>
+<button class="w-full md:w-auto px-8 py-3.5 rounded-xl bg-primary text-background-dark font-bold hover:bg-[#05c96b] hover:shadow-[0_0_20px_rgba(6,224,118,0.3)] transition-all flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+                            경기 생성하기
+                        </button>
+</div>
+</form>
+</div>
+</main>
+</div>
+</body></html>

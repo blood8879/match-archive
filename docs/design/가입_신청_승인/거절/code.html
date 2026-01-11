@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Match Archive - 가입 신청 관리</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#06e076",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f2319",
+                        "surface-dark": "#1a2e25", // Slightly lighter for sidebar/cards if needed
+                        "glass-border": "rgba(142, 204, 174, 0.15)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f2319; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #214a36; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06e076; 
+        }
+        
+        .glass-card {
+            background: rgba(33, 74, 54, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(142, 204, 174, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#10231a] dark:text-white font-display overflow-x-hidden antialiased">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar -->
+<aside class="hidden w-64 flex-col border-r border-[#214a36] bg-background-dark lg:flex shrink-0">
+<div class="flex h-full flex-col justify-between p-4">
+<div class="flex flex-col gap-8">
+<!-- Brand/Profile -->
+<div class="flex items-center gap-3 px-2">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-2 ring-primary/50" data-alt="Match Archive team logo with soccer ball pattern" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCYFYpDFm1o9lcGX08SnwQ0-sjiWSbil8CoPbvg85LPNEjuwavI2OU_PM5ACNe2WqBXCFEnmDglpdz8AcTAgg-agtnmhq7wD5883xeBiUTTUVTAjfBVvl_cRaiGp5u3snhjbSKypaRSLLCoeI5LajMXPyIutC4vZKxNgUVr-LCqa4I6OW1nqhD6plMHNT_Nt6xg85aYGoNOTVuZvVYFrkwDbTdor6LktM350jhmzPFKRc-Byig_7svsbM6mpAiKjRi1pJD6wDKyOPFN");'></div>
+<div class="flex flex-col">
+<h1 class="text-white text-base font-bold leading-normal tracking-tight">Match Archive</h1>
+<p class="text-[#8eccae] text-xs font-normal leading-normal">FC 슈팅스타 Admin</p>
+</div>
+</div>
+<!-- Nav Items -->
+<nav class="flex flex-col gap-2">
+<a class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[#214a36] transition-colors" href="#">
+<span class="material-symbols-outlined text-[#8eccae] group-hover:text-white">dashboard</span>
+<p class="text-[#8eccae] group-hover:text-white text-sm font-medium leading-normal">대시보드</p>
+</a>
+<a class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[#214a36] transition-colors" href="#">
+<span class="material-symbols-outlined text-[#8eccae] group-hover:text-white">group</span>
+<p class="text-[#8eccae] group-hover:text-white text-sm font-medium leading-normal">팀 관리</p>
+</a>
+<!-- Active Item -->
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl bg-[#214a36] border border-primary/20 shadow-lg shadow-primary/5" href="#">
+<span class="material-symbols-outlined text-primary fill-1">person_add</span>
+<p class="text-white text-sm font-bold leading-normal">가입 신청</p>
+<span class="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-background-dark">5</span>
+</a>
+<a class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[#214a36] transition-colors" href="#">
+<span class="material-symbols-outlined text-[#8eccae] group-hover:text-white">stadium</span>
+<p class="text-[#8eccae] group-hover:text-white text-sm font-medium leading-normal">경기 기록</p>
+</a>
+<a class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[#214a36] transition-colors" href="#">
+<span class="material-symbols-outlined text-[#8eccae] group-hover:text-white">calendar_month</span>
+<p class="text-[#8eccae] group-hover:text-white text-sm font-medium leading-normal">일정 관리</p>
+</a>
+</nav>
+</div>
+<div class="px-3 py-4">
+<button class="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[#8eccae] hover:bg-[#214a36] hover:text-white transition-colors">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-sm font-medium">로그아웃</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-full relative overflow-y-auto">
+<!-- Header Pattern Background -->
+<div class="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-[#214a36]/20 to-transparent pointer-events-none z-0"></div>
+<div class="layout-container flex h-full flex-col z-10">
+<div class="flex flex-1 justify-center py-5 px-4 md:px-8 xl:px-12">
+<div class="layout-content-container flex flex-col max-w-[1200px] flex-1 w-full gap-6">
+<!-- Page Header -->
+<header class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between py-4">
+<div class="flex flex-col gap-2">
+<h1 class="text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">가입 신청 관리</h1>
+<p class="text-[#8eccae] text-base font-normal leading-normal max-w-2xl">
+                                    팀 가입을 희망하는 신청자들의 프로필을 검토하고 승인해주세요.
+                                </p>
+</div>
+<!-- Mobile Menu Trigger (Hidden on Desktop) -->
+<button class="lg:hidden p-2 text-white absolute top-4 right-4">
+<span class="material-symbols-outlined text-3xl">menu</span>
+</button>
+</header>
+<!-- Controls: Search & Filter -->
+<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between glass-card p-4 rounded-xl">
+<!-- Search -->
+<div class="w-full lg:max-w-md">
+<label class="flex h-12 w-full items-center rounded-xl bg-[#152e24] px-4 ring-1 ring-white/5 focus-within:ring-primary/50 transition-all">
+<span class="material-symbols-outlined text-[#8eccae]">search</span>
+<input class="flex-1 bg-transparent px-3 text-white placeholder:text-[#8eccae]/70 focus:outline-none border-none text-base" placeholder="이름, 포지션으로 검색..." type="text"/>
+</label>
+</div>
+<!-- Chips -->
+<div class="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
+<button class="flex h-9 shrink-0 items-center gap-x-2 rounded-lg bg-primary px-4 text-background-dark font-bold text-sm transition-transform hover:scale-105">
+                                    전체 보기
+                                </button>
+<button class="flex h-9 shrink-0 items-center gap-x-2 rounded-lg bg-[#214a36] hover:bg-[#2b5e45] px-4 text-[#8eccae] text-sm font-medium transition-colors">
+                                    최신순
+                                </button>
+<button class="flex h-9 shrink-0 items-center gap-x-2 rounded-lg bg-[#214a36] hover:bg-[#2b5e45] px-4 text-[#8eccae] text-sm font-medium transition-colors">
+                                    MF (미드필더)
+                                </button>
+<button class="flex h-9 shrink-0 items-center gap-x-2 rounded-lg bg-[#214a36] hover:bg-[#2b5e45] px-4 text-[#8eccae] text-sm font-medium transition-colors">
+                                    FW (공격수)
+                                </button>
+</div>
+</div>
+<!-- Applicants Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-10">
+<!-- Card 1 -->
+<div class="glass-card group relative flex flex-col overflow-hidden rounded-2xl p-5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+<div class="flex items-start justify-between mb-4">
+<div class="flex gap-4 items-center">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-16 w-16 shadow-inner ring-2 ring-white/10" data-alt="Portrait of applicant Kim Cheol-su" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCHpaEuqstrj0yDxzgC3j_ldiF_EvGoR2J1VfefZzlO_JRI4ErRactjqxu0Q0dqSGq0gWkRr6xJe9kw-qIwSIX2y-en3rbmQ4GYoUVunhsUZo73DqL46fv4LXPw9hC78F_qotbZ8zSipmEzfW9B5gTKNOmOVSLapUnQeoLEFXIYwOD1-Pg0yDvzkFKTXjZoNwM5DmkxjPr9QanQgzVJUBnkzm1nib_iy3XGufuYrCYDvHcIm8G7Q3mEem1VPgCS-o4Zi-srsCeoP6Bm");'></div>
+<div>
+<h3 class="text-white text-lg font-bold leading-tight">김철수</h3>
+<div class="flex gap-2 mt-1">
+<span class="inline-flex items-center rounded-md bg-blue-500/20 px-2 py-0.5 text-xs font-medium text-blue-300 ring-1 ring-inset ring-blue-500/30">MF</span>
+<span class="inline-flex items-center rounded-md bg-[#214a36] px-2 py-0.5 text-xs font-medium text-[#8eccae]">27세</span>
+</div>
+</div>
+</div>
+<span class="flex items-center text-xs text-[#8eccae]/70 gap-1 bg-[#152e24] px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                        2시간 전
+                                    </span>
+</div>
+<div class="flex-1 space-y-3 mb-6">
+<div class="flex items-center gap-2 text-sm text-[#8eccae]">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>서울시 마포구 거주</span>
+</div>
+<div class="p-3 rounded-xl bg-[#152e24]/50 border border-white/5">
+<p class="text-gray-300 text-sm leading-relaxed italic">
+                                            "안녕하세요! 매주 일요일 참석 가능합니다. 패스 플레이를 선호하며 팀에 활력을 불어넣고 싶습니다."
+                                        </p>
+</div>
+</div>
+<div class="flex gap-3 mt-auto">
+<button class="flex-1 h-10 flex items-center justify-center rounded-xl bg-primary text-[#0f2319] text-sm font-bold hover:bg-primary/90 transition-colors">
+                                        승인
+                                    </button>
+<button class="flex-1 h-10 flex items-center justify-center rounded-xl bg-transparent border border-red-500/30 text-red-400 text-sm font-bold hover:bg-red-500/10 transition-colors">
+                                        거절
+                                    </button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-card group relative flex flex-col overflow-hidden rounded-2xl p-5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+<div class="flex items-start justify-between mb-4">
+<div class="flex gap-4 items-center">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-16 w-16 shadow-inner ring-2 ring-white/10" data-alt="Portrait of applicant Lee Young-hee" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA122cdne2Cet1_0fWBSst1X616fwQFf63wWxQsjRrkMP1Wv-LlQJY8QbQF7y8aOqOHRPz21Ay3XaHPhLFMnIPdHg8BNnjD9HpKG0FYXKbUFqL8Hg6_E3TeAkuxFC_sJz35xeSHQJon0ltmQPgQl6igJdeJm-3ZkmFZKTacMXbGDPEXD9pPP3ITXtVSJEHzs4ZqXPSoYuW0G4zH2Fjj8RjR-Xv1Qhj31qvmGUDcllkLvuGnGyc8Id38oM1Kskfbpf4ndCkuHhzAlgpn");'></div>
+<div>
+<h3 class="text-white text-lg font-bold leading-tight">이영희</h3>
+<div class="flex gap-2 mt-1">
+<span class="inline-flex items-center rounded-md bg-rose-500/20 px-2 py-0.5 text-xs font-medium text-rose-300 ring-1 ring-inset ring-rose-500/30">FW</span>
+<span class="inline-flex items-center rounded-md bg-[#214a36] px-2 py-0.5 text-xs font-medium text-[#8eccae]">24세</span>
+</div>
+</div>
+</div>
+<span class="flex items-center text-xs text-[#8eccae]/70 gap-1 bg-[#152e24] px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                        1일 전
+                                    </span>
+</div>
+<div class="flex-1 space-y-3 mb-6">
+<div class="flex items-center gap-2 text-sm text-[#8eccae]">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>경기도 고양시 거주</span>
+</div>
+<div class="p-3 rounded-xl bg-[#152e24]/50 border border-white/5">
+<p class="text-gray-300 text-sm leading-relaxed italic">
+                                            "선수 출신은 아니지만 체력 하나는 자신 있습니다. 윙포워드 주로 봅니다."
+                                        </p>
+</div>
+</div>
+<div class="flex gap-3 mt-auto">
+<button class="flex-1 h-10 flex items-center justify-center rounded-xl bg-primary text-[#0f2319] text-sm font-bold hover:bg-primary/90 transition-colors">
+                                        승인
+                                    </button>
+<button class="flex-1 h-10 flex items-center justify-center rounded-xl bg-transparent border border-red-500/30 text-red-400 text-sm font-bold hover:bg-red-500/10 transition-colors">
+                                        거절
+                                    </button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="glass-card group relative flex flex-col overflow-hidden rounded-2xl p-5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+<div class="flex items-start justify-between mb-4">
+<div class="flex gap-4 items-center">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-16 w-16 shadow-inner ring-2 ring-white/10" data-alt="Portrait of applicant Park Ji-sung" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuADlab5fYs3HDKm9Z5TS-J6JFCn_DbUTW_7D0almVSqPXbIsC37V55vTm6dAcanHrpZJEpPuGWWlb7l4ktqZOcr8E0EN5BWp-cLmMCo0iAUlmgxhZUzAZWEk0DDAOsicQBUtBbsA_hWwNMxyYY9cFQ5csRHd5YA0RxbFd_xv0u_NeCqkC345AVSK0jcF49HD6g6oHAyY2bDj2sHnOgcm6QWwI6mSt1nO4uQAx65x8FK2z9slkt1jrn5p32IXT9Nsj2yg3a67Cikn1w2");'></div>
+<div>
+<h3 class="text-white text-lg font-bold leading-tight">박민수</h3>
+<div class="flex gap-2 mt-1">
+<span class="inline-flex items-center rounded-md bg-yellow-500/20 px-2 py-0.5 text-xs font-medium text-yellow-300 ring-1 ring-inset ring-yellow-500/30">GK</span>
+<span class="inline-flex items-center rounded-md bg-[#214a36] px-2 py-0.5 text-xs font-medium text-[#8eccae]">31세</span>
+</div>
+</div>
+</div>
+<span class="flex items-center text-xs text-[#8eccae]/70 gap-1 bg-[#152e24] px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                        2일 전
+                                    </span>
+</div>
+<div class="flex-1 space-y-3 mb-6">
+<div class="flex items-center gap-2 text-sm text-[#8eccae]">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>서울시 강남구 거주</span>
+</div>
+<div class="p-3 rounded-xl bg-[#152e24]/50 border border-white/5">
+<p class="text-gray-300 text-sm leading-relaxed italic">
+                                            "골키퍼 장비 다 있습니다. 꾸준히 활동할 팀을 찾고 있어요."
+                                        </p>
+</div>
+</div>
+<div class="flex gap-3 mt-auto">
+<button class="flex-1 h-10 flex items-center justify-center rounded-xl bg-primary text-[#0f2319] text-sm font-bold hover:bg-primary/90 transition-colors">
+                                        승인
+                                    </button>
+<button class="flex-1 h-10 flex items-center justify-center rounded-xl bg-transparent border border-red-500/30 text-red-400 text-sm font-bold hover:bg-red-500/10 transition-colors">
+                                        거절
+                                    </button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="glass-card group relative flex flex-col overflow-hidden rounded-2xl p-5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+<div class="flex items-start justify-between mb-4">
+<div class="flex gap-4 items-center">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-16 w-16 shadow-inner ring-2 ring-white/10" data-alt="Portrait of applicant Choi Jin-woo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDhJIwi5aLTS_8O8eIuz4mTAx6GArU3TJrl4Ic9HZHJOfd0IIyRKfRYYgvIGr-cHU4KUgmlB51zejftwDf1EFMpfTfyhovu6-C6YICs0oxxvk-PtsB9QItIY7LmW4Lok17J9OcHZxkJLPSYU2s1qJrCE_1RBnELkHzniBO3eCA2KdY-YPu0T3Rdx-i2dR83eP277M6LYjxGpPHAoNN_HOD9svmyvlF4TnM-mxAuWQIETKVgwRh9mz1EeM86BKgHtByE-MdvEdyXxJOd");'></div>
+<div>
+<h3 class="text-white text-lg font-bold leading-tight">최진우</h3>
+<div class="flex gap-2 mt-1">
+<span class="inline-flex items-center rounded-md bg-purple-500/20 px-2 py-0.5 text-xs font-medium text-purple-300 ring-1 ring-inset ring-purple-500/30">DF</span>
+<span class="inline-flex items-center rounded-md bg-[#214a36] px-2 py-0.5 text-xs font-medium text-[#8eccae]">29세</span>
+</div>
+</div>
+</div>
+<span class="flex items-center text-xs text-[#8eccae]/70 gap-1 bg-[#152e24] px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                        3일 전
+                                    </span>
+</div>
+<div class="flex-1 space-y-3 mb-6">
+<div class="flex items-center gap-2 text-sm text-[#8eccae]">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>서울시 영등포구 거주</span>
+</div>
+<div class="p-3 rounded-xl bg-[#152e24]/50 border border-white/5">
+<p class="text-gray-300 text-sm leading-relaxed italic">
+                                            "풀백, 센터백 모두 가능합니다. 매너 게임 지향합니다."
+                                        </p>
+</div>
+</div>
+<div class="flex gap-3 mt-auto">
+<button class="flex-1 h-10 flex items-center justify-center rounded-xl bg-primary text-[#0f2319] text-sm font-bold hover:bg-primary/90 transition-colors">
+                                        승인
+                                    </button>
+<button class="flex-1 h-10 flex items-center justify-center rounded-xl bg-transparent border border-red-500/30 text-red-400 text-sm font-bold hover:bg-red-500/10 transition-colors">
+                                        거절
+                                    </button>
+</div>
+</div>
+<!-- Card 5 (Placeholder for visualization of grid) -->
+<div class="glass-card group relative flex flex-col overflow-hidden rounded-2xl p-5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 opacity-60">
+<div class="flex items-start justify-between mb-4">
+<div class="flex gap-4 items-center">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-16 w-16 shadow-inner ring-2 ring-white/10" data-alt="Portrait of applicant Jung Min-ho" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB7WJ2YxObbKcEsLSRgcTyZHv5DQXQ575oLeN50YX30A5mNqCiI5rGdEaQPxF8VSxekPdPNcDhe1QXkp3QurjdIqpR9JSLUpQXhmwC0_CfaqQu_QZpI2mD4y6yTxf9OJpJmrz5-BI4U2E1oP4eMNnhSSW4YV-IPQAouwwHU3r6gFmnLqKKonjsq8mKemE0nGi5deU70CyC0xu1S_Gob__oHQStqLINIKr7Az_W6a4EfVWMjMdJzzEf5Tk8tQJetxYLSxzWfppEiPW2S");'></div>
+<div>
+<h3 class="text-white text-lg font-bold leading-tight">정민호</h3>
+<div class="flex gap-2 mt-1">
+<span class="inline-flex items-center rounded-md bg-blue-500/20 px-2 py-0.5 text-xs font-medium text-blue-300 ring-1 ring-inset ring-blue-500/30">MF</span>
+<span class="inline-flex items-center rounded-md bg-[#214a36] px-2 py-0.5 text-xs font-medium text-[#8eccae]">22세</span>
+</div>
+</div>
+</div>
+<span class="flex items-center text-xs text-[#8eccae]/70 gap-1 bg-[#152e24] px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                        5일 전
+                                    </span>
+</div>
+<div class="flex-1 space-y-3 mb-6">
+<div class="flex items-center gap-2 text-sm text-[#8eccae]">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>서울시 강동구 거주</span>
+</div>
+<div class="p-3 rounded-xl bg-[#152e24]/50 border border-white/5">
+<p class="text-gray-300 text-sm leading-relaxed italic">
+                                            "축구 배운지 얼마 안됐지만 열심히 배우겠습니다."
+                                        </p>
+</div>
+</div>
+<div class="flex gap-3 mt-auto">
+<button class="flex-1 h-10 flex items-center justify-center rounded-xl bg-primary text-[#0f2319] text-sm font-bold hover:bg-primary/90 transition-colors">
+                                        승인
+                                    </button>
+<button class="flex-1 h-10 flex items-center justify-center rounded-xl bg-transparent border border-red-500/30 text-red-400 text-sm font-bold hover:bg-red-500/10 transition-colors">
+                                        거절
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FC Thunder - 팀 상세 페이지</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&amp;family=Noto+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#06e076",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f2319",
+                        "glass-border": "rgba(255, 255, 255, 0.08)",
+                        "glass-bg": "rgba(22, 46, 36, 0.7)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans KR", "sans-serif"],
+                        "sans": ["Inter", "Noto Sans KR", "sans-serif"],
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for squad list */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-card {
+            background: rgba(33, 74, 54, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(142, 204, 174, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display overflow-x-hidden selection:bg-primary selection:text-[#0f2319]">
+<!-- Background Decoration -->
+<div class="fixed inset-0 pointer-events-none z-0">
+<div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px]"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#214a36]/40 rounded-full blur-[120px]"></div>
+</div>
+<!-- Top Navigation -->
+<nav class="sticky top-0 z-50 w-full border-b border-white/5 bg-[#10231a]/80 backdrop-blur-md">
+<div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<!-- Logo & Brand -->
+<div class="flex items-center gap-8">
+<a class="flex items-center gap-3 text-white hover:opacity-90 transition-opacity" href="#">
+<div class="size-8 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_6_535)">
+<path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
+</g>
+<defs>
+<clippath id="clip0_6_535"><rect fill="white" height="48" width="48"></rect></clippath>
+</defs>
+</svg>
+</div>
+<h1 class="text-lg font-bold tracking-tight">Match Archive</h1>
+</a>
+<!-- Desktop Menu -->
+<div class="hidden md:flex items-center gap-8">
+<a class="text-white text-sm font-medium hover:text-primary transition-colors" href="#">매칭 찾기</a>
+<a class="text-white text-sm font-medium hover:text-primary transition-colors" href="#">리그 순위</a>
+<a class="text-primary text-sm font-bold border-b-2 border-primary pb-0.5" href="#">팀 찾기</a>
+<a class="text-white text-sm font-medium hover:text-primary transition-colors" href="#">마이페이지</a>
+</div>
+</div>
+<!-- Search & Profile -->
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex items-center bg-[#214a36]/50 rounded-xl px-3 py-1.5 border border-white/5 focus-within:border-primary/50 transition-colors w-64">
+<span class="material-symbols-outlined text-[#8eccae] text-[20px]">search</span>
+<input class="bg-transparent border-none text-white text-sm placeholder-[#8eccae]/70 focus:ring-0 w-full py-1" placeholder="팀, 선수 검색" type="text"/>
+</div>
+<button class="size-9 rounded-full bg-cover bg-center border border-white/10" data-alt="User profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuACgj5R9XSPqfKHuXFavnU3gSa7HPUZhW4Mhq-aQRxOH5n4DQUeW7Wun_rwEtgoybKWPMAMPJDjQ2wWczd5qVMlaaxeuLKNuzJFiBE9xrZfvA7SHGPAHzpjxOrGPynuOOOuLYOqzah1HxmCt9nn2sjq2rWCvBTVNsdvsFXmz-w5UncQPwP2dMUFb_9pGKZd9XsMjrcHXBNdov0kaumiW6yKxYg44_rTbOH5P3iiVeRFmZAQjzOtMGMtSLaxsbjuGPs4xO4EfYrbtNn5");'></button>
+</div>
+</div>
+</div>
+</nav>
+<main class="relative z-10 flex-1 max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
+<!-- Profile Header Section -->
+<section class="glass-card rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start md:items-center justify-between shadow-lg">
+<div class="flex flex-col md:flex-row gap-6 items-center w-full md:w-auto">
+<!-- Team Emblem -->
+<div class="relative group">
+<div class="size-32 md:size-36 rounded-full bg-gradient-to-br from-[#214a36] to-[#0f2319] p-1 shadow-2xl ring-2 ring-white/10">
+<div class="w-full h-full rounded-full bg-cover bg-center" data-alt="FC Thunder Team Emblem featuring a lightning bolt" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAvAVS-uAue_ohst-PirasYSPxDlsG29plN4j3qAosKRqBTw49s3hnUQBiIdzSJLpKR7EHhBbpWLEH5yRpQBVr_WxJ5dtC-yTI6kRlkA-Uv2eHveavXWDgkWYWf0mAcTxtHnbyzwOz7jSRJ8Od8LMz5s9BiSEA0vJbqk-s1kd03coBTojJ97uUiSUMERoU4CuOdjaccpzDEWFI90DaMd7RmWChjqDhkRw_vbme9BmKJ1OdxrJzbZMBkhBApTOaaF1wx9ZHOgKDyqIh0");'></div>
+</div>
+<div class="absolute bottom-0 right-0 bg-primary text-[#0f2319] text-xs font-bold px-2 py-1 rounded-full border-2 border-[#10231a]">LV. 12</div>
+</div>
+<!-- Team Info -->
+<div class="flex flex-col items-center md:items-start text-center md:text-left">
+<div class="flex items-center gap-3 mb-1">
+<h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">FC Thunder</h2>
+<span class="material-symbols-outlined text-primary" title="인증된 팀">verified</span>
+</div>
+<p class="text-[#8eccae] text-base mb-4 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">location_on</span>
+                        서울 송파구 · 2021년 설립
+                    </p>
+<div class="flex gap-2 text-sm text-gray-300">
+<span class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5">#매너팀</span>
+<span class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5">#주말오전</span>
+<span class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5">#2030</span>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
+<button class="flex-1 sm:flex-none h-12 px-8 rounded-xl bg-primary hover:bg-primary/90 text-[#0f2319] font-bold text-base transition-all shadow-[0_0_20px_rgba(6,224,118,0.2)] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">person_add</span>
+                    가입 신청
+                </button>
+<button class="flex-1 sm:flex-none h-12 px-6 rounded-xl bg-[#214a36] hover:bg-[#2b5d45] text-white font-semibold text-base transition-all border border-white/5 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+                    문의하기
+                </button>
+</div>
+</section>
+<!-- Stats Grid (Feature Section) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Win Rate -->
+<div class="glass-card p-5 rounded-xl flex flex-col justify-between h-32 relative overflow-hidden group">
+<div class="absolute right-[-10px] top-[-10px] bg-primary/20 w-24 h-24 rounded-full blur-2xl group-hover:bg-primary/30 transition-colors"></div>
+<div class="flex items-start justify-between">
+<p class="text-[#8eccae] text-sm font-medium">통산 승률</p>
+<span class="material-symbols-outlined text-primary text-xl">trophy</span>
+</div>
+<div>
+<span class="text-3xl font-bold text-white">65.4%</span>
+<p class="text-xs text-gray-400 mt-1">26전 17승 5무 4패</p>
+</div>
+</div>
+<!-- Recent Form -->
+<div class="glass-card p-5 rounded-xl flex flex-col justify-between h-32">
+<p class="text-[#8eccae] text-sm font-medium mb-2">최근 5경기</p>
+<div class="flex items-center gap-2">
+<div class="size-8 rounded-full bg-primary flex items-center justify-center text-[#0f2319] font-bold text-xs shadow-lg shadow-primary/20">W</div>
+<div class="size-8 rounded-full bg-primary flex items-center justify-center text-[#0f2319] font-bold text-xs shadow-lg shadow-primary/20">W</div>
+<div class="size-8 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold text-xs">L</div>
+<div class="size-8 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold text-xs">D</div>
+<div class="size-8 rounded-full bg-primary flex items-center justify-center text-[#0f2319] font-bold text-xs shadow-lg shadow-primary/20">W</div>
+</div>
+<p class="text-xs text-gray-400 mt-1 text-right">최근 컨디션 좋음 🔥</p>
+</div>
+<!-- Goals -->
+<div class="glass-card p-5 rounded-xl flex flex-col justify-between h-32">
+<div class="flex items-start justify-between">
+<p class="text-[#8eccae] text-sm font-medium">경기당 평균 득점</p>
+<span class="material-symbols-outlined text-[#8eccae] text-xl">sports_soccer</span>
+</div>
+<div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-bold text-white">2.4</span>
+<span class="text-sm text-primary font-medium">골</span>
+</div>
+<p class="text-xs text-gray-400 mt-1">총 득점 62 / 실점 28</p>
+</div>
+</div>
+<!-- Next Match -->
+<div class="glass-card p-5 rounded-xl flex flex-col justify-between h-32 border-l-4 border-l-primary">
+<p class="text-[#8eccae] text-sm font-medium">다음 경기 일정</p>
+<div>
+<p class="text-white font-bold truncate">vs. 강동 유나이티드</p>
+<p class="text-sm text-gray-300 mt-1">11.18 (토) 08:00</p>
+<p class="text-xs text-[#8eccae] mt-1">올림픽공원 제2구장</p>
+</div>
+</div>
+</section>
+<!-- Main Content Split -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Left Column: About & Info -->
+<div class="lg:col-span-2 flex flex-col gap-6">
+<!-- About Card -->
+<section class="glass-card rounded-2xl p-6 md:p-8">
+<h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+<span class="w-1 h-6 bg-primary rounded-full"></span>
+                        팀 소개
+                    </h3>
+<div class="prose prose-invert prose-p:text-gray-300 max-w-none">
+<p class="leading-relaxed text-base">
+                            안녕하세요! <strong>FC Thunder</strong>는 축구를 사랑하는 2030 직장인들이 모여 만든 팀입니다. 
+                            승리도 중요하지만 부상 없이 즐겁게 차는 것을 최우선으로 생각합니다.
+                        </p>
+<p class="leading-relaxed text-base mt-4">
+                            주로 송파구 일대에서 활동하며, 월 2~3회 정기 매치와 분기별 자체 리그를 진행하고 있습니다. 
+                            실력보다는 열정과 매너를 갖춘 분들을 환영합니다. 함께 땀 흘리며 즐거운 주말을 만들어봐요!
+                        </p>
+</div>
+<div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+<!-- Info Item -->
+<div class="p-4 rounded-xl bg-black/20 border border-white/5">
+<p class="text-[#8eccae] text-xs font-medium mb-1">주 활동 지역</p>
+<p class="text-white text-sm font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">map</span>
+                                서울 송파구 및 강동구
+                            </p>
+</div>
+<!-- Info Item -->
+<div class="p-4 rounded-xl bg-black/20 border border-white/5">
+<p class="text-[#8eccae] text-xs font-medium mb-1">주 활동 시간</p>
+<p class="text-white text-sm font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+                                토요일 08:00 - 12:00
+                            </p>
+</div>
+<!-- Info Item -->
+<div class="p-4 rounded-xl bg-black/20 border border-white/5">
+<p class="text-[#8eccae] text-xs font-medium mb-1">회비</p>
+<p class="text-white text-sm font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">payments</span>
+                                월 3만원 (유니폼 별도)
+                            </p>
+</div>
+<!-- Info Item -->
+<div class="p-4 rounded-xl bg-black/20 border border-white/5">
+<p class="text-[#8eccae] text-xs font-medium mb-1">모집 포지션</p>
+<p class="text-white text-sm font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">groups</span>
+                                GK 1명, MF 2명
+                            </p>
+</div>
+</div>
+</section>
+<!-- Match History List (Preview) -->
+<section class="glass-card rounded-2xl p-6 md:p-8">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-xl font-bold text-white flex items-center gap-2">
+<span class="w-1 h-6 bg-primary rounded-full"></span>
+                            최근 경기 기록
+                        </h3>
+<a class="text-xs text-[#8eccae] hover:text-white transition-colors flex items-center" href="#">
+                            더보기 <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</a>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Match Item 1 -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-black/20 border border-white/5 hover:bg-black/30 transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-center justify-center w-12 py-1 rounded bg-[#214a36]/50 text-xs font-bold text-[#8eccae]">
+<span>NOV</span>
+<span class="text-lg text-white">11</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-white font-bold">VS. 레드 데빌즈</span>
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary font-bold border border-primary/30">WIN</span>
+</div>
+<p class="text-xs text-gray-400 mt-1">4 - 2 승리 · MVP: 김철수</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-gray-600 group-hover:text-white transition-colors">arrow_forward</span>
+</div>
+<!-- Match Item 2 -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-black/20 border border-white/5 hover:bg-black/30 transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-center justify-center w-12 py-1 rounded bg-[#214a36]/50 text-xs font-bold text-[#8eccae]">
+<span>NOV</span>
+<span class="text-lg text-white">04</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-white font-bold">VS. 송파 FC</span>
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-gray-300 font-bold border border-white/10">DRAW</span>
+</div>
+<p class="text-xs text-gray-400 mt-1">2 - 2 무승부</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-gray-600 group-hover:text-white transition-colors">arrow_forward</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Squad & Media -->
+<div class="flex flex-col gap-6">
+<!-- Squad Preview -->
+<section class="glass-card rounded-2xl p-6 h-fit">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold text-white">팀 멤버 <span class="text-[#8eccae] text-base font-normal ml-1">24</span></h3>
+<a class="text-xs text-[#8eccae] hover:text-white" href="#">전체보기</a>
+</div>
+<!-- Captain Highlight -->
+<div class="flex items-center gap-4 mb-6 bg-gradient-to-r from-primary/20 to-transparent p-3 rounded-xl border border-primary/10">
+<div class="relative">
+<div class="size-12 rounded-full bg-cover bg-center" data-alt="Team Captain Profile Picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDQuFPqTlQMxhaWi3YNKVJwZrPqefeD8RQmnXH0PUcXU4QkSUrQ4VeLpsGDV7RTEZZr1HgbmW2vCIfI-r5u-OJsPTqibGhLEn0pluNAcvA0oeRUrAhdcx3OrX6lu3uf9KjLbn7Gicr3DyKlCmXdkpBHmSLUYLPLhUpf1vUCIkUrYoQUzncyYRUAyERMoEPdE8Br8pZTTHPXH5u64VFqSdkFbNT4bjWQ-vksoggDGc8X1xyr0MLBeitqK1jFGoPQju5GWIsWBYpR3nBJ");'></div>
+<div class="absolute -bottom-1 -right-1 bg-[#ffbf00] text-black rounded-full p-0.5 border border-[#10231a]">
+<span class="material-symbols-outlined text-[12px] block">star</span>
+</div>
+</div>
+<div>
+<p class="text-xs text-primary font-bold uppercase tracking-wider">Captain</p>
+<p class="text-white font-bold text-sm">김철수</p>
+<p class="text-xs text-gray-400">MF · 3년차</p>
+</div>
+</div>
+<!-- Member Grid -->
+<div class="grid grid-cols-4 gap-3">
+<!-- Member 1 -->
+<div class="flex flex-col items-center gap-1">
+<div class="size-10 rounded-full bg-cover bg-center border border-white/10" data-alt="Member 1" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDbw-B_IagyFUC-Qv3SjICUmb2LFYoWkpa5XJIoHjpzEwFN0lJlezNSA1wHgjIqCJ-iWNpiS3XPIdeBo5UgiWbV_a8C5OwZehauUAphXZ2-8IAk0z0U-jwf2P7EJWtATA4HGSdfucuzAg3weeBUtABmW_9LsEHKmrq15hvrmTTj-TSlxhTqlh7SbLRU92J0RS-9FiE1nB3PjZXkOz8lRfHzgPuaSLFXIHH6nUQpT8kXfNowVWgSngw36f1RTsaQpJ69Xj21JLUeVKqO");'></div>
+<span class="text-[10px] text-gray-300 truncate w-full text-center">이민호</span>
+</div>
+<!-- Member 2 -->
+<div class="flex flex-col items-center gap-1">
+<div class="size-10 rounded-full bg-cover bg-center border border-white/10" data-alt="Member 2" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuACUmODMCM8FspHfOGukm7aOrl5F69qwVFeU4RBf3nvsADUsEhbiy0842CDvWxDpLraPA6t85Up-FcEG7ruZZNH6p2TzYlDWcDFxvJgwbp9AzrRr930nXpRTzhzlJOrbKfDRLc-OMxffyr5DXXkENK8SdjM49UxCAdln1Xh6RtxM4F_KofGhTzqGqRYMFS5doFKd90zACGrooNAXtwZUsJRY4GlCrheXbSRzCIaoAPdGn2OSk-s-phhREuDZzOFQ2Rm99w2-rAyb-n2");'></div>
+<span class="text-[10px] text-gray-300 truncate w-full text-center">박지성</span>
+</div>
+<!-- Member 3 -->
+<div class="flex flex-col items-center gap-1">
+<div class="size-10 rounded-full bg-cover bg-center border border-white/10" data-alt="Member 3" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDHq5EpDpxE0OC4NmRASrtwZOzQnT_Jw7hlVmeeB3vLQoHfg-GcR-8nhecOmd93ig3qKvZvBwKm1A1fIACF68mLMm2PA2UBCoYt0B7fPQtQRNJwko2SQHAMCDc3ANlUfdKqMz4leTFO-Gm5JxjFfCrAOhMCLPm10W-vzZUkrbK3i0fCg9LMf4h_d-GPNbOWK9Xx4ENQGAv-adZe970XVI9NueKZEbAmoyC9RfWL9sWte4HoBHs7voWZHbcO39vW1cxPzZnpU7sIrIN2");'></div>
+<span class="text-[10px] text-gray-300 truncate w-full text-center">최유리</span>
+</div>
+<!-- More Indicator -->
+<div class="flex flex-col items-center gap-1">
+<div class="size-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs text-gray-400 font-medium">
+                                +20
+                            </div>
+<span class="text-[10px] text-gray-300 opacity-0">.</span>
+</div>
+</div>
+</section>
+<!-- Gallery / Media -->
+<section class="glass-card rounded-2xl p-6">
+<h3 class="text-lg font-bold text-white mb-4">활동 갤러리</h3>
+<div class="grid grid-cols-2 gap-2">
+<div class="aspect-square rounded-lg bg-cover bg-center hover:opacity-90 cursor-pointer transition-opacity" data-alt="Soccer match action shot" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBfyeyghtswFht1D-uxTRuR1mHSfY72c1msW88mEMCFfe8LRu7tmSofd_gxjnMmVCY980wIiiXE-1ayH4jH7ME7P5P4x9o3Wc_wRgXBg9jXDibGvDicqJB0gOFV6_tRvv-ISlDVxXv9x9J1MIz9D1hxS9IgWnWrkYPNMkb64sfgsolqKNPMGxoWWnjO7DNQ1gpw6XaWwvl_p2mBFWuQUV-7Xqt0nWtehs_-F0HstF9tT2yksO6XP7YfTmxIwhgs7iy-A1XvlXH867wI");'></div>
+<div class="aspect-square rounded-lg bg-cover bg-center hover:opacity-90 cursor-pointer transition-opacity" data-alt="Team huddle before game" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD-oYzOcW0QEfXlX0zHm0ZTTpSlFN0JnO-eDpdiVVsVJGUVcQHXRgbVXc6Mi5wcCCAvOurc9NPe38-_aFt7gx-v_9dnPPhbKbP2fBQDYoWzEs6l2bEbxvXILIdH4uuTAaApAwKxqCzciYecLKzcP7t0O0_MnsSPOYGNv6Kia3f_S89OQPfNjxLoscNe4iZI5SMr4T3ZqLvqtIU_wWkcCD7bgl_seoifrzbiDH0ErDhmekX6hblig-3xW9PvzFeRr1HmkX72EEIOyuGl");'></div>
+<div class="aspect-square rounded-lg bg-cover bg-center hover:opacity-90 cursor-pointer transition-opacity" data-alt="Goal celebration" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuApYEdc0YbHkmq3o1Z73KTI4Zf_swBicUTbYRojn82Rk0lhhyPwHvbG_VBbM7kArtXupRG73KGJANJVni1ea5gZCTjQYge_JXHg5_iAbF8VUVJzQbDjJwUQHLhH2dhV0uLvDR5oq5kdZCJqlly_ubHHomtQvLyGNCPuVYQdXJi52T4qQGMRXfrp_PDiM0dY7y9I1yNvOlPD4n4YNgLtFLILhxTJWVfxZBf1huVTnPmcbKMeN_4fk0N5uD4oAscWx4KnqQ_UM416uvbK");'></div>
+<div class="aspect-square rounded-lg bg-black/40 border border-white/5 flex items-center justify-center cursor-pointer hover:bg-black/50 transition-colors">
+<span class="text-sm text-[#8eccae]">더보기</span>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="mt-12 border-t border-white/5 py-8 bg-[#0a1811]">
+<div class="max-w-[1280px] mx-auto px-4 text-center">
+<p class="text-[#8eccae]/50 text-sm">© 2023 Match Archive. All rights reserved.</p>
+</div>
+</footer>
+</body></html>

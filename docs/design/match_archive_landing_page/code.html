@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>매치 아카이브 - 아마추어 경기를 한 단계 더 높이세요</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00e677",
+                        "primary-dark": "#00cc6a",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f2319", 
+                        "surface-dark": "#162e23",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                    backgroundImage: {
+                        'glass-gradient': 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%)',
+                        'glow-gradient': 'radial-gradient(circle at center, rgba(0, 230, 119, 0.15) 0%, rgba(15, 35, 25, 0) 70%)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>.glass-panel {
+            background: rgba(22, 46, 35, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-nav {
+            background: rgba(15, 35, 25, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .text-glow {
+            text-shadow: 0 0 20px rgba(0, 230, 119, 0.3);
+        }
+        .card-hover:hover {
+            border-color: rgba(0, 230, 119, 0.4);
+            box-shadow: 0 0 30px rgba(0, 230, 119, 0.1);
+            transform: translateY(-2px);
+        }.material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+             font-variation-settings: 'FILL' 1;
+        }body {
+            word-break: keep-all;
+        }
+    </style>
+</head>
+<body class="bg-background-dark text-white font-display antialiased selection:bg-primary selection:text-background-dark overflow-x-hidden">
+<nav class="fixed top-0 left-0 right-0 z-50 glass-nav h-16 transition-all duration-300">
+<div class="layout-container h-full flex items-center justify-between px-4 md:px-10 lg:px-40 max-w-[1440px] mx-auto">
+<div class="flex items-center gap-4 text-white">
+<div class="size-8 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined !text-[32px]">sports_soccer</span>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-tight">Match Archive</h2>
+</div>
+<div class="hidden md:flex flex-1 justify-end gap-8 items-center">
+<div class="flex items-center gap-8">
+<a class="text-gray-300 hover:text-white text-sm font-medium transition-colors" href="#features">기능</a>
+<a class="text-gray-300 hover:text-white text-sm font-medium transition-colors" href="#stats">통계</a>
+<a class="text-gray-300 hover:text-white text-sm font-medium transition-colors" href="#reviews">후기</a>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center justify-center overflow-hidden rounded-xl h-9 px-4 hover:bg-white/5 text-white text-sm font-bold transition-colors">
+<span class="truncate">로그인</span>
+</button>
+<button class="flex items-center justify-center overflow-hidden rounded-xl h-9 px-5 bg-primary hover:bg-primary-dark text-background-dark text-sm font-bold shadow-[0_0_15px_rgba(0,230,119,0.3)] transition-all">
+<span class="truncate">회원가입</span>
+</button>
+</div>
+</div>
+<button class="md:hidden text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</nav>
+<main class="flex flex-col min-h-screen pt-16">
+<section class="relative w-full flex justify-center py-12 md:py-24 lg:py-32 overflow-hidden">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-4xl bg-glow-gradient opacity-60 pointer-events-none z-0"></div>
+<div class="layout-content-container flex flex-col max-w-[1280px] w-full px-4 md:px-10 lg:px-40 z-10">
+<div class="@container">
+<div class="flex flex-col gap-10 px-4 py-6 @[480px]:gap-12 @[864px]:flex-row items-center">
+<div class="flex flex-col gap-6 @[480px]:min-w-[400px] @[480px]:gap-8 flex-1">
+<div class="flex flex-col gap-4 text-left">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 w-fit">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-primary text-xs font-bold uppercase tracking-wider">라이브 베타</span>
+</div>
+<h1 class="text-white text-4xl font-black leading-[1.1] tracking-[-0.033em] @[480px]:text-5xl lg:text-6xl break-keep">
+                                    당신의 아마추어 경기를 <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-teal-400">한 단계 높이세요.</span>
+</h1>
+<h2 class="text-gray-400 text-lg font-normal leading-relaxed max-w-xl break-keep">
+                                    흩어진 아마추어 축구 기록을 체계적으로 관리하고, 데이터 기반으로 즐기는 축구 라이프
+                                </h2>
+</div>
+<div class="flex flex-wrap gap-4">
+<button class="flex min-w-[140px] cursor-pointer items-center justify-center rounded-xl h-12 px-6 bg-primary hover:bg-primary-dark text-background-dark text-base font-bold shadow-[0_0_20px_rgba(0,230,119,0.4)] hover:shadow-[0_0_30px_rgba(0,230,119,0.6)] transition-all transform hover:-translate-y-0.5">
+<span class="truncate">시즌 시작하기</span>
+</button>
+<button class="flex min-w-[140px] cursor-pointer items-center justify-center rounded-xl h-12 px-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-base font-bold backdrop-blur-sm transition-all">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">play_circle</span>
+<span class="truncate">데모 보기</span>
+</span>
+</button>
+</div>
+<div class="flex items-center gap-4 mt-2">
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-full border-2 border-background-dark bg-gray-700 bg-cover bg-center" data-alt="Female soccer player portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDG7eTu0vpSLo77Q1dGyI8DRmCth1AqtLryEgr73ojyX8xl06cSB0Z5_KINWZ4JdKp0pN_vTBUhejZYYJNiBWRmga9s5o7NT5Y-gopOthXAH-VeqNxof1B1_rtEW-64wogeH6_2TRZ7zP_kigAN-rrxxkPAM6hr_XZn97SlrWsSrmjUvwouQ8rvGHkRa7EviItPTtKZb3yER3jinowVzeMq8nHN_YUkSYSmZ3Xj-rE1VspFN_9d-DC9iVXJ8yEpxSQs5UkdVkaeNwEi");'></div>
+<div class="w-10 h-10 rounded-full border-2 border-background-dark bg-gray-700 bg-cover bg-center" data-alt="Male soccer player portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAUcOJHwQaj2Y2d9w3i7pqHq1HVwbEqn64uiJdQ9APJWPoew1NS-DOvaCqjxqEhaRrqJpvx-m7hD0aJGmS0LXDpk5B06EDtthkEd2B_TjPKDMfC0ePhpMFRRIvNq3HuIFeFHQxx_Vowc4EicIK59NbY5Ca_CKIJZDIc8DG_Wg6hq1cX91rMtaCMKHfFVNKmdwVcL7V_RYRNZz6AThGDyXXw3FE5JYswxgQ2DOBZISHvtZ0JpihAG63edrS5-b2PvXgfrmrwbQ5l9B3s");'></div>
+<div class="w-10 h-10 rounded-full border-2 border-background-dark bg-gray-700 bg-cover bg-center" data-alt="Male athlete portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCrX5DU3Yy_ZxooMUCr-fYSOH1_-hlyh0sSEzFF2WHkADh2-KAIqsgjJU5-0wwn2ojy4G7LPyMOC5IHjRNf7nE6i9q-cu1W_o7dhjO3lpvOZWkLuGg6oCYp_gNtIfSIiIa4g3zfaRwOQgLUtyZSLDlZ0LMemhEn2bo-fpBSLrPVL0nUeRmdCsUpP2Ayq1byJrvSP4hb2aPYUWnk3RHm7eiWA_NPttOCcS65UqJGwoy9mn5kkYNVRWPlSpycKIR7EPjRhCdfoT3frrKF");'></div>
+<div class="w-10 h-10 rounded-full border-2 border-background-dark bg-primary flex items-center justify-center text-background-dark font-bold text-xs">+500</div>
+</div>
+<p class="text-gray-400 text-sm">개의 팀이 이미 함께하고 있습니다</p>
+</div>
+</div>
+<div class="w-full flex-1 mt-8 @[864px]:mt-0 relative group">
+<div class="absolute -inset-1 bg-gradient-to-r from-primary to-teal-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+<div class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden glass-panel">
+<div class="absolute inset-0 bg-cover bg-center opacity-80 mix-blend-overlay" data-alt="Dark soccer stadium at night with bright floodlights" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAGkfk4ZuhOIODFZhPiRlknZRpe_5WgVd3m4sP6qe_itMIuV3HC7xoO-j1OZaN6lIU4cTgVJbXq46dPlnoYNMiGHmVWh_S0YfZi2i2QxylFQm8C3F_KZiqHLdP6VRoBMQSzdE5snrQCBke2YvHQouqhePociOfotSG7D00rZ29jj7foGfwmY_cyZKF9uO3TX26u0IRfcR_yxIaTEPbvEtgb8jaZTMvSzDCdACeG_OCEssDOOsbynqQXs7CdjkMRLcXsj7sgA0EgTHt1");'></div>
+<div class="absolute bottom-4 left-4 right-4 bg-background-dark/90 backdrop-blur-md rounded-xl p-4 border border-white/10 shadow-2xl">
+<div class="flex justify-between items-center mb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+<span class="text-xs font-bold text-gray-300 uppercase">실시간 경기</span>
+</div>
+<span class="text-xs text-primary font-mono">87:12</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="text-white font-bold text-lg">FC Rockets</div>
+<div class="bg-black/50 px-3 py-1 rounded text-2xl font-mono text-white tracking-widest border border-white/5">2 - 1</div>
+<div class="text-white font-bold text-lg text-right">United City</div>
+</div>
+<div class="mt-3 h-1 w-full bg-gray-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%]"></div>
+</div>
+<div class="flex justify-between text-[10px] text-gray-500 mt-1 uppercase">
+<span>점유율</span>
+<span>65%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="relative w-full bg-background-dark py-16 md:py-24" id="features">
+<div class="layout-container flex flex-col items-center">
+<div class="layout-content-container max-w-[1280px] w-full px-4 md:px-10 lg:px-40">
+<div class="flex flex-col gap-10 @container">
+<div class="flex flex-col gap-4 text-center items-center">
+<h2 class="text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">
+                                모두를 위한 <span class="text-primary">프로급 분석 도구</span>
+</h2>
+<p class="text-gray-400 text-base md:text-lg font-normal leading-relaxed max-w-2xl break-keep">
+                                최고의 클럽처럼 팀을 관리하는 데 필요한 모든 것을 세련된 인터페이스에 담았습니다.
+                            </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="glass-panel p-6 rounded-2xl flex flex-col gap-4 card-hover transition-all duration-300 group">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-background-dark transition-colors">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<div class="flex flex-col gap-2">
+<h3 class="text-white text-xl font-bold leading-tight">경기 분석</h3>
+<p class="text-gray-400 text-sm leading-relaxed break-keep">
+                                        히트맵, 패스 네트워크 등 자동으로 생성되는 전문 시각화 자료를 통해 퍼포먼스 데이터를 심층 분석하세요.
+                                    </p>
+</div>
+</div>
+<div class="glass-panel p-6 rounded-2xl flex flex-col gap-4 card-hover transition-all duration-300 group">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-background-dark transition-colors">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<div class="flex flex-col gap-2">
+<h3 class="text-white text-xl font-bold leading-tight">선수단 관리</h3>
+<p class="text-gray-400 text-sm leading-relaxed break-keep">
+                                        팀 로스터를 정리하고, 다가오는 경기 참석 여부를 확인하며, 포지션을 손쉽게 관리하세요.
+                                    </p>
+</div>
+</div>
+<div class="glass-panel p-6 rounded-2xl flex flex-col gap-4 card-hover transition-all duration-300 group">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-background-dark transition-colors">
+<span class="material-symbols-outlined">inventory_2</span>
+</div>
+<div class="flex flex-col gap-2">
+<h3 class="text-white text-xl font-bold leading-tight">히스토리 아카이브</h3>
+<p class="text-gray-400 text-sm leading-relaxed break-keep">
+                                        모든 경기 결과, 득점자, 어시스트를 영구적인 디지털 기록으로 남겨 논쟁을 종결하세요.
+                                    </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="w-full py-10" id="stats">
+<div class="layout-container flex justify-center">
+<div class="layout-content-container max-w-[1280px] w-full px-4 md:px-10 lg:px-40">
+<div class="relative rounded-3xl overflow-hidden min-h-[400px] flex flex-col justify-end group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="Close up of a soccer ball on grass at night with stadium lights bokeh" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuArTOXu7mfj5M0QSD32kEoKO8eX0yvytf54-q0vy7wrByhlIp1G4J2p9QCI7oVPHhV63bu6YWa_yZvDS-rw9jZebIH_08q9ZY29OyVfamQbJ2PiK8JowSCSSgNiMYgtCMFrzKh3CeT8i4ViOwYLflEAGdOGjdoFyezEgxP2qzhYH8r5PvB8YopMWknZFpEVGEXS2ZcfGig0sKcIazYWQbPxOvAA6dS6tcWYxg-YKmZDOe9-bXJJfCNN8emlHahXCSeP7kEkbbe6pxZB");'>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/50 to-transparent"></div>
+<div class="relative z-10 p-8 md:p-12 flex flex-col md:flex-row justify-between items-end gap-6">
+<div class="max-w-xl">
+<h2 class="text-white text-3xl md:text-4xl font-black mb-4">데이터로 즐기는 축구 라이프</h2>
+<p class="text-gray-300 text-lg break-keep">
+                                    모든 태클, 패스, 골을 의미 있는 인사이트로 바꾸세요. 시즌의 성장을 전에 없던 방식으로 시각화하세요.
+                                </p>
+</div>
+<button class="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur border border-white/20 text-white font-bold transition-all">
+<span>샘플 프로필 보기</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="relative w-full py-16 md:py-24 bg-background-dark" id="reviews">
+<div class="layout-container flex justify-center">
+<div class="layout-content-container max-w-[1280px] w-full px-4 md:px-10 lg:px-40">
+<div class="flex flex-col gap-10">
+<div class="flex items-center justify-between">
+<h2 class="text-white text-2xl md:text-3xl font-bold">매니저 피드백</h2>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 text-white transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 text-white transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="glass-panel p-6 rounded-xl flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-primary/30" data-alt="Profile picture of Alex Johnson" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDF3tGm9_XhuekAbLc6F4-5XKFUhicvHTiwfL7HhpPwOTB7j51R_t28r0oCPNY8_w-i7k1JnJMfc4R4BivceZv_TlrPx7BKeXkaslv067DPG_NIueC9cpIp2gaYX5yUghsCX91kvIDQeX7gCfSGrEPRKd2LvVik3LRZi2R3xWZIMlgm5xD5dO-5SMhbA7OInea1M0f9YhoFzmV7gmviKRifOjlgD3hsn1nuwX8BO9Rjo0oY9wpYqNnlZq6P-XQh0g5rUkfK676Q0gJ5");'></div>
+<div class="flex-1">
+<p class="text-white text-base font-bold">알렉스 존슨</p>
+<p class="text-gray-500 text-xs">조기축구회 매니저</p>
+</div>
+</div>
+<div class="flex gap-0.5 text-primary">
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+</div>
+<p class="text-gray-300 text-sm leading-relaxed break-keep">"이 앱은 우리 팀 운영 방식을 완전히 바꿨습니다. 통계 기능은 정말 놀랍고, 팀원들도 자신의 데이터를 보는 것을 좋아해요."</p>
+</div>
+<div class="glass-panel p-6 rounded-xl flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-primary/30" data-alt="Profile picture of Sarah Miller" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD0I8lfG6NOvYIAt6XZkxjHJPJtnd3dshm999bupjA7tZ7uaEnyK1G9XeZJsA-o-MFjlHKMrU8w5Cz9HZDOrQnYBUZDyFifrZeS5a6pSf5vjeil3myP1csGwQDt4LgXSGtRCWmXb6c5MXuBuvO-m9mRFLcbRi6H6Si0SrzhJbGGsLzUs9VYGBgCtw7CPDhZLSEAnsJaL5cbVIghMXkAQwcNl3ErCQB0mr5fyXct6s0fGMn86TD7G8_vw1akr7XgbFhfrk8zDbJGF4eW");'></div>
+<div class="flex-1">
+<p class="text-white text-base font-bold">사라 밀러</p>
+<p class="text-gray-500 text-xs">리그 코디네이터</p>
+</div>
+</div>
+<div class="flex gap-0.5 text-primary">
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+</div>
+<p class="text-gray-300 text-sm leading-relaxed break-keep">"디자인이 마음에 들고 선수 참석 여부 관리가 정말 편합니다. 더 이상 메신저로 선수들을 쫓아다닐 필요가 없어요."</p>
+</div>
+<div class="glass-panel p-6 rounded-xl flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-primary/30" data-alt="Profile picture of David Chen" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuADnlBLyk1tUACQmcMlxm7c0j_uNUFahOfb1nXEz2SgYtDFnGheVds4cYPEfvx5SDWgwN1R-BIRbeOuWhpZufjvLkkQMRL5nEScNIGzGIdDozg1a9WYMvEiuZaCoteaPiMcNpf2T5mI19EYw6cGytqzA2K4LdE5W0cwo0vcnr3RWe5IyV1-XSaDADfLfZE3UVm_cehu07w6iNq0oWp_-B6N4F-USG-8vR_ts2-3Fkz5qrMgZ1GMoPNRs68SYVLG3IzxmOrL3M8YnaFS");'></div>
+<div class="flex-1">
+<p class="text-white text-base font-bold">데이비드 첸</p>
+<p class="text-gray-500 text-xs">팀 주장</p>
+</div>
+</div>
+<div class="flex gap-0.5 text-primary">
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+<span class="material-symbols-outlined icon-fill text-[20px]">star</span>
+<span class="material-symbols-outlined text-[20px]">star</span>
+</div>
+<p class="text-gray-300 text-sm leading-relaxed break-keep">"드디어 우리 경기 기록을 전문적으로 관리할 방법이 생겼습니다. 히스토리 아카이브 기능은 딱 우리에게 필요한 것이었어요."</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-16">
+<div class="layout-container flex justify-center">
+<div class="layout-content-container max-w-[960px] w-full px-4 md:px-10 lg:px-40">
+<div class="glass-panel rounded-3xl p-10 text-center relative overflow-hidden">
+<div class="absolute inset-0 bg-primary/5"></div>
+<div class="relative z-10 flex flex-col items-center gap-6">
+<h2 class="text-3xl md:text-5xl font-black text-white">킥오프 준비되셨나요?</h2>
+<p class="text-gray-300 text-lg max-w-lg break-keep">오늘 바로 수천 명의 아마추어 선수들과 함께 수준 높은 경기를 시작하세요.</p>
+<button class="flex min-w-[180px] cursor-pointer items-center justify-center rounded-xl h-14 px-8 bg-primary hover:bg-primary-dark text-background-dark text-lg font-bold shadow-[0_0_25px_rgba(0,230,119,0.5)] transition-all">
+                                무료 계정 만들기
+                            </button>
+<p class="text-xs text-gray-500">기본 팀 생성에는 신용카드가 필요하지 않습니다.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<footer class="border-t border-white/10 bg-background-dark pt-12 pb-8">
+<div class="layout-container flex flex-col max-w-[1280px] mx-auto px-4 md:px-10 lg:px-40">
+<div class="flex flex-col md:flex-row justify-between gap-10 mb-12">
+<div class="flex flex-col gap-4 max-w-xs">
+<div class="flex items-center gap-2 text-white">
+<div class="size-6 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">sports_soccer</span>
+</div>
+<h3 class="text-lg font-bold">Match Archive</h3>
+</div>
+<p class="text-gray-500 text-sm break-keep">전문 데이터 도구로 아마추어 축구를 혁신합니다. 당신만의 레거시를 만드세요.</p>
+</div>
+<div class="flex gap-16 flex-wrap">
+<div class="flex flex-col gap-4">
+<h4 class="text-white font-bold text-sm uppercase tracking-wider">제품</h4>
+<a class="text-gray-400 hover:text-primary text-sm transition-colors" href="#">기능</a>
+<a class="text-gray-400 hover:text-primary text-sm transition-colors" href="#">가격</a>
+<a class="text-gray-400 hover:text-primary text-sm transition-colors" href="#">연동</a>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-white font-bold text-sm uppercase tracking-wider">회사</h4>
+<a class="text-gray-400 hover:text-primary text-sm transition-colors" href="#">회사 소개</a>
+<a class="text-gray-400 hover:text-primary text-sm transition-colors" href="#">채용</a>
+<a class="text-gray-400 hover:text-primary text-sm transition-colors" href="#">블로그</a>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-white font-bold text-sm uppercase tracking-wider">지원</h4>
+<a class="text-gray-400 hover:text-primary text-sm transition-colors" href="#">고객센터</a>
+<a class="text-gray-400 hover:text-primary text-sm transition-colors" href="#">이용약관</a>
+<a class="text-gray-400 hover:text-primary text-sm transition-colors" href="#">개인정보처리방침</a>
+</div>
+</div>
+</div>
+<div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-white/5">
+<p class="text-gray-600 text-xs">© 2023 Match Archive Inc. All rights reserved.</p>
+<div class="flex gap-4">
+<a class="text-gray-500 hover:text-white transition-colors" href="#"><span class="sr-only">Twitter</span><span class="material-symbols-outlined text-sm">public</span></a>
+<a class="text-gray-500 hover:text-white transition-colors" href="#"><span class="sr-only">Instagram</span><span class="material-symbols-outlined text-sm">photo_camera</span></a>
+<a class="text-gray-500 hover:text-white transition-colors" href="#"><span class="sr-only">LinkedIn</span><span class="material-symbols-outlined text-sm">work</span></a>
+</div>
+</div>
+</div>
+</footer>
+</main>
+
+</body></html>

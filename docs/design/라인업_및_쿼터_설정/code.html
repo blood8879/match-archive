@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Match Archive - 라인업 설정</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Noto+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#06e076",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f2319",
+                        "surface-dark": "#162e24", // Slightly lighter for sidebar/cards
+                        "glass-border": "rgba(255, 255, 255, 0.08)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans KR", "sans-serif"],
+                        "sans": ["Inter", "Noto Sans KR", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f2319; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #214a36; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06e076; 
+        }
+        
+        .glass-panel {
+            background: rgba(22, 46, 36, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden">
+<div class="relative flex h-screen w-full flex-row overflow-hidden">
+<!-- Side Navigation -->
+<aside class="hidden w-72 flex-col border-r border-[#214a36] bg-background-dark lg:flex z-20">
+<div class="flex h-full flex-col justify-between p-4">
+<div class="flex flex-col gap-8">
+<div class="flex flex-col px-3">
+<h1 class="text-white text-xl font-bold leading-normal tracking-tight">Match Archive</h1>
+<p class="text-[#8eccae] text-xs font-normal leading-normal mt-1">Admin Console</p>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<p class="text-sm font-medium leading-normal">대시보드</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-[#214a36] text-white shadow-lg shadow-[#06e076]/10 border border-[#06e076]/20" href="#">
+<span class="material-symbols-outlined text-primary">calendar_month</span>
+<p class="text-sm font-bold leading-normal">경기 관리</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<p class="text-sm font-medium leading-normal">팀원 관리</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<p class="text-sm font-medium leading-normal">전술 게시판</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<p class="text-sm font-medium leading-normal">설정</p>
+</a>
+</nav>
+</div>
+<div class="px-3 pb-4">
+<div class="glass-panel rounded-xl p-4 flex items-center gap-3">
+<div class="size-10 rounded-full bg-center bg-cover border border-[#8eccae]/30" data-alt="User profile picture of a man" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCt3oQLLib0qJBcA0l3taVuI1txV_niHKS34gK_Q00qTF8V_b2y4WjnMjA0sdkwaDID3goMMnY-fGTuZM4wFvQkk44aOyISqnfstzKdeIzgYN0o0vy5PhuDjJ2RbsRHW1Cay5M_kH74wv-kVlmATqcPjfIVwNnqx6C6yPoo18rURpZpyltP_kfjkCFueX_UBR7SkHdI6unqoe1aOgzXW7JOgW0jRxPnrJQr8xgp-MOjyLl3DTJenHR6HBNlnMbIVZEsVLFj5orDz05A');"></div>
+<div class="flex flex-col">
+<p class="text-sm font-medium text-white">관리자</p>
+<p class="text-xs text-[#8eccae]">FC Rivals Manager</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full relative overflow-hidden bg-background-dark">
+<!-- Background Gradient Decoration -->
+<div class="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#214a36]/20 rounded-full blur-[80px] pointer-events-none"></div>
+<!-- Top Header -->
+<header class="flex items-center justify-between border-b border-[#214a36] px-6 py-4 bg-background-dark/80 backdrop-blur-sm sticky top-0 z-10">
+<div class="flex items-center gap-4 text-white lg:hidden">
+<button class="text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="text-lg font-bold">Match Archive</h2>
+</div>
+<!-- Breadcrumbs (Desktop) -->
+<div class="hidden lg:flex items-center gap-2 text-sm">
+<a class="text-[#8eccae] hover:text-primary transition-colors" href="#">경기 목록</a>
+<span class="text-[#8eccae]/50">/</span>
+<span class="text-white font-medium">라인업 설정</span>
+</div>
+<div class="flex items-center gap-4 ml-auto">
+<button class="p-2 text-[#8eccae] hover:text-white hover:bg-white/10 rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-4 lg:p-10 scroll-smooth">
+<div class="mx-auto max-w-5xl flex flex-col gap-6">
+<!-- Page Heading & Actions -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+<div class="flex flex-col gap-2">
+<h1 class="text-3xl lg:text-4xl font-black text-white tracking-tight">라인업 및 쿼터 설정</h1>
+<div class="flex items-center gap-2 text-[#8eccae]">
+<span class="material-symbols-outlined text-lg">calendar_today</span>
+<p class="text-base font-medium">2023.10.28 vs FC Rivals (14:00)</p>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center justify-center h-10 px-4 rounded-lg bg-[#214a36] hover:bg-[#2c5f46] text-[#8eccae] text-sm font-bold transition-all border border-[#305642]">
+                                경기 정보 수정
+                            </button>
+</div>
+</div>
+<!-- Quarter Selector -->
+<div class="w-full overflow-x-auto pb-2">
+<div class="inline-flex bg-[#162e24] p-1.5 rounded-xl border border-[#214a36] min-w-full sm:min-w-0">
+<label class="cursor-pointer group relative flex-1 sm:flex-none min-w-[100px]">
+<input checked="" class="peer sr-only" name="quarter" type="radio" value="1"/>
+<div class="flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-[#8eccae] transition-all peer-checked:bg-primary peer-checked:text-[#0f2319] peer-checked:shadow-lg peer-checked:shadow-primary/20 hover:bg-white/5">
+                                    1쿼터
+                                </div>
+</label>
+<label class="cursor-pointer group relative flex-1 sm:flex-none min-w-[100px]">
+<input class="peer sr-only" name="quarter" type="radio" value="2"/>
+<div class="flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-[#8eccae] transition-all peer-checked:bg-primary peer-checked:text-[#0f2319] hover:bg-white/5">
+                                    2쿼터
+                                </div>
+</label>
+<label class="cursor-pointer group relative flex-1 sm:flex-none min-w-[100px]">
+<input class="peer sr-only" name="quarter" type="radio" value="3"/>
+<div class="flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-[#8eccae] transition-all peer-checked:bg-primary peer-checked:text-[#0f2319] hover:bg-white/5">
+                                    3쿼터
+                                </div>
+</label>
+<label class="cursor-pointer group relative flex-1 sm:flex-none min-w-[100px]">
+<input class="peer sr-only" name="quarter" type="radio" value="4"/>
+<div class="flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-[#8eccae] transition-all peer-checked:bg-primary peer-checked:text-[#0f2319] hover:bg-white/5">
+                                    4쿼터
+                                </div>
+</label>
+</div>
+</div>
+<!-- Stats Summary Bar -->
+<div class="flex items-center justify-between bg-primary/10 border border-primary/20 rounded-lg px-5 py-3">
+<div class="flex items-center gap-3">
+<div class="p-1.5 bg-primary/20 rounded-md">
+<span class="material-symbols-outlined text-primary text-xl">group</span>
+</div>
+<span class="text-white font-medium">현재 출전 선수</span>
+</div>
+<span class="text-2xl font-bold text-primary tabular-nums">11<span class="text-sm font-normal text-[#8eccae] ml-1">명</span></span>
+</div>
+<!-- Player List Card (Glassmorphism) -->
+<div class="glass-panel rounded-2xl flex flex-col overflow-hidden min-h-[500px]">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 border-b border-[#214a36] bg-[#162e24]/50 text-xs font-semibold text-[#8eccae] uppercase tracking-wider">
+<div class="col-span-2 sm:col-span-1 text-center">등번호</div>
+<div class="col-span-6 sm:col-span-7">선수 정보</div>
+<div class="col-span-2 text-center">포지션</div>
+<div class="col-span-2 text-end sm:text-center">출전</div>
+</div>
+<!-- Player List -->
+<div class="flex flex-col divide-y divide-[#214a36]">
+<!-- Player Row 1 (Checked) -->
+<label class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="col-span-2 sm:col-span-1 text-center">
+<span class="text-xl font-bold text-white font-mono">10</span>
+</div>
+<div class="col-span-6 sm:col-span-7 flex items-center gap-4">
+<div class="size-10 rounded-full bg-gray-700 bg-center bg-cover border border-white/10" data-alt="Portrait of player Kim Cheol-su" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBhkgXFhWQpvDWZ_BhBEzlheZbNSg-KISVSDVl2AisaYubgoKYhobLxw7BZk3DM5LdyI_2N0geyJkQtwgMMgKw-vati3b83YJW7AHrCLhV05zwAjCVVmDbaCgPHsgw4UpHiksfxQk1VBJbz_U-Q8f4PY_WqZ-em6SWXr2jrkCDG6-sydsQLVDvdzgJvmsAU9yFXIbhytb3ayuWGdR9NfQ5eHMLglr4SoscbFL7FJLMPUEqVIL5vpMX-CjFcmqB4QRJdicaR8RbAZE_K');"></div>
+<div class="flex flex-col">
+<span class="text-white font-medium text-base group-hover:text-primary transition-colors">김철수</span>
+<span class="text-[#8eccae] text-xs">주장 (Captain)</span>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 text-xs font-bold">FW</span>
+</div>
+<div class="col-span-2 flex justify-end sm:justify-center">
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</div>
+</label>
+<!-- Player Row 2 (Checked) -->
+<label class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="col-span-2 sm:col-span-1 text-center">
+<span class="text-xl font-bold text-white font-mono">07</span>
+</div>
+<div class="col-span-6 sm:col-span-7 flex items-center gap-4">
+<div class="size-10 rounded-full bg-gray-700 bg-center bg-cover border border-white/10" data-alt="Portrait of player Lee Young-hee" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAkUQMjyBxzex40EoCNhK0Ap0Pz--ZcRg2QNHzYoJ_yX_H08wQsmHEkbZCOo4fbK2FCqq9tPtx2q4TX8qlliK1E8t7ZB7YF2G2PGyZ3dOTANiCcSBPCVH6R7BJBccYjkiCzKkRO_GgrO0CyubDn9diZYdzbFfhgn1jlLtVgaxBaZPqbrXdj-cMzlr5g7IymVPmbghT3w0zT8fNWMWIbk9e9cS0gH5M9fzBg4vQIiCfHtqhEtmL7kgTVKWqDuY6Acrg_S-PvFvdHoVRz');"></div>
+<div class="flex flex-col">
+<span class="text-white font-medium text-base group-hover:text-primary transition-colors">이영희</span>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-2 py-1 rounded bg-green-500/20 text-green-400 border border-green-500/30 text-xs font-bold">MF</span>
+</div>
+<div class="col-span-2 flex justify-end sm:justify-center">
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</div>
+</label>
+<!-- Player Row 3 (Unchecked) -->
+<label class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="col-span-2 sm:col-span-1 text-center">
+<span class="text-xl font-bold text-gray-500 font-mono group-hover:text-white transition-colors">21</span>
+</div>
+<div class="col-span-6 sm:col-span-7 flex items-center gap-4">
+<div class="size-10 rounded-full bg-gray-700 flex items-center justify-center border border-white/10 text-[#8eccae] font-bold text-xs" data-alt="Default avatar with initials">PS</div>
+<div class="flex flex-col">
+<span class="text-gray-400 font-medium text-base group-hover:text-white transition-colors">박지성</span>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-2 py-1 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 text-xs font-bold">DF</span>
+</div>
+<div class="col-span-2 flex justify-end sm:justify-center">
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</div>
+</label>
+<!-- Player Row 4 (Checked) -->
+<label class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="col-span-2 sm:col-span-1 text-center">
+<span class="text-xl font-bold text-white font-mono">01</span>
+</div>
+<div class="col-span-6 sm:col-span-7 flex items-center gap-4">
+<div class="size-10 rounded-full bg-gray-700 bg-center bg-cover border border-white/10" data-alt="Portrait of player Choi Min-ho" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD-LY0xDeHQG-1BuEAq1x2lIUJOon1H6F5JMuEwM7H7qedUaNTFFNMlmswsuZI2O-eK5PEOtTaXsBTwe04Wcknl5cRBac0q6KhZo3JA82GwtW4dnaDtARkjXliplqaTzCPM-fzeLXkqUboV4C_e0QzQKkUvfdLHYiYAYEUo2B_xG1CVhv72MY7i47L1QeOqt1TGUYuQdrJQyqOP7-OGWFsIK4Q25ELijlJWlmiss-dLI7zXwL6PVcTlCQCJEFF4NA4gHQATmLn7s8u1');"></div>
+<div class="flex flex-col">
+<span class="text-white font-medium text-base group-hover:text-primary transition-colors">최민호</span>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-2 py-1 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-xs font-bold">GK</span>
+</div>
+<div class="col-span-2 flex justify-end sm:justify-center">
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</div>
+</label>
+<!-- Player Row 5 (Unchecked) -->
+<label class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="col-span-2 sm:col-span-1 text-center">
+<span class="text-xl font-bold text-gray-500 font-mono group-hover:text-white transition-colors">88</span>
+</div>
+<div class="col-span-6 sm:col-span-7 flex items-center gap-4">
+<div class="size-10 rounded-full bg-gray-700 flex items-center justify-center border border-white/10 text-[#8eccae] font-bold text-xs" data-alt="Default avatar for Kang Jun">KJ</div>
+<div class="flex flex-col">
+<span class="text-gray-400 font-medium text-base group-hover:text-white transition-colors">강준</span>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-2 py-1 rounded bg-green-500/20 text-green-400 border border-green-500/30 text-xs font-bold">MF</span>
+</div>
+<div class="col-span-2 flex justify-end sm:justify-center">
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</div>
+</label>
+<!-- Player Row 6 (Checked) -->
+<label class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="col-span-2 sm:col-span-1 text-center">
+<span class="text-xl font-bold text-white font-mono">14</span>
+</div>
+<div class="col-span-6 sm:col-span-7 flex items-center gap-4">
+<div class="size-10 rounded-full bg-gray-700 bg-center bg-cover border border-white/10" data-alt="Portrait of player Jung Woo-sung" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAa87vOuDH834b6yn7hUHJYHqzKcL6FAACsT0QojvGKtlW-AsSvYRgQfjp7Se3qJQFmCGCy-JCqF3dAkjJa3zHBdHAZVxT44aE6C_oqhdBmeV2CmhUu0trCIwt6u8gI9aSMuHHyvBtJBUrnauH0bS-PQZwJFr1_AQn75AiHeaHDOSf1FEHGJsSG7VQg_rF29SzaHqBz6a-HTRjtMRosRgbHZ1HugdZcxaoK5R3-cf3Z4n5u8n14MDUMLAEWiJ4Z6o0YH3yyfvG6v2jy');"></div>
+<div class="flex flex-col">
+<span class="text-white font-medium text-base group-hover:text-primary transition-colors">정우성</span>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-2 py-1 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 text-xs font-bold">DF</span>
+</div>
+<div class="col-span-2 flex justify-end sm:justify-center">
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</div>
+</label>
+</div>
+</div>
+</div>
+<!-- Bottom Spacer -->
+<div class="h-24"></div>
+</div>
+<!-- Floating Action Bar (Bottom Right) -->
+<div class="absolute bottom-8 right-8 z-30">
+<button class="flex items-center gap-3 px-6 py-4 bg-primary text-[#0f2319] text-lg font-bold rounded-full shadow-[0_0_20px_rgba(6,224,118,0.4)] hover:shadow-[0_0_30px_rgba(6,224,118,0.6)] hover:-translate-y-1 transition-all active:translate-y-0">
+<span class="material-symbols-outlined">save</span>
+                    저장하기
+                </button>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Match Archive - 경기 참석 여부</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#06e076",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f2319",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for glassmorphism feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased overflow-x-hidden selection:bg-primary/30">
+<div class="min-h-screen flex flex-col">
+<!-- Navbar -->
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-white/10 bg-[#0f2319]/80 backdrop-blur-md px-6 py-4 lg:px-10">
+<div class="flex items-center gap-4 text-white">
+<div class="size-8 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">sports_soccer</span>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-tight">Match Archive</h2>
+</div>
+<div class="flex flex-1 justify-end items-center gap-8">
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-white/70 hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">일정</a>
+<a class="text-white text-sm font-medium leading-normal border-b-2 border-primary py-1" href="#">매칭</a>
+<a class="text-white/70 hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">팀원</a>
+<a class="text-white/70 hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">기록</a>
+</nav>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-white/10 cursor-pointer" data-alt="User profile picture placeholder with abstract gradient" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBRxKoj__3EjXtbU0EOGUJw_29TW9_neazFZVJrpiADiy0jmOlh2bOeTm-jXnNwDtyeGi-d52JmSptuzC5ihWQrmVq0bjwjr6AMjFtINWkMcuxRrsNWT6bOjw3MhS1nPsEYvxYBxraRvEigHRlpIS27KoOqfCJnHeSAHd1y8YCHcQ94_fss6WwBDlo3Vtv4cNDBPksBQLXqfqiChhGkVMo8zgjO9uvkhEIG_yfSY7D1CGBp93EWN0eUDVR1wPKLNb7qwqGryWdIr1Ez");'>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 px-4 py-8 md:px-8 lg:px-12 xl:px-40 max-w-[1600px] mx-auto w-full">
+<!-- Page Heading & Info Card -->
+<div class="flex flex-col gap-6 mb-8">
+<div class="flex flex-wrap justify-between items-end gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm shadow-xl">
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2.5 py-1 rounded-full bg-primary/20 text-primary text-xs font-bold uppercase tracking-wider">Upcoming Match</span>
+<span class="text-white/50 text-xs font-medium">D-3</span>
+</div>
+<h1 class="text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">경기 참석 여부</h1>
+<div class="flex flex-wrap items-center gap-4 text-[#8eccae] text-sm md:text-base font-normal mt-1">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+<span>2023.10.28 (토) 14:00</span>
+</div>
+<span class="hidden md:inline w-1 h-1 rounded-full bg-[#8eccae]/50"></span>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px]">sports_mma</span>
+<span>vs FC 라이벌</span>
+</div>
+<span class="hidden md:inline w-1 h-1 rounded-full bg-[#8eccae]/50"></span>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px]">location_on</span>
+<span>서울 월드컵 보조경기장</span>
+</div>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="flex gap-3">
+<button class="flex items-center justify-center h-10 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-medium transition-colors">
+<span class="material-symbols-outlined mr-2 text-[18px]">share</span>
+                            공유하기
+                        </button>
+<button class="flex items-center justify-center h-10 px-4 rounded-lg bg-primary hover:bg-primary/90 text-background-dark text-sm font-bold transition-colors shadow-[0_0_15px_rgba(6,224,118,0.3)]">
+<span class="material-symbols-outlined mr-2 text-[18px]">check</span>
+                            변경사항 저장
+                        </button>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+<!-- Left Column: Player Roster Table -->
+<div class="xl:col-span-8 flex flex-col gap-6">
+<div class="rounded-2xl border border-white/10 bg-[#10231a]/60 backdrop-blur-md overflow-hidden flex flex-col h-full shadow-lg">
+<div class="p-5 border-b border-white/10 flex justify-between items-center">
+<h3 class="text-white text-lg font-bold">팀원 리스트 (24)</h3>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-[18px]">search</span>
+<input class="h-9 pl-9 pr-4 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-48 md:w-64 transition-all" placeholder="이름 검색..." type="text"/>
+</div>
+</div>
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-white/5 border-b border-white/10 text-white/70">
+<th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider w-[25%]">선수</th>
+<th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider w-[15%]">포지션</th>
+<th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider hidden md:table-cell w-[25%]">최근 경기 기록</th>
+<th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider w-[35%] text-center">참석 상태</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<!-- Row 1: Logged in user (Highlighted) -->
+<tr class="bg-primary/5 hover:bg-primary/10 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center border border-primary" data-alt="Profile picture of the current user" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDBpw8xGFYaxIfGlU4gJ3jLzS23N8ajh7bWbeiv682hSZu2O-FVHSLHFIfUIdCd9fzj9_FHZppZ45i0Cor_okCHajyoX5OLBRz6TZN31X4xu-CMPepyUxjTjJdtom6fsYTG5QabFb6gH6Ky1eQHk3yjpDW6hH3hWh_nZkE6tbxZ6SUhCeozbcvhHOzTroVgus75lpW9XmgoPTSmwR6vSr2d4xg0enxvk7vD1P95GAVzj5wAhe8yUHtJ2Yd0Fl3Nq7xtm1PQ0TFpcJ6F");'></div>
+<div class="flex flex-col">
+<span class="text-white font-bold text-sm">나 (홍길동)</span>
+<span class="text-primary text-xs">주장</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md bg-[#214a36] text-white text-xs font-semibold border border-white/10">MF</span>
+</td>
+<td class="px-6 py-4 hidden md:table-cell">
+<div class="flex items-center gap-2">
+<span class="text-[#8eccae] text-sm">1골 2어시</span>
+<span class="text-white/30 text-xs">|</span>
+<span class="text-white/60 text-xs">평점 8.5</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<div class="flex p-1 bg-[#0f2319] rounded-lg border border-white/10 w-full max-w-[240px]">
+<label class="flex-1 cursor-pointer">
+<input checked="" class="peer sr-only" name="status-me" type="radio" value="attend"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50 transition-all peer-checked:bg-primary peer-checked:text-black peer-checked:shadow-sm">참석</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="status-me" type="radio" value="unsure"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50 transition-all peer-checked:bg-yellow-500 peer-checked:text-black peer-checked:shadow-sm">미정</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="status-me" type="radio" value="absent"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50 transition-all peer-checked:bg-red-500 peer-checked:text-black peer-checked:shadow-sm">불참</div>
+</label>
+</div>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center bg-gray-600" data-alt="Profile picture of Kim Chul-soo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDLMiINdJ9JOnAoUJTyVmZjk5FlD1fiAaSb0ub60Ck-Ve2ik-AlKJT8lfeqfK01HOb75GaE_0bB9697y21xVfmP6cP2y74iL565TFYknHLNwNhenHhq1UKNkdiKv80NNL_yz534wg09K5FnzOeKIN6Y5KAN3IIYaaAHNc4w5groZrpv26_M5zhk8RnS3kd5ehxYM6qn9xwf6gN4fKxc5ndhCe4_CxdlLApRJiJQONuVwZWznFE5jY89Ayne31s-66vPLcM5cfCzQB9b");'></div>
+<span class="text-white text-sm font-medium">김철수</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md bg-[#214a36] text-white text-xs font-semibold border border-white/10">FW</span>
+</td>
+<td class="px-6 py-4 hidden md:table-cell">
+<span class="text-white/60 text-sm">최근 3경기 2골</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<div class="flex p-1 bg-[#0f2319] rounded-lg border border-white/10 w-full max-w-[240px]">
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input checked="" class="peer sr-only" name="status-1" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50 peer-checked:bg-[#214a36] peer-checked:text-primary peer-checked:border peer-checked:border-primary/30">참석</div>
+</label>
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input class="peer sr-only" name="status-1" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50">미정</div>
+</label>
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input class="peer sr-only" name="status-1" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50">불참</div>
+</label>
+</div>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center bg-gray-600" data-alt="Profile picture of Lee Young-hee" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDZ5wjGLiBIXaR9Fx_ap5-GlsIrMZwmCswy7WThCeFuoRFnupZjh8GIQdkmhXTXXzUyFBM_0tZqP8Ot1YqJT5AkBxnKX-tSjW0xhKEDTCFeUlopywhtbXsNQCW2EzDTTB4ILFHce8pjJrTKAk8axoZh3vwKytV0AeZFftBHHGvPomptRt_ttMEEZPD7GdFyXwnfDYa54FoqAjkToSJ-9h8j8AflS0rg6NiHoap59skX0mek2xQFXKBygRKD_56tlxufcDwO5gmaeTtn");'></div>
+<span class="text-white text-sm font-medium">이영희</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md bg-[#214a36] text-white text-xs font-semibold border border-white/10">DF</span>
+</td>
+<td class="px-6 py-4 hidden md:table-cell">
+<span class="text-white/60 text-sm">출전 시간 90분</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<div class="flex p-1 bg-[#0f2319] rounded-lg border border-white/10 w-full max-w-[240px]">
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input class="peer sr-only" name="status-2" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50 peer-checked:bg-[#214a36] peer-checked:text-primary">참석</div>
+</label>
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input checked="" class="peer sr-only" name="status-2" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50 peer-checked:bg-[#214a36] peer-checked:text-yellow-400 peer-checked:border peer-checked:border-yellow-400/30">미정</div>
+</label>
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input class="peer sr-only" name="status-2" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50">불참</div>
+</label>
+</div>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center bg-gray-600" data-alt="Profile picture of Park Min-su" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBw60wOnGW6BpUqT765hryvuVsdkeEAblEPiE5uYy-uhC0wJk0csMuwdAV4BbT4f4y5eD5wi0s06fMPlCxsZqGGKfyJ2nDGqwi-DnQ7YMqY_KoGFUVNJ_YjsxPFFrv_SPIfQkcOt0KmNQRTgdd3ninbjj0X5tFeH8Qwos2P_Cj6ROqEdDu69mtAxUtWS5CMt2a7Xq-Qb4WTv2ADWjRjA-UJMXS6koD75fylyLnTyHOdCiRyLG3bS7OVHMV0-K_34P5PxuwhYZbbdw7b");'></div>
+<span class="text-white text-sm font-medium">박민수</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md bg-[#214a36] text-white text-xs font-semibold border border-white/10">GK</span>
+</td>
+<td class="px-6 py-4 hidden md:table-cell">
+<span class="text-white/60 text-sm">클린시트</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<div class="flex p-1 bg-[#0f2319] rounded-lg border border-white/10 w-full max-w-[240px]">
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input class="peer sr-only" name="status-3" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50">참석</div>
+</label>
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input class="peer sr-only" name="status-3" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50">미정</div>
+</label>
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input checked="" class="peer sr-only" name="status-3" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50 peer-checked:bg-[#214a36] peer-checked:text-red-400 peer-checked:border peer-checked:border-red-400/30">불참</div>
+</label>
+</div>
+</div>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center bg-gray-600" data-alt="Profile picture of Choi Ji-hoon" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD1VcjuVPsOJ9aMDuVWcg2-cf0fr_mOZ5IVmAV8_Pwo6UnJgHdYaX1AKfMXLci3tkqu_7EdOgXNeCIQyIQ1Lr9DCyGaIy0JwhSFL50Ov4JT8T-GZ0WwpPHBy_yzcDxdZYFMqfurD-GOKeQGQ74ydLig2H_AlPWr7Mt8ZFX2KL5LT4iPJtz5GEN49eO8nqvnoacVzQlebULxSFuSfbRMN64LDWoT03KnQqPDpKvd2C1JONtMVFQmOL72EoY8zor_bB4NmtIX9L939XsH");'></div>
+<span class="text-white text-sm font-medium">최지훈</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md bg-[#214a36] text-white text-xs font-semibold border border-white/10">MF</span>
+</td>
+<td class="px-6 py-4 hidden md:table-cell">
+<span class="text-white/60 text-sm">평점 7.2</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<div class="flex p-1 bg-[#0f2319] rounded-lg border border-white/10 w-full max-w-[240px]">
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input checked="" class="peer sr-only" name="status-4" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50 peer-checked:bg-[#214a36] peer-checked:text-primary peer-checked:border peer-checked:border-primary/30">참석</div>
+</label>
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input class="peer sr-only" name="status-4" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50">미정</div>
+</label>
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input class="peer sr-only" name="status-4" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50">불참</div>
+</label>
+</div>
+</div>
+</td>
+</tr>
+<!-- Row 6 -->
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center bg-gray-600" data-alt="Profile picture of Jung Woo-sung" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDfcLa_kToG47j54obbwljJO4goDmcMtQ21uMKU8LVkjfUmCJNc9bq9udIZJJ5mJpZPahH7WrEYi4tDUYDQbLHEMd2gI0QBQM0o5vAZtGl2zUefvQ28POTvrBdIyK_86Km3ewAldILJ3RGRWiHjlaggQ58so2HBUASlM_zuFzIX1qgnB_PyTsg8a3SOgcPpzQMaT44vptCoLIcke2Wu6rVRxCZ8R5zv2MsGqhrvousZeu5edn67akAaskecyXcmOpYqCjdSo5jAJkmY");'></div>
+<span class="text-white text-sm font-medium">정우성</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md bg-[#214a36] text-white text-xs font-semibold border border-white/10">FW</span>
+</td>
+<td class="px-6 py-4 hidden md:table-cell">
+<span class="text-white/60 text-sm">부상 복귀</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<div class="flex p-1 bg-[#0f2319] rounded-lg border border-white/10 w-full max-w-[240px]">
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input checked="" class="peer sr-only" name="status-5" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50 peer-checked:bg-[#214a36] peer-checked:text-primary peer-checked:border peer-checked:border-primary/30">참석</div>
+</label>
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input class="peer sr-only" name="status-5" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50">미정</div>
+</label>
+<label class="flex-1 cursor-pointer pointer-events-none opacity-50">
+<input class="peer sr-only" name="status-5" type="radio"/>
+<div class="py-1.5 px-2 rounded-md text-center text-xs font-medium text-white/50">불참</div>
+</label>
+</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-white/10 text-center">
+<button class="text-primary text-sm font-semibold hover:text-white transition-colors">더 보기</button>
+</div>
+</div>
+</div>
+<!-- Right Column: Summary Widgets -->
+<div class="xl:col-span-4 space-y-6">
+<!-- Stats Overview Cards -->
+<div class="grid grid-cols-2 gap-4">
+<div class="col-span-2 p-5 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 backdrop-blur-md flex items-center justify-between shadow-[0_0_20px_rgba(6,224,118,0.1)]">
+<div>
+<p class="text-primary text-sm font-bold uppercase tracking-wider mb-1">참석 확정</p>
+<div class="flex items-baseline gap-2">
+<h4 class="text-white text-4xl font-black">11</h4>
+<span class="text-primary font-medium text-sm">/ 24명</span>
+</div>
+</div>
+<div class="size-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">check_circle</span>
+</div>
+</div>
+<div class="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+<p class="text-white/60 text-xs font-bold uppercase tracking-wider mb-1">불참 예정</p>
+<h4 class="text-white text-2xl font-bold">3 <span class="text-sm font-normal text-white/40">명</span></h4>
+</div>
+<div class="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+<p class="text-white/60 text-xs font-bold uppercase tracking-wider mb-1">미정</p>
+<h4 class="text-white text-2xl font-bold">2 <span class="text-sm font-normal text-white/40">명</span></h4>
+</div>
+</div>
+<!-- Attendance Lists -->
+<div class="rounded-2xl border border-white/10 bg-[#10231a]/60 backdrop-blur-md overflow-hidden flex flex-col shadow-lg max-h-[500px]">
+<div class="p-4 border-b border-white/10 bg-white/5">
+<h3 class="text-white text-sm font-bold uppercase tracking-wider">참석 예정 플레이어</h3>
+</div>
+<div class="overflow-y-auto p-4 flex-1">
+<div class="grid grid-cols-1 gap-3">
+<!-- List Item -->
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-colors group">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover bg-center bg-gray-600" data-alt="Player Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB1KYNGgwV06PLN3C4IPeX8wUwVRj6dATf1qTuD2KqIt_ypcjQP-mMVsqivg8YyCfMoJygfvf2U37F4EPYgPiiq0G46YR7JSIY1zbS_I5fGNIuZZ4mlbGK0ibr_RZybah6yGaO7td4PwzRiAC2u5aEdJJvnGKRqVFm2kDDFn2axyH3tVelpwhevVzf46fa3p2n2pyxR6gRESueK3Pw7p8zyn7YMy6VoTghhVds6gIvYSkGgoqIA8dMOIroe-_JkQsamoLJa-M3y8raV");'></div>
+<span class="text-white text-sm">김철수</span>
+</div>
+<span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">FW</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-colors group">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover bg-center bg-gray-600" data-alt="Player Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCXv9gYRaHlMfqwjAySVS-UBuHz1uDp4BJ2FmeYFBYiE-mHbP2ZhVlRVoZnd6CpHXowi9nf0ogBCYnnHK_Qj7jmU7g0xQEZlSuMgEonxepAZ6cbaMu4Sncr1_apfM6AC5POeebQ4NlAUvRlW7gC4PCfBN9WbIzxD3V69qLWocLXJrX9X53nBpaczJ9wSgYggmgNFN_LHyRdcZYO498aTSl8Z6vrbPWcn2mQArTBD_GsqDdS3nMCic1QNKjHOdk6Z-8rJ2v0cCdqh6Ty");'></div>
+<span class="text-white text-sm">최지훈</span>
+</div>
+<span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">MF</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-colors group">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover bg-center bg-gray-600" data-alt="Player Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAaqXgSCKE72-FJU4cEK5ON3xRYHHo87nQw7cu2CQW5E_Kx-vecpTSjKGpklsIBsIwnxOwIjp6FkX6Jzq4tjZxAM1HNJn-MwXH9VJ6pAa2NTSYWOutWaFki5nAazRaQG8yBM8u-Ou6jeEXk_C9ihZKFXatt-jIPJysxWkffbwUAXK9WWDkaQIEKHomS1-D1FkSoHQAImR09S1GrNVkC7Qn7gXaXrIdxSDknnUGwUrW4y6KcbzVeK1858ho13Mfa30nMuriMqmbxNtLr");'></div>
+<span class="text-white text-sm">정우성</span>
+</div>
+<span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">FW</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-colors group">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover bg-center bg-gray-600" data-alt="Player Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBKIn_hlY59xXoZcKAUOSu_Lx3wrqAt0al_DX5frXA7z7k6CNJ1JGsJZO--QOK8bQXOcRyfNONR0_wGMkuKjb1Pvr3ZAwqWr7bZchwPMg5ptXMtE7kqxs4vKNkJUzavhnBijiSTOtw4LKEFioyaOIzvmbxLTnZpDNM_RZPnw93-hPsEQ0Hx3ZoJFqi6Hst0xx2DYoL_iZaEB0ZZ7IBeL9vYLo1do3XhC2WVgcJZLDWoX44W2ONkbL1BFWyj1ndUosGjJBM1iLk7eCrP");'></div>
+<span class="text-white text-sm">이민호</span>
+</div>
+<span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">DF</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-colors group">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover bg-center bg-gray-600" data-alt="Player Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAfwQ9dj5h2QANJqUkLSt7VlbCvbDJAO_2eFd74ze_OGU2zVTl9byneGpQOQHxZGUKigiXLZ-gcrPAzrHCyqS5ALp8vrJaLQpcWPRB84-pzy-V5ondapUvB7hqLEr2zzga85XRTf_F5NY2P3Yy5fOaV2JMp_J_apbXpIsPL5sXmNHBmFURTj_jsvcp1Oao0UEyfhP0kQ7Ntxfq_sO62CxMPYeHWEgX7Tk1JH7bKNvk3IuT5_VFXJdYevqbxMBwiuHyGwSK2-SxtvCVr");'></div>
+<span class="text-white text-sm">박지성</span>
+</div>
+<span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">MF</span>
+</div>
+</div>
+</div>
+</div>
+<div class="rounded-2xl border border-white/10 bg-[#10231a]/60 backdrop-blur-md overflow-hidden flex flex-col shadow-lg">
+<div class="p-4 border-b border-white/10 bg-white/5 flex justify-between items-center">
+<h3 class="text-white/70 text-sm font-bold uppercase tracking-wider">불참 / 미정</h3>
+</div>
+<div class="p-4 space-y-4">
+<!-- Absent Group -->
+<div>
+<p class="text-xs text-red-400 font-semibold mb-2 ml-1">불참 (3)</p>
+<div class="flex flex-wrap gap-2">
+<div class="flex items-center gap-2 bg-red-500/10 border border-red-500/20 px-2 py-1.5 rounded-lg" title="박민수">
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAMy6gC8uCHcKp1leuN6QeDpD0Uc0IhERonh0uJecIAb-UcT7AmuK0pCy2AzxCC6cq73e4C5YkAFe3Y_gCHlndxbV7_w5wxuHogsLm_Cj8z9Z1zRldsP39erJcxaESMjmF8c6MdpPSLljNOBLY5YgY8cfC1SsiCy7DZJcdPsYkIJjD3YscAgzVF8wxdgH0HZb5OgqiJcorQxM3jQYCXYw3Ol79qoTn_A7UNfkzGk299Cl0wHTQjuZWo6DvDnK-402qs9BnbqQPjORxC");'></div>
+<span class="text-white text-xs">박민수</span>
+</div>
+<div class="flex items-center gap-2 bg-red-500/10 border border-red-500/20 px-2 py-1.5 rounded-lg" title="강호동">
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAHpObwLi9GOjZTlhrT4AMtwQnnoVQ6-qU4L-0lqvRWw5Eg_dQyBUeYtyTXtEPwc4V671Nvx6kHHEnMKKQzwsQnvVYMYpyy-BM67V81FJrJyklD4gs1DyB8q7r-jua6N2IIIxH6Afb9HrhAyyHoAGTJkOUBbTQ55Ev0hi8suxzidzdCUYy6Im4hCrRQqc8US1GSZg7y3txA-gihNk0WYiXMI_NRPaevQtBIVqZp36iS8TuBI9TFX1YusYslpZFuYYaw3R2J71w8EFE2");'></div>
+<span class="text-white text-xs">강호동</span>
+</div>
+<div class="flex items-center gap-2 bg-red-500/10 border border-red-500/20 px-2 py-1.5 rounded-lg" title="유재석">
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA89m7Klo_s2TI8lSpY35lnFDpuSAlq_Wi1drfzNt6ysrmdltvC56KjMQjESezuDEWvpmYVtzIq_C4eg5qNjBVt4ymKjdKd7xqVj_D7q6NLvcbKGrnn980th2T-4HU0ZtoWl2v-vGc4rjvHt14tZTwAfIqkqs13lQ1ux_X3ZlvACs-rFGPN3Siel6ec4wS4ZrKh35LY4joOTJcnI9jDmUkLnHNnPgfX0oxBl_5YA_iAlOLZAXzwAZQH8G9k4SP9W6dXNKqp605uMVGK");'></div>
+<span class="text-white text-xs">유재석</span>
+</div>
+</div>
+</div>
+<div class="w-full h-px bg-white/10"></div>
+<!-- Undecided Group -->
+<div>
+<p class="text-xs text-yellow-400 font-semibold mb-2 ml-1">미정 (2)</p>
+<div class="flex flex-wrap gap-2">
+<div class="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 px-2 py-1.5 rounded-lg" title="이영희">
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBLT6DyDqMOMKBphsJSjj9z_JSQllTUMs34qT7ues7EUJEeVWHKlAiUYF1t7w3guwVHGP5DcGkOn5nS7QkLnyYgppbjS48qpaEhIS9vujgSyxp35xoz1w-gfHtwTpynmX2QkbQNgEsS2xpQNU4x-I29rsMLFfaWRLTRzmeaFOO772g70xb1PDtYXCUiifGwP43b7ibXfS_HUyaP17x9ULOtdypMUxN_Opzl8l97MlrOoQM6GKDFXbCGDA9MDrOsiiRxbTylWN2DvIDl");'></div>
+<span class="text-white text-xs">이영희</span>
+</div>
+<div class="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 px-2 py-1.5 rounded-lg" title="송지효">
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBPz_V_x_Al9f95SZxsd_4Mt0UkU6W4-ZMcWj1r0Xh3pzwLJwSU9FA3A4upgm-HtpMqNQNavEGeF9BXTDBUp-IaxOXfzLV-76ifufnHLgiDHiW0eA-OPdMWZ-lf57TabP57xppYPchdsGE0Gs2_kUlLsVgzQQy542Ylg8PJHspuKXAXIAaCaAGR6p1izAFJl65GafzPm9GhNCHx_Um67Qd8eTutVUHqKK4F77Wv2VlrwJdrH6SP56G8d0yaZZ0QYMfchIK5A8y3vkuR");'></div>
+<span class="text-white text-xs">송지효</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

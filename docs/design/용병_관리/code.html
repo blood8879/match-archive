@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Match Archive - 용병 관리</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Noto+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#06e076",
+                        "primary-hover": "#05c065",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f2319", // Deep dark green/charcoal
+                        "card-dark": "#162e23", // Slightly lighter for cards
+                        "border-dark": "#2f6a4d",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans KR", "sans-serif"],
+                        "sans": ["Inter", "Noto Sans KR", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "2rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(22, 46, 35, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .glass-input {
+            background: rgba(15, 35, 25, 0.6) !important;
+            border: 1px solid #2f6a4d !important;
+            color: white !important;
+        }
+        
+        .glass-input:focus {
+            border-color: #06e076 !important;
+            box-shadow: 0 0 0 1px #06e076 !important;
+        }
+
+        /* Custom Scrollbar for Table */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f2319; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2f6a4d; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06e076; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans min-h-screen flex flex-col overflow-x-hidden selection:bg-primary selection:text-black">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 w-full glass-panel border-b border-[#214a36]">
+<div class="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-4 text-white">
+<div class="size-8 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">sports_soccer</span>
+</div>
+<h2 class="text-white text-xl font-bold tracking-tight">Match Archive</h2>
+</div>
+<div class="hidden md:flex flex-1 justify-end gap-8 items-center">
+<nav class="flex items-center gap-8 mr-4">
+<a class="text-gray-300 hover:text-primary transition-colors text-sm font-medium" href="#">홈</a>
+<a class="text-primary text-sm font-medium" href="#">팀 관리</a>
+<a class="text-gray-300 hover:text-primary transition-colors text-sm font-medium" href="#">경기 기록</a>
+<a class="text-gray-300 hover:text-primary transition-colors text-sm font-medium" href="#">일정</a>
+<a class="text-gray-300 hover:text-primary transition-colors text-sm font-medium" href="#">커뮤니티</a>
+</nav>
+<div class="flex items-center gap-3 pl-6 border-l border-white/10">
+<div class="text-right hidden lg:block">
+<p class="text-xs text-gray-400">Team Admin</p>
+<p class="text-sm font-semibold">김매니저</p>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-2 ring-primary/20" data-alt="User profile picture placeholder, abstract gradient" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBp9idrYk8fTofjriqyErKRsFNCIHALU2lxSMY4lGjRQSyT6onvlqWnMEtSux-GgtxSoEC06WdMwFnnrgh-xqyXNBN3Nr1QOVDcy-HNPJ9-vEGEEetIxCLPSn9TQkz2_4PQnYsHk2nycZgVElIZs084xFB6ahuUy9tVH1k9kCV89eZn3KRnqxv7aQhO0eY1YOA1bQBs5ubdpjWc_gncSBI71kwP75VGTqMQsldtacVVXLplespXr6QNr0zZ8yHpIA0RaJCuVTI4oDpg");'></div>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 w-full max-w-[1280px] mx-auto p-6 md:p-8 flex flex-col gap-8">
+<!-- Breadcrumbs & Heading Group -->
+<div class="flex flex-col gap-2">
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-2 text-sm text-[#8eccae]">
+<a class="hover:text-primary transition-colors" href="#">홈</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">팀 관리</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-white font-medium">용병 관리</span>
+</div>
+<!-- Page Heading -->
+<div class="flex flex-wrap justify-between items-end gap-4 mt-2">
+<div class="flex flex-col gap-2 max-w-2xl">
+<h1 class="text-white text-3xl md:text-4xl font-black tracking-tight flex items-center gap-3">
+                        용병 관리
+                        <span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20 uppercase tracking-wide">Guest Management</span>
+</h1>
+<p class="text-[#8eccae] text-base font-normal leading-relaxed">
+                        비회원(게스트) 선수를 임시로 등록하여 경기 기록을 관리하세요. <br class="hidden md:block"/>
+                        추후 해당 선수가 팀에 정식으로 가입할 경우, 누적된 기록을 회원 계정으로 병합할 수 있습니다.
+                    </p>
+</div>
+<!-- Optional: Stat Summary -->
+<div class="flex gap-4">
+<div class="glass-panel px-5 py-3 rounded-xl flex flex-col items-center min-w-[100px]">
+<span class="text-xs text-[#8eccae] font-medium">총 용병 수</span>
+<span class="text-2xl font-bold text-white">12</span>
+</div>
+<div class="glass-panel px-5 py-3 rounded-xl flex flex-col items-center min-w-[100px]">
+<span class="text-xs text-[#8eccae] font-medium">이번 달 활동</span>
+<span class="text-2xl font-bold text-primary">4</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: Quick Add -->
+<section class="glass-panel rounded-2xl p-6 md:p-8 relative overflow-hidden group">
+<!-- Decorative gradient blur -->
+<div class="absolute -top-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none group-hover:bg-primary/15 transition-all duration-700"></div>
+<h3 class="text-white text-lg font-bold flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">person_add</span>
+                새로운 용병 퀵 등록
+            </h3>
+<form class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+<div class="md:col-span-3 flex flex-col gap-2">
+<label class="text-gray-300 text-sm font-medium ml-1">이름 <span class="text-red-400">*</span></label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">badge</span>
+<input class="glass-input w-full pl-11 pr-4 py-3 rounded-xl focus:outline-none placeholder:text-gray-500 text-sm" placeholder="이름을 입력하세요" type="text"/>
+</div>
+</div>
+<div class="md:col-span-3 flex flex-col gap-2">
+<label class="text-gray-300 text-sm font-medium ml-1">포지션</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">tactic</span>
+<select class="glass-input w-full pl-11 pr-10 py-3 rounded-xl focus:outline-none text-sm appearance-none cursor-pointer">
+<option disabled="" selected="" value="">포지션 선택</option>
+<option class="bg-[#162e23]" value="FW">FW (공격수)</option>
+<option class="bg-[#162e23]" value="MF">MF (미드필더)</option>
+<option class="bg-[#162e23]" value="DF">DF (수비수)</option>
+<option class="bg-[#162e23]" value="GK">GK (골키퍼)</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="md:col-span-4 flex flex-col gap-2">
+<label class="text-gray-300 text-sm font-medium ml-1">연락처 (선택)</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">call</span>
+<input class="glass-input w-full pl-11 pr-4 py-3 rounded-xl focus:outline-none placeholder:text-gray-500 text-sm" placeholder="010-0000-0000" type="tel"/>
+</div>
+</div>
+<div class="md:col-span-2">
+<button class="w-full bg-primary hover:bg-primary-hover text-[#0f2319] font-bold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,224,118,0.3)] hover:shadow-[0_0_30px_rgba(6,224,118,0.5)]" type="button">
+<span class="material-symbols-outlined">add</span>
+                        등록
+                    </button>
+</div>
+</form>
+</section>
+<!-- Section: Mercenary List -->
+<section class="glass-panel rounded-2xl flex flex-col min-h-[500px]">
+<div class="p-6 border-b border-white/10 flex flex-wrap items-center justify-between gap-4">
+<h3 class="text-white text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-[#8eccae]">format_list_bulleted</span>
+                    등록된 용병 리스트
+                </h3>
+<div class="flex items-center gap-3">
+<div class="relative">
+<input class="bg-[#0f2319] border border-[#2f6a4d] text-white text-sm rounded-lg pl-9 pr-4 py-2 focus:ring-1 focus:ring-primary focus:border-primary w-48 md:w-64" placeholder="이름 검색..." type="text"/>
+<span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg">search</span>
+</div>
+<button class="p-2 rounded-lg bg-[#0f2319] border border-[#2f6a4d] text-gray-300 hover:text-white hover:border-primary transition-colors" title="필터">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Table Container -->
+<div class="flex-1 overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-white/5 border-b border-white/10 text-xs uppercase tracking-wider text-gray-400">
+<th class="px-6 py-4 font-semibold">선수 정보</th>
+<th class="px-6 py-4 font-semibold text-center">경기 수</th>
+<th class="px-6 py-4 font-semibold text-center">공격 포인트</th>
+<th class="px-6 py-4 font-semibold">최근 활동일</th>
+<th class="px-6 py-4 font-semibold">상태</th>
+<th class="px-6 py-4 font-semibold text-right">관리</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5 text-sm">
+<!-- Row 1 -->
+<tr class="group hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-white font-bold border border-white/10">
+                                        김
+                                    </div>
+<div class="flex flex-col">
+<span class="text-white font-semibold text-base">김용병</span>
+<span class="text-[#8eccae] text-xs">FW (공격수)</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="px-2.5 py-1 rounded-md bg-[#0f2319] border border-white/10 text-white font-medium">12</span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex flex-col items-center">
+<span class="text-white font-bold">8</span>
+<span class="text-xs text-gray-500">5골 3어시</span>
+</div>
+</td>
+<td class="px-6 py-4 text-gray-300">
+                                2023.10.24
+                            </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+<span class="size-1.5 rounded-full bg-purple-400"></span>
+                                    Guest
+                                </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center justify-end gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-xs font-semibold transition-colors flex items-center gap-1 group/btn" title="정식 회원으로 전환 및 기록 병합">
+<span class="material-symbols-outlined text-sm">merge_type</span>
+                                        기록 병합
+                                    </button>
+<div class="h-4 w-px bg-white/10 mx-1"></div>
+<button class="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors" title="수정">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors" title="삭제">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-white font-bold border border-white/10">
+                                        이
+                                    </div>
+<div class="flex flex-col">
+<span class="text-white font-semibold text-base">이게스트</span>
+<span class="text-[#8eccae] text-xs">MF (미드필더)</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="px-2.5 py-1 rounded-md bg-[#0f2319] border border-white/10 text-white font-medium">3</span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex flex-col items-center">
+<span class="text-white font-bold">1</span>
+<span class="text-xs text-gray-500">0골 1어시</span>
+</div>
+</td>
+<td class="px-6 py-4 text-gray-300">
+                                2023.10.11
+                            </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+<span class="size-1.5 rounded-full bg-purple-400"></span>
+                                    Guest
+                                </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center justify-end gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-xs font-semibold transition-colors flex items-center gap-1 group/btn">
+<span class="material-symbols-outlined text-sm">merge_type</span>
+                                        기록 병합
+                                    </button>
+<div class="h-4 w-px bg-white/10 mx-1"></div>
+<button class="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-white font-bold border border-white/10">
+                                        박
+                                    </div>
+<div class="flex flex-col">
+<span class="text-white font-semibold text-base">박용병</span>
+<span class="text-[#8eccae] text-xs">DF (수비수)</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="px-2.5 py-1 rounded-md bg-[#0f2319] border border-white/10 text-white font-medium">5</span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex flex-col items-center">
+<span class="text-white font-bold">0</span>
+<span class="text-xs text-gray-500">-</span>
+</div>
+</td>
+<td class="px-6 py-4 text-gray-300">
+                                2023.09.28
+                            </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+<span class="size-1.5 rounded-full bg-purple-400"></span>
+                                    Guest
+                                </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center justify-end gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-xs font-semibold transition-colors flex items-center gap-1 group/btn">
+<span class="material-symbols-outlined text-sm">merge_type</span>
+                                        기록 병합
+                                    </button>
+<div class="h-4 w-px bg-white/10 mx-1"></div>
+<button class="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="group hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-white font-bold border border-white/10">
+                                        최
+                                    </div>
+<div class="flex flex-col">
+<span class="text-white font-semibold text-base">최용병</span>
+<span class="text-[#8eccae] text-xs">GK (골키퍼)</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="px-2.5 py-1 rounded-md bg-[#0f2319] border border-white/10 text-white font-medium">1</span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex flex-col items-center">
+<span class="text-white font-bold">0</span>
+<span class="text-xs text-gray-500">-</span>
+</div>
+</td>
+<td class="px-6 py-4 text-gray-300">
+                                2023.09.15
+                            </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+<span class="size-1.5 rounded-full bg-purple-400"></span>
+                                    Guest
+                                </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center justify-end gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-xs font-semibold transition-colors flex items-center gap-1 group/btn">
+<span class="material-symbols-outlined text-sm">merge_type</span>
+                                        기록 병합
+                                    </button>
+<div class="h-4 w-px bg-white/10 mx-1"></div>
+<button class="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-4 border-t border-white/10 flex items-center justify-between">
+<p class="text-xs text-gray-500">
+                    Showing <span class="text-white font-medium">1-4</span> of <span class="text-white font-medium">12</span> guests
+                </p>
+<div class="flex gap-2">
+<button class="size-8 rounded-lg flex items-center justify-center bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="size-8 rounded-lg flex items-center justify-center bg-primary text-[#0f2319] font-bold">1</button>
+<button class="size-8 rounded-lg flex items-center justify-center bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">2</button>
+<button class="size-8 rounded-lg flex items-center justify-center bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">3</button>
+<button class="size-8 rounded-lg flex items-center justify-center bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Help Info / Alert -->
+<div class="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4 flex gap-4 items-start">
+<span class="material-symbols-outlined text-blue-400 mt-0.5">info</span>
+<div class="flex flex-col gap-1">
+<h4 class="text-blue-200 text-sm font-bold">기록 병합 기능 안내</h4>
+<p class="text-blue-200/70 text-sm leading-relaxed">
+                    '기록 병합' 버튼을 누르면 해당 게스트 선수의 모든 경기 기록(출전, 득점, 어시스트 등)을 기존 정회원 계정으로 이전할 수 있습니다. 
+                    병합 완료 후 게스트 데이터는 자동으로 삭제되며, 이 작업은 되돌릴 수 없습니다.
+                </p>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="border-t border-[#214a36] mt-auto py-8">
+<div class="max-w-[1280px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-gray-500 text-sm">© 2023 Match Archive. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-gray-500 hover:text-primary text-sm" href="#">개인정보처리방침</a>
+<a class="text-gray-500 hover:text-primary text-sm" href="#">이용약관</a>
+<a class="text-gray-500 hover:text-primary text-sm" href="#">고객센터</a>
+</div>
+</div>
+</footer>
+</body></html>

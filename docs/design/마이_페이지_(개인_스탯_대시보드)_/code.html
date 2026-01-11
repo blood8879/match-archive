@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Match Archive - My Page</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Noto+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#06e076",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f2319", // Deep dark green/charcoal
+                        "surface-dark": "#162e23", // Slightly lighter for cards
+                        "glass-border": "rgba(255, 255, 255, 0.08)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans KR", "sans-serif"],
+                        "body": ["Inter", "Noto Sans KR", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f2319; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e3a2f; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06e076; 
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .glass-panel-hover:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(6, 224, 118, 0.3);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased min-h-screen flex flex-col overflow-x-hidden">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 glass-panel border-b-0 border-b-glass-border">
+<div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<!-- Logo & Brand -->
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="text-primary">
+<span class="material-symbols-outlined text-3xl">sports_soccer</span>
+</div>
+<h1 class="text-white text-xl font-bold tracking-tight">Match Archive</h1>
+</div>
+<!-- Desktop Nav Links -->
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-white/90 hover:text-primary text-sm font-medium transition-colors" href="#">대시보드</a>
+<a class="text-white/60 hover:text-white text-sm font-medium transition-colors" href="#">매칭</a>
+<a class="text-white/60 hover:text-white text-sm font-medium transition-colors" href="#">팀</a>
+<a class="text-white/60 hover:text-white text-sm font-medium transition-colors" href="#">기록실</a>
+</nav>
+</div>
+<!-- Right Actions -->
+<div class="flex items-center gap-4">
+<!-- Search -->
+<div class="hidden sm:flex items-center bg-black/20 rounded-full border border-glass-border px-3 py-1.5 focus-within:border-primary/50 transition-colors">
+<span class="material-symbols-outlined text-white/50 text-[20px]">search</span>
+<input class="bg-transparent border-none text-sm text-white placeholder-white/40 focus:ring-0 w-48" placeholder="선수 또는 팀 검색" type="text"/>
+</div>
+<!-- User Profile -->
+<div class="w-9 h-9 rounded-full bg-cover bg-center border border-primary/30 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" data-alt="User profile avatar thumbnail" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDaSIY45dZmpvZtiWcN13o-BolgW-bEBNemIv3FKg26zyPCOtexwyy6oUSvg2nImtkPOfqWTnIez0KAOHCxmw2XrAU_b47DchMNjXbCGlMBoNObrQvds40cYh0An-UE6VE4_ZdeEkfy-22RJZ5NrhpXYDWXbg0XDkxudJdR3cCueEKpbVp2uqoHajo1AibR2EyZMbzFtvjHODdGVAPhwM_uUGjwuAdY-m9KzBrSFej4GzARcsi5GI1aWcKAWv8woeYbFl5ZudVhMmRo');">
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+<!-- Profile Header -->
+<section class="glass-panel rounded-2xl p-6 md:p-8 relative overflow-hidden group">
+<!-- Decorative background glow -->
+<div class="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+<div class="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
+<div class="flex flex-col md:flex-row items-center gap-6 md:gap-8 w-full">
+<!-- Avatar -->
+<div class="relative">
+<div class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-cover bg-center border-4 border-surface-dark shadow-2xl" data-alt="Player profile picture showing a confident young man" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDqtywo879vhTz_TTLv28iuoOCpiwc0P2R0DwZWpED183GHRyFmGK_eSM6ge3Sa3TTpwe6nij1HYM3ASbIapVs-usuD10mRo3LZbv8c3StF37EVS7zs1CJh40nE9wrXNJ4FQBIXznzyOK4OqvZ8IhwQm_94lIuA7M_UlPrNra2FufoccU7MGeiKzhrhaXzCO2AYp9EVlKL4_k7VxUpHjVWov-VfunwobuQ-3hRsy5HEEr_OcQ2be6kOcMrNqzSHa6dwgyhD8bUG2sQ2');">
+</div>
+<div class="absolute bottom-1 right-1 bg-primary text-black text-xs font-bold px-2 py-0.5 rounded-full border-2 border-surface-dark">
+                            PRO
+                        </div>
+</div>
+<!-- Text Info -->
+<div class="text-center md:text-left space-y-2 flex-1">
+<div class="flex flex-col md:flex-row items-center gap-3">
+<h2 class="text-3xl md:text-4xl font-bold text-white">김철수 <span class="text-lg md:text-xl font-medium text-white/50">(Kim Cheol-su)</span></h2>
+</div>
+<p class="text-primary text-lg font-medium flex items-center justify-center md:justify-start gap-2">
+<span class="material-symbols-outlined text-[20px]">sports_soccer</span>
+                            공격수 (FW)
+                            <span class="w-1 h-1 rounded-full bg-white/30 mx-1"></span>
+                            서울 유나이티드 FC
+                        </p>
+<p class="text-white/60 text-sm max-w-lg">
+                            "피치 위에서 모든 순간을 기록하다." 데이터 기반의 플레이를 지향하는 아마추어 선수입니다.
+                        </p>
+</div>
+<!-- Action Button -->
+<div class="flex-shrink-0 w-full md:w-auto mt-4 md:mt-0">
+<button class="w-full md:w-auto flex items-center justify-center gap-2 bg-white/5 hover:bg-primary hover:text-background-dark text-white border border-white/10 px-6 py-3 rounded-xl transition-all font-semibold backdrop-blur-sm group/btn">
+<span class="material-symbols-outlined group-hover/btn:rotate-12 transition-transform">edit</span>
+                            프로필 편집
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Key Stats Grid -->
+<section class="grid grid-cols-2 md:grid-cols-5 gap-4">
+<!-- Stat Card 1 -->
+<div class="glass-panel glass-panel-hover rounded-2xl p-5 flex flex-col gap-1 items-start justify-center relative overflow-hidden group">
+<div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-4xl text-primary">calendar_today</span>
+</div>
+<p class="text-white/60 text-sm font-medium">경기 수 (Matches)</p>
+<p class="text-3xl lg:text-4xl font-bold text-white tracking-tight">32</p>
+</div>
+<!-- Stat Card 2 -->
+<div class="glass-panel glass-panel-hover rounded-2xl p-5 flex flex-col gap-1 items-start justify-center relative overflow-hidden group">
+<div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-4xl text-primary">sports_soccer</span>
+</div>
+<p class="text-white/60 text-sm font-medium">골 (Goals)</p>
+<p class="text-3xl lg:text-4xl font-bold text-primary tracking-tight">15</p>
+</div>
+<!-- Stat Card 3 -->
+<div class="glass-panel glass-panel-hover rounded-2xl p-5 flex flex-col gap-1 items-start justify-center relative overflow-hidden group">
+<div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-4xl text-primary">handshake</span>
+</div>
+<p class="text-white/60 text-sm font-medium">어시스트 (Assists)</p>
+<p class="text-3xl lg:text-4xl font-bold text-white tracking-tight">8</p>
+</div>
+<!-- Stat Card 4 -->
+<div class="glass-panel glass-panel-hover rounded-2xl p-5 flex flex-col gap-1 items-start justify-center relative overflow-hidden group">
+<div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-4xl text-primary">star</span>
+</div>
+<p class="text-white/60 text-sm font-medium">MOM</p>
+<p class="text-3xl lg:text-4xl font-bold text-white tracking-tight">3</p>
+</div>
+<!-- Stat Card 5 (Clean Sheet / Highlight) -->
+<div class="col-span-2 md:col-span-1 glass-panel glass-panel-hover rounded-2xl p-5 flex flex-col gap-1 items-start justify-center relative overflow-hidden group">
+<div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-4xl text-primary">shield</span>
+</div>
+<p class="text-white/60 text-sm font-medium">클린 시트</p>
+<p class="text-3xl lg:text-4xl font-bold text-white tracking-tight">5</p>
+</div>
+</section>
+<!-- Main Content Area -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: Play Style Chart -->
+<div class="lg:col-span-7 flex flex-col gap-6">
+<section class="glass-panel rounded-2xl p-6 md:p-8 h-full">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h3 class="text-lg font-bold text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">bar_chart</span>
+                                플레이 스타일 분석
+                            </h3>
+<p class="text-white/50 text-sm mt-1">최근 10경기 데이터를 기반으로 분석된 지표입니다.</p>
+</div>
+<div class="text-right">
+<span class="text-3xl font-bold text-primary">7.8</span>
+<span class="text-sm text-white/40 block">종합 평점</span>
+</div>
+</div>
+<!-- Custom Bar Chart Visualization -->
+<div class="space-y-6">
+<!-- Stat Item -->
+<div class="group">
+<div class="flex justify-between text-sm mb-2">
+<span class="font-medium text-white/80 group-hover:text-primary transition-colors">결정력 (Shooting)</span>
+<span class="font-bold text-white">88</span>
+</div>
+<div class="h-3 w-full bg-black/40 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 88%"></div>
+</div>
+</div>
+<!-- Stat Item -->
+<div class="group">
+<div class="flex justify-between text-sm mb-2">
+<span class="font-medium text-white/80 group-hover:text-primary transition-colors">패스 (Passing)</span>
+<span class="font-bold text-white">76</span>
+</div>
+<div class="h-3 w-full bg-black/40 rounded-full overflow-hidden">
+<div class="h-full bg-primary/80 rounded-full" style="width: 76%"></div>
+</div>
+</div>
+<!-- Stat Item -->
+<div class="group">
+<div class="flex justify-between text-sm mb-2">
+<span class="font-medium text-white/80 group-hover:text-primary transition-colors">드리블 (Dribble)</span>
+<span class="font-bold text-white">92</span>
+</div>
+<div class="h-3 w-full bg-black/40 rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary/70 to-primary rounded-full" style="width: 92%"></div>
+</div>
+</div>
+<!-- Stat Item -->
+<div class="group">
+<div class="flex justify-between text-sm mb-2">
+<span class="font-medium text-white/80 group-hover:text-primary transition-colors">수비 가담 (Defense)</span>
+<span class="font-bold text-white">45</span>
+</div>
+<div class="h-3 w-full bg-black/40 rounded-full overflow-hidden">
+<div class="h-full bg-primary/40 rounded-full" style="width: 45%"></div>
+</div>
+</div>
+<!-- Stat Item -->
+<div class="group">
+<div class="flex justify-between text-sm mb-2">
+<span class="font-medium text-white/80 group-hover:text-primary transition-colors">체력 (Stamina)</span>
+<span class="font-bold text-white">65</span>
+</div>
+<div class="h-3 w-full bg-black/40 rounded-full overflow-hidden">
+<div class="h-full bg-primary/60 rounded-full" style="width: 65%"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-white/10 flex gap-4 overflow-x-auto pb-2">
+<!-- Badges/Tags -->
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20 whitespace-nowrap">
+<span class="material-symbols-outlined text-sm">bolt</span>
+                            스피드 스타
+                        </span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold border border-blue-500/20 whitespace-nowrap">
+<span class="material-symbols-outlined text-sm">precision_manufacturing</span>
+                            플레이 메이커
+                        </span>
+</div>
+</section>
+</div>
+<!-- Right Column: Tier & History -->
+<div class="lg:col-span-5 flex flex-col gap-6">
+<!-- Tier Card -->
+<section class="glass-panel rounded-2xl p-0 overflow-hidden relative">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+<div class="p-6">
+<div class="flex items-start justify-between">
+<div>
+<p class="text-white/60 text-sm font-medium mb-1">현재 티어</p>
+<h3 class="text-2xl font-bold text-white">세미 프로 (Semi-Pro)</h3>
+</div>
+<div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-emerald-800 flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-white">trophy</span>
+</div>
+</div>
+<div class="mt-6">
+<div class="flex justify-between text-xs text-white/50 mb-2">
+<span>현재 1,450 XP</span>
+<span>다음 티어까지 120 XP</span>
+</div>
+<div class="h-2 w-full bg-black/40 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full relative overflow-hidden" style="width: 85%">
+<div class="absolute inset-0 bg-white/20 animate-[pulse_2s_infinite]"></div>
+</div>
+</div>
+<p class="text-primary text-xs mt-3 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+                                상위 15%의 실력입니다.
+                            </p>
+</div>
+</div>
+</section>
+<!-- Recent Matches -->
+<section class="glass-panel rounded-2xl p-6 flex-1">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold text-white">최근 경기 (History)</h3>
+<a class="text-xs text-primary hover:text-white transition-colors" href="#">전체보기</a>
+</div>
+<div class="space-y-4">
+<!-- Match Item 1 -->
+<div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex-shrink-0 flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-emerald-500/20 text-primary border border-primary/20 font-bold text-sm">
+<span class="text-[10px] opacity-70">SEP</span>
+<span>24</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2">
+<h4 class="text-white font-semibold truncate">vs 강남 FC</h4>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary text-background-dark">WIN</span>
+</div>
+<p class="text-white/50 text-xs mt-0.5">3:1 승리 • 원정</p>
+</div>
+<div class="text-right">
+<p class="text-white font-bold">2 골</p>
+<p class="text-primary text-xs font-medium">9.2</p>
+</div>
+</div>
+<!-- Match Item 2 -->
+<div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex-shrink-0 flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-white/5 text-white/70 border border-white/10 font-bold text-sm">
+<span class="text-[10px] opacity-70">SEP</span>
+<span>18</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2">
+<h4 class="text-white font-semibold truncate">vs FC 로켓</h4>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-600 text-white">DRAW</span>
+</div>
+<p class="text-white/50 text-xs mt-0.5">2:2 무승부 • 홈</p>
+</div>
+<div class="text-right">
+<p class="text-white font-bold">1 어시</p>
+<p class="text-primary text-xs font-medium">7.5</p>
+</div>
+</div>
+<!-- Match Item 3 -->
+<div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex-shrink-0 flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 font-bold text-sm">
+<span class="text-[10px] opacity-70">SEP</span>
+<span>10</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2">
+<h4 class="text-white font-semibold truncate">vs 워리어스</h4>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/20">LOSE</span>
+</div>
+<p class="text-white/50 text-xs mt-0.5">0:1 패배 • 원정</p>
+</div>
+<div class="text-right">
+<p class="text-white/60 font-medium">-</p>
+<p class="text-white/40 text-xs font-medium">6.0</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Simple footer for completeness -->
+<footer class="mt-12 border-t border-white/5 py-8">
+<div class="max-w-[1280px] mx-auto px-4 text-center">
+<p class="text-white/30 text-xs">© 2024 Match Archive. All stats are personal records.</p>
+</div>
+</footer>
+</body></html>

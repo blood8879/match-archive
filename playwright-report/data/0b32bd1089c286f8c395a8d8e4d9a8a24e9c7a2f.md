@@ -1,0 +1,71 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Match Archive" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img [ref=e8]
+          - heading "Match Archive" [level=2] [ref=e11]
+        - link "도움이 필요하신가요?" [ref=e12] [cursor=pointer]:
+          - /url: "#"
+    - main [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - heading "계정 만들기" [level=1] [ref=e16]
+          - paragraph [ref=e17]: 팀의 기록과 통계를 관리하세요.
+        - generic [ref=e19]:
+          - link "로그인" [ref=e20] [cursor=pointer]:
+            - /url: /login
+            - paragraph [ref=e21]: 로그인
+          - link "회원가입" [ref=e22] [cursor=pointer]:
+            - /url: /signup
+            - paragraph [ref=e23]: 회원가입
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - generic [ref=e26]: 이메일
+            - generic [ref=e27]:
+              - textbox "이메일" [ref=e28]:
+                - /placeholder: user@example.com
+                - text: test-1768118391566@example.com
+              - img
+          - generic [ref=e29]:
+            - generic [ref=e30]: 비밀번호
+            - generic [ref=e31]:
+              - textbox "비밀번호" [ref=e32]:
+                - /placeholder: 6자 이상 입력하세요
+                - text: TestPassword123!
+              - button [ref=e33]:
+                - img [ref=e34]
+          - generic [ref=e39]:
+            - generic [ref=e40]: 비밀번호 확인
+            - generic [ref=e41]:
+              - textbox "비밀번호 확인" [ref=e42]:
+                - /placeholder: 비밀번호를 다시 입력하세요
+                - text: TestPassword123!
+              - button [ref=e43]:
+                - img [ref=e44]
+          - paragraph [ref=e49]: Email address "test-1768118391566@example.com" is invalid
+          - generic [ref=e50]:
+            - button "가입하기" [ref=e51] [cursor=pointer]:
+              - generic [ref=e52]: 가입하기
+            - generic [ref=e55]: 또는 다음으로 계속
+            - generic [ref=e57]:
+              - button "Google" [ref=e58]:
+                - img [ref=e59]
+                - text: Google
+              - button "GitHub" [ref=e61]:
+                - img [ref=e62]
+                - text: GitHub
+        - paragraph [ref=e65]:
+          - text: 이미 계정이 있으신가요?
+          - link "로그인" [ref=e66] [cursor=pointer]:
+            - /url: /login
+    - contentinfo [ref=e67]:
+      - paragraph [ref=e69]: © 2024 Match Archive. All rights reserved.
+  - button "Open Next.js Dev Tools" [ref=e75] [cursor=pointer]:
+    - img [ref=e76]
+  - alert [ref=e79]
+```

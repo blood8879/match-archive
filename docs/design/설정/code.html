@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Match Archive - Settings</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#06e076",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f2319",
+                        "surface-dark": "#162e23",
+                        "surface-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans KR", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f2319; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #214a36; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2f6a4d; 
+        }
+        
+        .glass-panel {
+            background: rgba(22, 46, 35, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-x-hidden min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 flex items-center justify-between border-b border-white/10 bg-background-dark/95 backdrop-blur-md px-6 py-4 lg:px-10">
+<div class="flex items-center gap-4 text-white">
+<div class="flex h-8 w-8 items-center justify-center rounded bg-primary/20 text-primary">
+<span class="material-symbols-outlined text-2xl">sports_soccer</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-white">Match Archive</h2>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative text-white/70 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-primary"></span>
+</button>
+<div class="h-10 w-10 overflow-hidden rounded-full border-2 border-primary/30">
+<div class="h-full w-full bg-cover bg-center" data-alt="User profile picture placeholder with abstract gradient" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCkqxAlgVK9Hj2drVEFaKqe_J-H0Z8eJm-TNEbtOXdo7qNPgWezpvB5h4ZtXvSJ8mM9A8LmwyfPDAve2P-ByBdlG3z-acJag-rv9FhbnegnshSdT_RJBE8ZFhAGCuNrtao1QSogopWEiiFplc2xCzIdHAoPxZDX79y5SicbEco4QUHQHDNlGLnTo8aZNMMndcG3TIsPC0CHTqs5zuM1dC5LB-2aiFOiHCzgZCx90NIVqg61QoniiNmtUzNdJV0RhbJ7am2JlvFfae5b");'></div>
+</div>
+</div>
+</header>
+<div class="layout-container flex grow flex-col lg:flex-row">
+<!-- Side Navigation Bar -->
+<aside class="w-full border-b border-white/5 bg-background-dark px-4 py-6 lg:w-72 lg:border-b-0 lg:border-r lg:min-h-[calc(100vh-73px)]">
+<div class="flex flex-col gap-8">
+<div class="px-2">
+<h1 class="text-xs font-bold uppercase tracking-wider text-white/40 mb-4 px-3">Settings</h1>
+<nav class="flex flex-col gap-2">
+<!-- Active Item -->
+<a class="group flex items-center gap-3 rounded-xl bg-primary/10 px-4 py-3 text-primary transition-all" href="#">
+<span class="material-symbols-outlined fill-1">person</span>
+<span class="font-medium">내 계정</span>
+</a>
+<!-- Inactive Items -->
+<a class="group flex items-center gap-3 rounded-xl px-4 py-3 text-white/70 hover:bg-white/5 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-medium">알림</span>
+</a>
+<a class="group flex items-center gap-3 rounded-xl px-4 py-3 text-white/70 hover:bg-white/5 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">security</span>
+<span class="font-medium">개인정보 및 보안</span>
+</a>
+<a class="group flex items-center gap-3 rounded-xl px-4 py-3 text-white/70 hover:bg-white/5 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">visibility</span>
+<span class="font-medium">테마 및 화면</span>
+</a>
+<a class="group flex items-center gap-3 rounded-xl px-4 py-3 text-white/70 hover:bg-white/5 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-medium">도움말</span>
+</a>
+</nav>
+</div>
+<div class="px-2 mt-auto">
+<div class="rounded-2xl bg-gradient-to-br from-surface-dark to-background-dark p-4 border border-white/5">
+<div class="mb-2 flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-sm">workspace_premium</span>
+<span class="text-xs font-bold uppercase tracking-wider">Pro Plan</span>
+</div>
+<p class="text-sm text-white/70 mb-3">고급 통계와 무제한 매칭 기록을 이용해보세요.</p>
+<button class="w-full rounded-lg bg-white/10 py-2 text-xs font-bold text-white hover:bg-white/20 transition-colors">
+                            업그레이드
+                        </button>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 bg-background-dark p-4 lg:p-10 overflow-y-auto">
+<div class="mx-auto max-w-4xl">
+<!-- Page Heading -->
+<div class="mb-8">
+<h1 class="text-3xl font-black text-white mb-2">설정</h1>
+<p class="text-white/60">계정 정보와 개인 설정을 관리하세요.</p>
+</div>
+<!-- Glassmorphism Card Container -->
+<div class="glass-panel rounded-2xl p-6 lg:p-10 shadow-xl">
+<!-- Profile Header Section -->
+<div class="mb-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-8">
+<div class="flex items-center gap-6">
+<div class="relative group cursor-pointer">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-24 w-24 ring-4 ring-primary/20" data-alt="User profile picture showing a smiling man" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCWlc3uY-4W0aIC2AV6a07IcjbxnNT-zzqYnXUKdPudeXt8GlBt-OUdgMTB44-DbO-kISbtdJ1jTJtvcWlyin0frAoMkBswon7vjfq8Eh5GJ2JdFjfcdDZlyjARTC6iVaz73zFAbSrUTvq22J_my74fdlGWNV6D_uIzv2w59QfM2-6FKeDfJLy3Ujcx6CbJB6UnizRwZnIV6ww7P2tugRpd-UuGtu0j1EUD5R9uNSOQOutcRB15Rc0M66IAgqZtB8wE158_9XaLyIIb");'></div>
+<div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white">edit</span>
+</div>
+</div>
+<div class="flex flex-col">
+<h3 class="text-2xl font-bold text-white">김철수</h3>
+<p class="text-primary font-medium">아마추어 리그 1부</p>
+<p class="text-sm text-white/50">가입일: 2023년 10월 15일</p>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center justify-center rounded-xl bg-white/10 px-5 py-2.5 text-sm font-bold text-white hover:bg-white/20 transition-all">
+                                사진 변경
+                            </button>
+<button class="flex items-center justify-center rounded-xl border border-white/10 px-5 py-2.5 text-sm font-bold text-white/70 hover:text-white hover:border-white/30 transition-all">
+                                삭제
+                            </button>
+</div>
+</div>
+<!-- Form Section -->
+<form class="flex flex-col gap-8">
+<div class="grid gap-6 md:grid-cols-2">
+<!-- Name -->
+<label class="flex flex-col gap-2">
+<span class="text-sm font-semibold text-white/80">이름</span>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40">badge</span>
+<input class="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-white placeholder-white/30 focus:border-primary focus:bg-black/30 focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="이름을 입력하세요" type="text" value="김철수"/>
+</div>
+</label>
+<!-- Email -->
+<label class="flex flex-col gap-2">
+<span class="text-sm font-semibold text-white/80">이메일</span>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40">mail</span>
+<input class="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-white placeholder-white/30 focus:border-primary focus:bg-black/30 focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="이메일 주소" type="email" value="user@example.com"/>
+</div>
+</label>
+<!-- Phone -->
+<label class="flex flex-col gap-2">
+<span class="text-sm font-semibold text-white/80">전화번호</span>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40">call</span>
+<input class="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-white placeholder-white/30 focus:border-primary focus:bg-black/30 focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="010-0000-0000" type="tel" value="010-1234-5678"/>
+</div>
+</label>
+<!-- Position Select -->
+<label class="flex flex-col gap-2">
+<span class="text-sm font-semibold text-white/80">주 포지션</span>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40">sports_soccer</span>
+<select class="w-full appearance-none rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-10 text-white focus:border-primary focus:bg-black/30 focus:ring-1 focus:ring-primary outline-none transition-all">
+<option value="FW">공격수 (FW)</option>
+<option selected="" value="MF">미드필더 (MF)</option>
+<option value="DF">수비수 (DF)</option>
+<option value="GK">골키퍼 (GK)</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">expand_more</span>
+</div>
+</label>
+</div>
+<!-- Bio / Description -->
+<label class="flex flex-col gap-2">
+<span class="text-sm font-semibold text-white/80">자기소개</span>
+<textarea class="w-full resize-none rounded-xl border border-white/10 bg-black/20 p-4 text-white placeholder-white/30 focus:border-primary focus:bg-black/30 focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="자신의 플레이 스타일이나 소개를 입력해주세요." rows="4">주로 중앙 미드필더를 보며 패스 위주의 플레이를 선호합니다. 주말 오전에 매칭 가능합니다.</textarea>
+</label>
+<!-- Divider -->
+<div class="h-px bg-white/10 my-2"></div>
+<!-- Additional Settings Toggles -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-white font-medium">프로필 공개</p>
+<p class="text-xs text-white/50">다른 사용자가 내 기록을 볼 수 있습니다.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="text-white font-medium">이메일 수신 동의</p>
+<p class="text-xs text-white/50">매칭 알림 및 뉴스레터를 이메일로 받습니다.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-end">
+<button class="rounded-xl px-6 py-3.5 text-sm font-bold text-white hover:bg-white/5 transition-all" type="button">
+                                취소
+                            </button>
+<button class="rounded-xl bg-primary px-8 py-3.5 text-sm font-bold text-black shadow-lg shadow-primary/20 hover:bg-[#05c468] hover:shadow-primary/40 transition-all" type="button">
+                                변경사항 저장
+                            </button>
+</div>
+</form>
+</div>
+<!-- Destructive Area -->
+<div class="mt-10 rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
+<h3 class="text-lg font-bold text-red-400 mb-2">계정 관리</h3>
+<p class="text-sm text-white/60 mb-6">계정을 로그아웃하거나 영구적으로 삭제합니다. 이 작업은 되돌릴 수 없습니다.</p>
+<div class="flex gap-4">
+<button class="rounded-lg border border-red-500/30 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors">
+                            로그아웃
+                        </button>
+<button class="rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-colors">
+                            회원 탈퇴
+                        </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

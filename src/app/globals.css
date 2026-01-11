@@ -1,26 +1,196 @@
 @import "tailwindcss";
 
+/* Design System Tokens - Match Archive */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Primary (Brand) - Neon Green */
+  --primary: #00e677;
+  --primary-dark: #00c966;
+  --primary-500: #00E676;
+  --primary-600: #00C853;
+  --accent-500: #2979FF;
+  
+  /* Background - Deep Green/Charcoal Theme */
+  --background-dark: #0f2319;
+  --background-light: #f5f8f7;
+  
+  /* Surface Colors - Layered Green */
+  --surface-dark: #162e23;
+  --surface-dark-hover: #1e4532;
+  --surface-800: #173627;
+  --surface-700: #214a36;
+  --canvas-900: #0f2319;
+  
+  /* Border Colors */
+  --border-dark: #2e6b4e;
+  --glass-border: rgba(255, 255, 255, 0.08);
+  
+  /* Text Colors */
+  --text-100: #FFFFFF;
+  --text-400: #A1A1AA;
+  --text-muted: #8eccae;
+  --text-secondary: #8dceae;
+  
+  /* Functional */
+  --constructive: #00E676;
+  --destructive: #FF1744;
+  --caution: #FFC400;
+  
+  /* App defaults - dark mode first */
+  --background: var(--background-dark);
+  --foreground: var(--text-100);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-500: var(--primary-500);
+  --color-primary-600: var(--primary-600);
+  --color-accent-500: var(--accent-500);
+  
+  --color-background-dark: var(--background-dark);
+  --color-background-light: var(--background-light);
+  
+  --color-surface-dark: var(--surface-dark);
+  --color-surface-dark-hover: var(--surface-dark-hover);
+  --color-canvas-900: var(--canvas-900);
+  --color-surface-800: var(--surface-800);
+  --color-surface-700: var(--surface-700);
+  
+  --color-border-dark: var(--border-dark);
+  --color-glass-border: var(--glass-border);
+  
+  --color-text-100: var(--text-100);
+  --color-text-400: var(--text-400);
+  --color-text-muted: var(--text-muted);
+  --color-text-secondary: var(--text-secondary);
+  
+  --color-constructive: var(--constructive);
+  --color-destructive: var(--destructive);
+  --color-caution: var(--caution);
+  
+  --font-sans: var(--font-geist-sans), "Inter", "Noto Sans KR", "Pretendard", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "Fira Code", monospace;
+  --font-display: "Inter", "Noto Sans KR", sans-serif;
+  
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans, "Inter", "Pretendard", system-ui, sans-serif);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.glass {
+  background: rgba(22, 46, 35, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel {
+  background: rgba(22, 46, 35, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.glass-panel-heavy {
+  background: rgba(23, 54, 39, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card {
+  background: rgba(33, 74, 54, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(142, 204, 174, 0.15);
+}
+
+.glass-nav {
+  background: rgba(15, 35, 25, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(0, 230, 119, 0.3);
+}
+
+.touch-feedback {
+  transition: transform 0.1s ease;
+}
+
+.touch-feedback:active {
+  transform: scale(0.95);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-700) 25%,
+    var(--surface-800) 50%,
+    var(--surface-700) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.score-display {
+  font-family: "Oswald", "Bebas Neue", var(--font-mono, monospace);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-700);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--primary-500);
+  color: var(--canvas-900);
 }

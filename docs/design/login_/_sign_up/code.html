@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Match Archive - 로그인</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&amp;family=Noto+Sans+KR:wght@400;500;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00e677",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f2319", // Matches the deep green/black theme
+                        "surface-dark": "#173627",
+                        "border-dark": "#2e6b4e",
+                        "text-muted": "#8dceae"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans KR", "sans-serif"],
+                        "body": ["Noto Sans KR", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem", 
+                        "lg": "1rem", 
+                        "xl": "1.5rem", 
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f2319; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2e6b4e; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00e677; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-body antialiased min-h-screen flex flex-col overflow-x-hidden transition-colors duration-200">
+<header class="w-full border-b border-solid border-border-dark bg-background-dark/50 backdrop-blur-md sticky top-0 z-50">
+<div class="px-6 md:px-10 py-4 flex items-center justify-between max-w-[960px] mx-auto w-full">
+<div class="flex items-center gap-4 text-white hover:opacity-80 transition-opacity cursor-pointer">
+<div class="size-8 text-primary">
+<svg class="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_6_535)">
+<path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
+</g>
+<defs>
+<clipPath id="clip0_6_535"><rect fill="white" height="48" width="48"></rect></clipPath>
+</defs>
+</svg>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-[-0.015em] font-display">Match Archive</h2>
+</div>
+<a class="text-text-muted hover:text-white text-sm font-medium transition-colors hidden sm:block" href="#">도움이 필요하신가요?</a>
+</div>
+</header>
+<main class="flex-1 flex items-center justify-center p-4 relative">
+<div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+<div class="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[100px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]"></div>
+<div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgNDBMMCAwTDQwIDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzJlNmI0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPjwvc3ZnPg==')] opacity-20"></div>
+</div>
+<div class="layout-content-container flex flex-col max-w-[480px] w-full bg-background-dark/80 backdrop-blur-sm border border-border-dark rounded-xl shadow-2xl relative z-10 overflow-hidden">
+<div class="pt-8 px-6 text-center">
+<h1 class="text-white tracking-tight text-[32px] font-bold leading-tight pb-2 font-display">환영합니다</h1>
+<p class="text-text-muted text-base font-normal leading-normal px-4">
+                    팀의 기록과 통계를 관리하세요.
+                </p>
+</div>
+<div class="pt-6 px-6">
+<div class="flex border-b border-border-dark justify-between">
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-primary text-white pb-3 pt-2 flex-1 hover:bg-surface-dark/50 transition-colors rounded-t-lg" href="#">
+<p class="text-white text-sm font-bold leading-normal tracking-[0.015em]">로그인</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-text-muted pb-3 pt-2 flex-1 hover:text-white hover:bg-surface-dark/50 transition-colors rounded-t-lg" href="#">
+<p class="text-inherit text-sm font-bold leading-normal tracking-[0.015em]">회원가입</p>
+</a>
+</div>
+</div>
+<form class="flex flex-col gap-5 px-6 py-6" onsubmit="event.preventDefault();">
+<label class="flex flex-col gap-2">
+<span class="text-white text-base font-medium leading-normal">이메일 또는 사용자 이름</span>
+<div class="relative">
+<input class="form-input flex w-full resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-dark bg-surface-dark focus:border-primary h-14 placeholder:text-text-muted/50 p-[15px] pr-12 text-base font-normal leading-normal transition-all" placeholder="user@example.com" type="text" value=""/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">
+                            person
+                        </span>
+</div>
+</label>
+<label class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<span class="text-white text-base font-medium leading-normal">비밀번호</span>
+</div>
+<div class="relative">
+<input class="form-input flex w-full resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-dark bg-surface-dark focus:border-primary h-14 placeholder:text-text-muted/50 p-[15px] pr-12 text-base font-normal leading-normal transition-all" placeholder="••••••••" type="password" value=""/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors flex items-center justify-center" type="button">
+<span class="material-symbols-outlined">visibility_off</span>
+</button>
+</div>
+<div class="flex justify-end pt-1">
+<a class="text-sm font-medium text-primary hover:text-primary/80 transition-colors" href="#">비밀번호 찾기</a>
+</div>
+</label>
+<div class="pt-2 flex flex-col gap-4">
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 bg-primary hover:bg-[#00c966] text-[#0f241a] text-base font-bold leading-normal tracking-[0.015em] transition-all shadow-lg shadow-primary/20 active:scale-[0.99]">
+<span class="truncate">로그인</span>
+</button>
+<div class="relative flex py-2 items-center">
+<div class="flex-grow border-t border-border-dark"></div>
+<span class="flex-shrink-0 mx-4 text-text-muted text-xs uppercase font-bold tracking-wider">또는 다음으로 계속</span>
+<div class="flex-grow border-t border-border-dark"></div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 rounded-xl h-12 border border-border-dark bg-surface-dark hover:bg-[#1e4532] text-white transition-all font-medium text-sm">
+<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.283 10.356h-8.327v3.451h4.792c-.446 2.193-2.313 3.453-4.792 3.453a5.27 5.27 0 0 1-5.279-5.28 5.27 5.27 0 0 1 5.279-5.279c1.259 0 2.397.447 3.29 1.178l2.6-2.599c-1.584-1.381-3.615-2.233-5.89-2.233a8.908 8.908 0 0 0-8.934 8.934 8.907 8.907 0 0 0 8.934 8.934c4.467 0 8.529-3.249 8.529-8.934 0-.528-.081-1.097-.202-1.625z"></path></svg>
+                            Google
+                        </button>
+<button class="flex items-center justify-center gap-2 rounded-xl h-12 border border-border-dark bg-surface-dark hover:bg-[#1e4532] text-white transition-all font-medium text-sm">
+<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.84 9.49.5.09.68-.22.68-.48 0-.24-.01-.88-.01-1.73-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02.8-.22 1.65-.33 2.5-.33.85 0 1.7.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.65.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85 0 1.34-.01 2.42-.01 2.75 0 .26.18.58.69.48A10.01 10.01 0 0 0 22 12c0-5.523-4.477-10-10-10z"></path></svg>
+                           GitHub
+                       </button>
+</div>
+</div>
+</form>
+<div class="pb-6 text-center">
+<p class="text-text-muted text-sm">아직 팀 계정이 없으신가요? <a class="text-primary hover:underline font-bold" href="#">회원가입</a></p>
+</div>
+</div>
+</main>
+<footer class="w-full py-6 border-t border-border-dark mt-auto bg-background-dark/50 z-10 relative">
+<div class="px-10 flex justify-center">
+<p class="text-text-muted/60 text-xs text-center">© 2024 Match Archive. All rights reserved.</p>
+</div>
+</footer>
+</body></html>

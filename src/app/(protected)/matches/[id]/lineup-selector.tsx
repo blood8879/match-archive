@@ -82,11 +82,19 @@ export function LineupSelector({
               <label className="flex items-center gap-3 px-3 py-2.5 hover:bg-[#162e23] transition-colors cursor-pointer group rounded-lg">
                 {/* Avatar & Name */}
                 <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                  <div className="size-9 rounded-full bg-[#214a36] flex items-center justify-center border border-white/10 flex-shrink-0">
-                    <span className="text-[#8eccae] font-bold text-sm">
-                      {displayName.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
+                  {member.user?.avatar_url ? (
+                    <img
+                      src={member.user.avatar_url}
+                      alt={displayName}
+                      className="size-9 rounded-full object-cover border border-white/10 flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="size-9 rounded-full bg-[#214a36] flex items-center justify-center border border-white/10 flex-shrink-0">
+                      <span className="text-[#8eccae] font-bold text-sm">
+                        {displayName.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex flex-col min-w-0">
                     <span
                       className={`font-medium text-sm truncate transition-colors ${

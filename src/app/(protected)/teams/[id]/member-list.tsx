@@ -76,9 +76,17 @@ export function MemberList({
             onClick={() => handleMemberClick(member.id)}
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-800 text-sm font-medium">
-                {member.back_number || displayName.charAt(0)}
-              </div>
+              {member.user?.avatar_url ? (
+                <img
+                  src={member.user.avatar_url}
+                  alt={displayName}
+                  className="h-10 w-10 rounded-full object-cover border-2 border-[#214a36]"
+                />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#214a36] text-[#8eccae] text-sm font-bold">
+                  {member.back_number || displayName.charAt(0)}
+                </div>
+              )}
               <div>
                 <p className="font-medium">
                   {displayName}

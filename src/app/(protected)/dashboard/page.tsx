@@ -116,9 +116,17 @@ export default async function DashboardPage() {
                 <span className="absolute top-2 right-2 size-2 rounded-full bg-red-500 ring-2 ring-[#0f2319]"></span>
               </button>
               <div className="h-8 w-[1px] bg-white/10 mx-1"></div>
-              <div className="size-9 rounded-full bg-[#00e677]/20 flex items-center justify-center text-[#00e677] font-bold ring-2 ring-white/10">
-                {typedProfile?.nickname?.charAt(0) || "U"}
-              </div>
+              {typedProfile?.avatar_url ? (
+                <img
+                  src={typedProfile.avatar_url}
+                  alt={typedProfile.nickname || "User"}
+                  className="size-9 rounded-full object-cover ring-2 ring-white/10"
+                />
+              ) : (
+                <div className="size-9 rounded-full bg-[#00e677]/20 flex items-center justify-center text-[#00e677] font-bold ring-2 ring-white/10">
+                  {typedProfile?.nickname?.charAt(0) || "U"}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -382,9 +390,17 @@ export default async function DashboardPage() {
                     <div className="flex-1 flex items-center justify-between w-full">
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                          <div className="size-8 rounded-full bg-[#00e677]/20 flex items-center justify-center text-[#00e677]">
-                            <Zap className="w-4 h-4" />
-                          </div>
+                          {membership.team?.emblem_url ? (
+                            <img
+                              src={membership.team.emblem_url}
+                              alt={membership.team.name || "Team"}
+                              className="size-8 rounded-full object-cover border-2 border-[#214a36]"
+                            />
+                          ) : (
+                            <div className="size-8 rounded-full bg-[#00e677]/20 flex items-center justify-center text-[#00e677]">
+                              <Zap className="w-4 h-4" />
+                            </div>
+                          )}
                           <span className="text-white font-bold">{membership.team?.name}</span>
                         </div>
                         <span className="text-white/30 text-xs bg-white/5 px-2 py-0.5 rounded">{membership.team?.member_count || 0}명</span>

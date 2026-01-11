@@ -118,13 +118,21 @@ export function GoalList({
               className="flex items-center justify-between rounded-lg bg-[#162e23] hover:bg-[#1e3a2c] px-4 py-3 transition-colors group"
             >
               <div className="flex items-center gap-3">
-                <div className={`size-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                  isHomeGoal
-                    ? getPositionBadgeClass(goal.team_member_id)
-                    : "bg-[#214a36] text-[#8eccae]"
-                }`}>
-                  {goal.type === "OWN_GOAL" ? "OG" : scorerName.charAt(0)}
-                </div>
+                {isHomeGoal && scorer && (scorer as any).user?.avatar_url && goal.type !== "OWN_GOAL" ? (
+                  <img
+                    src={(scorer as any).user.avatar_url}
+                    alt={scorerName}
+                    className="size-8 rounded-full object-cover border-2 border-[#214a36]"
+                  />
+                ) : (
+                  <div className={`size-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                    isHomeGoal
+                      ? getPositionBadgeClass(goal.team_member_id)
+                      : "bg-[#214a36] text-[#8eccae]"
+                  }`}>
+                    {goal.type === "OWN_GOAL" ? "OG" : scorerName.charAt(0)}
+                  </div>
+                )}
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-white">

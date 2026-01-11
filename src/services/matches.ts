@@ -27,12 +27,12 @@ export async function getMatchById(id: string): Promise<Match | null> {
 
   const { data, error } = await supabase
     .from("matches")
-    .select("*")
+    .select("*, opponent_team:teams!matches_opponent_team_id_fkey(id, name, emblem_url)")
     .eq("id", id)
     .single();
 
   if (error) throw error;
-  return data as Match;
+  return data as any;
 }
 
 export async function getMatchRecords(matchId: string): Promise<MatchRecord[]> {

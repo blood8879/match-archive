@@ -297,9 +297,17 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             {activeMembers.length > 0 && activeMembers[0] && (
               <div className="flex items-center gap-4 mb-6 bg-gradient-to-r from-[#00e677]/20 to-transparent p-3 rounded-xl border border-[#00e677]/10">
                 <div className="relative">
-                  <div className="size-12 rounded-full bg-[#214a36] flex items-center justify-center text-[#00e677] font-bold">
-                    {activeMembers[0].user?.nickname?.charAt(0) || "?"}
-                  </div>
+                  {activeMembers[0].user?.avatar_url ? (
+                    <img
+                      src={activeMembers[0].user.avatar_url}
+                      alt={activeMembers[0].user?.nickname || "Unknown"}
+                      className="size-12 rounded-full object-cover border-2 border-[#00e677]"
+                    />
+                  ) : (
+                    <div className="size-12 rounded-full bg-[#214a36] flex items-center justify-center text-[#00e677] font-bold">
+                      {activeMembers[0].user?.nickname?.charAt(0) || "?"}
+                    </div>
+                  )}
                   <div className="absolute -bottom-1 -right-1 bg-yellow-500 text-black rounded-full p-0.5 border border-[#10231a]">
                     <Star className="w-3 h-3" />
                   </div>

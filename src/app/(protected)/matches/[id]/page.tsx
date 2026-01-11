@@ -120,10 +120,18 @@ export default async function MatchDetailPage({
           <div className="flex items-center justify-between relative z-10">
             {/* Home Team */}
             <div className="flex flex-col items-center gap-2 flex-1">
-              <div className="size-16 rounded-full bg-[#00e677]/10 border-2 border-[#00e677]/30 flex items-center justify-center">
-                <span className="text-2xl font-bold text-[#00e677]">
-                  {team?.name?.charAt(0) || "N"}
-                </span>
+              <div className="size-16 rounded-full bg-[#00e677]/10 border-2 border-[#00e677]/30 flex items-center justify-center overflow-hidden">
+                {team?.emblem_url ? (
+                  <img
+                    src={team.emblem_url}
+                    alt={team.name || "Home Team"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-2xl font-bold text-[#00e677]">
+                    {team?.name?.charAt(0) || "N"}
+                  </span>
+                )}
               </div>
               <div className="text-center">
                 <p className="text-white font-bold text-sm">
@@ -150,10 +158,18 @@ export default async function MatchDetailPage({
 
             {/* Away Team */}
             <div className="flex flex-col items-center gap-2 flex-1">
-              <div className="size-16 rounded-full bg-[#214a36] border-2 border-[#2f6a4d] flex items-center justify-center">
-                <span className="text-2xl font-bold text-[#8eccae]">
-                  {match.opponent_name?.charAt(0) || "Z"}
-                </span>
+              <div className="size-16 rounded-full bg-[#214a36] border-2 border-[#2f6a4d] flex items-center justify-center overflow-hidden">
+                {(match as any).opponent_team?.emblem_url ? (
+                  <img
+                    src={(match as any).opponent_team.emblem_url}
+                    alt={match.opponent_name || "Away Team"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-2xl font-bold text-[#8eccae]">
+                    {match.opponent_name?.charAt(0) || "Z"}
+                  </span>
+                )}
               </div>
               <div className="text-center">
                 <p className="text-white font-bold text-sm">
@@ -233,9 +249,17 @@ export default async function MatchDetailPage({
                         className="flex items-center justify-between rounded-lg bg-[#162e23] hover:bg-[#1e3a2c] px-4 py-3 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="size-8 rounded-full bg-[#214a36] flex items-center justify-center text-[#8eccae] text-xs font-bold">
-                            {displayName.charAt(0)}
-                          </div>
+                          {member?.user?.avatar_url ? (
+                            <img
+                              src={member.user.avatar_url}
+                              alt={displayName}
+                              className="size-8 rounded-full object-cover border-2 border-[#214a36]"
+                            />
+                          ) : (
+                            <div className="size-8 rounded-full bg-[#214a36] flex items-center justify-center text-[#8eccae] text-xs font-bold">
+                              {displayName.charAt(0)}
+                            </div>
+                          )}
                           <span className="text-white font-medium text-sm">
                             {displayName}
                           </span>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, ChevronDown, SlidersHorizontal } from "lucide-react";
 
 const REGIONS = [
@@ -59,6 +59,15 @@ export function TeamSearchForm({
 
     router.push(`/teams?${params.toString()}`);
   };
+
+  // Real-time search with debounce
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      handleSearch(query, undefined);
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [query]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex flex-col gap-6">

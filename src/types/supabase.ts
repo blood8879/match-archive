@@ -18,7 +18,13 @@ export interface Database {
           position: "FW" | "MF" | "DF" | "GK" | null;
           avatar_url: string | null;
           user_code: string | null;
+          phone: string | null;
+          preferred_position: string | null;
+          bio: string | null;
+          is_public: boolean;
+          email_notifications: boolean;
           created_at: string;
+          updated_at: string;
         };
         Insert: {
           id: string;
@@ -28,7 +34,13 @@ export interface Database {
           position?: "FW" | "MF" | "DF" | "GK" | null;
           avatar_url?: string | null;
           user_code?: string | null;
+          phone?: string | null;
+          preferred_position?: string | null;
+          bio?: string | null;
+          is_public?: boolean;
+          email_notifications?: boolean;
           created_at?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
@@ -38,7 +50,13 @@ export interface Database {
           position?: "FW" | "MF" | "DF" | "GK" | null;
           avatar_url?: string | null;
           user_code?: string | null;
+          phone?: string | null;
+          preferred_position?: string | null;
+          bio?: string | null;
+          is_public?: boolean;
+          email_notifications?: boolean;
           created_at?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };

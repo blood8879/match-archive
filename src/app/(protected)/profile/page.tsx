@@ -78,10 +78,13 @@ export default async function ProfilePage() {
 
     if (myRecords) {
       const typedRecords = myRecords as MatchRecordWithMatch[];
-      totalGoals = typedRecords.reduce((sum, r) => sum + r.goals, 0);
-      totalAssists = typedRecords.reduce((sum, r) => sum + r.assists, 0);
-      matchesPlayed = typedRecords.length;
-      recentMatches = typedRecords.slice(0, 5);
+      // FINISHED 상태의 경기만 필터링
+      const finishedRecords = typedRecords.filter((r) => r.match?.status === "FINISHED");
+
+      totalGoals = finishedRecords.reduce((sum, r) => sum + r.goals, 0);
+      totalAssists = finishedRecords.reduce((sum, r) => sum + r.assists, 0);
+      matchesPlayed = finishedRecords.length;
+      recentMatches = finishedRecords.slice(0, 5);
     }
   }
 
@@ -97,12 +100,20 @@ export default async function ProfilePage() {
         <section className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6 md:p-8">
           <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
             <div className="relative">
-              <div className="size-28 md:size-32 rounded-full bg-gradient-to-br from-[#214a36] to-[#0f2319] p-1 shadow-2xl ring-2 ring-white/10">
-                <div className="w-full h-full rounded-full bg-[#1a4031] flex items-center justify-center">
-                  <span className="text-4xl md:text-5xl font-bold text-[#00e677]">
-                    {typedProfile?.nickname?.charAt(0) || "U"}
-                  </span>
-                </div>
+              <div className="size-28 md:size-32 rounded-full bg-gradient-to-br from-[#214a36] to-[#0f2319] p-1 shadow-2xl ring-2 ring-white/10 overflow-hidden">
+                {typedProfile?.avatar_url ? (
+                  <img
+                    src={typedProfile.avatar_url}
+                    alt={typedProfile.nickname || "User"}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full bg-[#1a4031] flex items-center justify-center">
+                    <span className="text-4xl md:text-5xl font-bold text-[#00e677]">
+                      {typedProfile?.nickname?.charAt(0) || "U"}
+                    </span>
+                  </div>
+                )}
               </div>
               <div className={`absolute -bottom-1 -right-1 ${tier.bg} ${tier.color} text-xs font-bold px-2.5 py-1 rounded-full border-2 border-[#10231a]`}>
                 {tier.name}
@@ -143,7 +154,7 @@ export default async function ProfilePage() {
 
               <div className="mt-4 flex gap-3 justify-center md:justify-start">
                 <Link
-                  href="/profile/edit"
+                  href="/settings"
                   className="flex items-center gap-2 h-10 px-5 rounded-xl bg-[#00e677] hover:bg-[#00e677]/90 text-[#0f2319] font-bold text-sm transition-all shadow-[0_0_15px_rgba(6,224,118,0.2)]"
                 >
                   <Settings className="w-4 h-4" />

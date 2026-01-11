@@ -7,7 +7,7 @@ import {
 } from "@/services/team-stats";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { MapPin, Calendar, Copy, Zap, Users, UserPlus, Star, ArrowLeft } from "lucide-react";
+import { MapPin, Calendar, Copy, Zap, Users, UserPlus, Star, ArrowLeft, Settings } from "lucide-react";
 import { MemberList } from "./member-list";
 import { JoinTeamButton } from "./join-team-button";
 import { formatDateTime } from "@/lib/utils";
@@ -129,6 +129,15 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             >
               <span className="material-symbols-outlined text-[20px]">event</span>
               경기 등록
+            </Link>
+          )}
+          {isManager && (
+            <Link
+              href={`/teams/${team.id}/settings`}
+              className="flex-1 sm:flex-none h-12 px-6 rounded-xl bg-[#214a36] hover:bg-[#2b5d45] text-white font-semibold text-base transition-all border border-white/5 flex items-center justify-center gap-2"
+            >
+              <Settings className="h-5 w-5" />
+              설정
             </Link>
           )}
           <button className="flex-1 sm:flex-none h-12 px-6 rounded-xl bg-[#214a36] hover:bg-[#2b5d45] text-white font-semibold text-base transition-all border border-white/5 flex items-center justify-center gap-2">

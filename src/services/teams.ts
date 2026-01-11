@@ -34,7 +34,7 @@ export async function getTeams(region?: string, query?: string): Promise<Team[]>
 export async function getTeamById(id: string): Promise<Team | null> {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const { data, error} = await supabase
     .from("teams")
     .select("*")
     .eq("id", id)
@@ -78,8 +78,9 @@ export async function getTeamMembers(teamId: string): Promise<TeamMemberWithUser
 
   console.log("[getTeamMembers] Success:", {
     teamId,
-    memberCount: data?.length || 0,
+    memberCount: data?.length,
   });
+
   return data as TeamMemberWithUser[];
 }
 
@@ -95,8 +96,10 @@ export async function createTeam(formData: FormData): Promise<Team> {
   const region = formData.get("region") as string;
   const emblemFile = formData.get("emblem") as File | null;
 
-  // 엠블럼 이미지가 있으면 업로드
+  if (!name) throw new Error("팀 이름은 필수입니다");
+
   let emblemUrl: string | null = null;
+
   if (emblemFile && emblemFile.size > 0) {
     // 파일 크기 검증 (5MB)
     if (emblemFile.size > 5 * 1024 * 1024) {
@@ -160,6 +163,113 @@ export async function createTeam(formData: FormData): Promise<Team> {
   revalidatePath("/dashboard");
 
   return typedTeam;
+}
+
+export async function updateTeam(teamId: string, formData: FormData): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("로그인이 필요합니다");
+
+  // 권한 확인
+  const { data: membership } = await supabase
+    .from("team_members")
+    .select("role")
+    .eq("team_id", teamId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!membership || (membership.role !== "OWNER" && membership.role !== "MANAGER")) {
+    throw new Error("권한이 없습니다");
+  }
+
+  const name = formData.get("name") as string;
+  const region = formData.get("region") as string;
+  const emblemFile = formData.get("emblem") as File | null;
+
+  if (!name) throw new Error("팀 이름은 필수입니다");
+
+  let emblemUrl: string | undefined = undefined;
+
+  if (emblemFile && emblemFile.size > 0) {
+    // 파일 크기 검증 (5MB)
+    if (emblemFile.size > 5 * 1024 * 1024) {
+      throw new Error("파일 크기는 5MB를 초과할 수 없습니다");
+    }
+
+    // 파일 타입 검증
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"];
+    if (!allowedTypes.includes(emblemFile.type)) {
+      throw new Error("지원되지 않는 이미지 형식입니다 (JPG, PNG, WebP, SVG만 가능)");
+    }
+
+    // 기존 엠블럼 삭제 (선택사항)
+    const { data: currentTeam } = await supabase
+      .from("teams")
+      .select("emblem_url")
+      .eq("id", teamId)
+      .single();
+
+    if (currentTeam?.emblem_url) {
+      const url = new URL(currentTeam.emblem_url);
+      const pathParts = url.pathname.split("/");
+      const bucketIndex = pathParts.indexOf("team-emblems");
+      if (bucketIndex !== -1 && bucketIndex < pathParts.length - 1) {
+        const filePath = pathParts.slice(bucketIndex + 1).join("/");
+        await supabase.storage.from("team-emblems").remove([filePath]);
+      }
+    }
+
+    // 파일명 생성
+    const fileExt = emblemFile.name.split(".").pop();
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 15);
+    const fileName = `${timestamp}_${randomStr}.${fileExt}`;
+    const path = `${user.id}/${fileName}`;
+
+    // 파일 업로드
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from("team-emblems")
+      .upload(path, emblemFile, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (uploadError) {
+      throw new Error(`이미지 업로드 실패: ${uploadError.message}`);
+    }
+
+    // Public URL 생성
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("team-emblems").getPublicUrl(uploadData.path);
+
+    emblemUrl = publicUrl;
+  }
+
+  // 팀 정보 업데이트
+  const updateData: any = {
+    name,
+    region: region || null,
+  };
+
+  if (emblemUrl !== undefined) {
+    updateData.emblem_url = emblemUrl;
+  }
+
+  const { error } = await supabase
+    .from("teams")
+    .update(updateData)
+    .eq("id", teamId);
+
+  if (error) throw error;
+
+  revalidatePath(`/teams/${teamId}`);
+  revalidatePath(`/teams/${teamId}/settings`);
+  revalidatePath("/teams");
+  revalidatePath("/dashboard");
 }
 
 export async function requestJoinTeam(teamId: string): Promise<void> {

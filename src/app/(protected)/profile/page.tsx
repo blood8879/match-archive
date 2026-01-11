@@ -71,7 +71,7 @@ export default async function ProfilePage() {
   if (memberIds.length > 0) {
     const { data: myRecords } = await supabase
       .from("match_records")
-      .select("*, match:matches(*, team:teams(*))")
+      .select("*, match:matches(*, team:teams!matches_team_id_fkey(*))")
       .in("team_member_id", memberIds)
       .order("created_at", { ascending: false })
       .limit(10);

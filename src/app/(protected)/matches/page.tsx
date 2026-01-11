@@ -4,7 +4,10 @@ import { Calendar, MapPin, Trophy, Clock, ChevronRight, Plus } from "lucide-reac
 import { formatDateTime, getMatchResultLabel, getResultColor } from "@/lib/utils";
 import type { Match, Team, TeamMember } from "@/types/supabase";
 
-type MatchWithTeam = Match & { team: Team | null };
+type MatchWithTeam = Match & {
+  team: Team | null;
+  opponent_team: { id: string; name: string; emblem_url: string | null } | null;
+};
 type TeamMemberWithTeam = TeamMember & { team: Team | null };
 
 export default async function MatchesPage() {
@@ -32,7 +35,7 @@ export default async function MatchesPage() {
   if (teamIds.length > 0) {
     const { data: matchesRaw } = await supabase
       .from("matches")
-      .select("*, team:teams(*)")
+      .select("*, team:teams!matches_team_id_fkey(*), opponent_team:teams!matches_opponent_team_id_fkey(id, name, emblem_url)")
       .in("team_id", teamIds)
       .order("match_date", { ascending: false });
 
@@ -176,10 +179,18 @@ function MatchCard({ match }: { match: MatchWithTeam }) {
                 <span className="font-bold text-white text-sm md:text-base truncate max-w-[80px] md:max-w-[120px]">
                   {match.opponent_name}
                 </span>
-                <div className="size-10 md:size-12 rounded-full bg-[#214a36] flex items-center justify-center border border-[#2f6a4d]">
-                  <span className="text-lg md:text-xl font-bold text-[#8eccae]">
-                    {match.opponent_name?.charAt(0) || "A"}
-                  </span>
+                <div className="size-10 md:size-12 rounded-full bg-[#214a36] flex items-center justify-center border border-[#2f6a4d] overflow-hidden">
+                  {match.opponent_team?.emblem_url ? (
+                    <img
+                      src={match.opponent_team.emblem_url}
+                      alt={match.opponent_name || "상대팀"}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-lg md:text-xl font-bold text-[#8eccae]">
+                      {match.opponent_name?.charAt(0) || "A"}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

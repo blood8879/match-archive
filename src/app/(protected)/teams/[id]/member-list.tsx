@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, X } from "lucide-react";
 import { approveMember, rejectMember } from "@/services/teams";
 import type { TeamMemberWithUser } from "@/services/teams";
@@ -9,14 +10,17 @@ interface MemberListProps {
   members: TeamMemberWithUser[];
   isManager: boolean;
   showActions?: boolean;
+  enableClick?: boolean;
 }
 
 export function MemberList({
   members,
   isManager,
   showActions = false,
+  enableClick = true,
 }: MemberListProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleApprove = async (memberId: string) => {
     setLoadingId(memberId);
@@ -33,6 +37,12 @@ export function MemberList({
       await rejectMember(memberId);
     } finally {
       setLoadingId(null);
+    }
+  };
+
+  const handleMemberClick = (memberId: string) => {
+    if (enableClick && !showActions) {
+      router.push(`/players/${memberId}`);
     }
   };
 
@@ -58,7 +68,12 @@ export function MemberList({
         return (
           <li
             key={member.id}
-            className="flex items-center justify-between rounded-lg bg-surface-700 px-4 py-3"
+            className={`flex items-center justify-between rounded-lg bg-surface-700 px-4 py-3 ${
+              enableClick && !showActions
+                ? "cursor-pointer hover:bg-surface-600 transition-colors"
+                : ""
+            }`}
+            onClick={() => handleMemberClick(member.id)}
           >
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-800 text-sm font-medium">
@@ -79,7 +94,7 @@ export function MemberList({
               </div>
             </div>
             {showActions && isManager && (
-              <div className="flex gap-1">
+              <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => handleApprove(member.id)}
                   disabled={loadingId === member.id}

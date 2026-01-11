@@ -7,7 +7,7 @@ import {
 } from "@/services/team-stats";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { MapPin, Calendar, Copy, Zap, Users, UserPlus, Star } from "lucide-react";
+import { MapPin, Calendar, Copy, Zap, Users, UserPlus, Star, ArrowLeft } from "lucide-react";
 import { MemberList } from "./member-list";
 import { JoinTeamButton } from "./join-team-button";
 import { formatDateTime } from "@/lib/utils";
@@ -58,6 +58,15 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
 
   return (
     <main className="relative z-10 flex-1 max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
+      {/* Back Button */}
+      <Link
+        href="/teams"
+        className="flex items-center gap-2 text-[#8eccae] hover:text-[#00e677] transition-colors text-sm w-fit"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span>팀 목록으로</span>
+      </Link>
+
       <section className="glass-card rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start md:items-center justify-between shadow-lg">
         <div className="flex flex-col md:flex-row gap-6 items-center w-full md:w-auto">
           <div className="relative group">

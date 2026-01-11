@@ -144,17 +144,21 @@ export async function getRecentMatches(
   });
 }
 
+export type MatchWithOpponentTeam = Match & {
+  opponent_team: { id: string; name: string; emblem_url: string | null } | null;
+};
+
 /**
  * 다음 예정된 경기를 반환합니다
  */
-export async function getNextMatch(teamId: string): Promise<Match | null> {
+export async function getNextMatch(teamId: string): Promise<MatchWithOpponentTeam | null> {
   const supabase = await createClient();
 
   const now = new Date().toISOString();
 
   const { data: matches, error } = await supabase
     .from("matches")
-    .select("*")
+    .select("*, opponent_team:teams!matches_opponent_team_id_fkey(id, name, emblem_url)")
     .eq("team_id", teamId)
     .eq("status", "SCHEDULED")
     .gte("match_date", now)
@@ -166,6 +170,6 @@ export async function getNextMatch(teamId: string): Promise<Match | null> {
     throw error;
   }
 
-  const typedMatches = matches as Match[];
+  const typedMatches = matches as MatchWithOpponentTeam[];
   return typedMatches.length > 0 ? typedMatches[0] : null;
 }

@@ -77,11 +77,12 @@ export default function NewMatchPage() {
       const formData = new FormData(e.currentTarget);
       formData.set("team_id", teamId);
 
-      // Set opponent_name from selected opponent or input
+      // Set opponent_name and opponent_team_id from selected opponent or input
       if (selectedOpponent) {
         const opponent = searchResults.find((t) => t.id === selectedOpponent);
         if (opponent) {
           formData.set("opponent_name", opponent.name);
+          formData.set("opponent_team_id", opponent.id);
         }
       }
 

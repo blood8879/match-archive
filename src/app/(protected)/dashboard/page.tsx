@@ -4,6 +4,8 @@ import { Users, Calendar, Trophy, TrendingUp, Bell, Search, ChevronRight, Send, 
 import type { Team, TeamMember, User } from "@/types/supabase";
 import { getMyInvites } from "@/services/invites";
 import { TeamInvitesSection } from "./team-invites-section";
+import { getRecentMatches, getNextMatch } from "@/services/team-stats";
+import { formatDateTime } from "@/lib/utils";
 
 type TeamMemberWithTeam = TeamMember & { team: Team | null };
 
@@ -40,13 +42,29 @@ export default async function DashboardPage() {
   if (firstMembershipId) {
     const { data: myStats } = await supabase
       .from("match_records")
-      .select("goals, assists")
+      .select("goals, assists, match:matches!match_records_match_id_fkey(id, status)")
       .eq("team_member_id", firstMembershipId);
 
     if (myStats) {
-      totalGoals = myStats.reduce((sum, r) => sum + r.goals, 0);
-      totalAssists = myStats.reduce((sum, r) => sum + r.assists, 0);
-      matchesPlayed = myStats.length;
+      // FINISHED 상태의 경기만 카운트
+      const finishedMatches = myStats.filter((record: any) => record.match?.status === "FINISHED");
+
+      totalGoals = finishedMatches.reduce((sum: number, r: any) => sum + (r.goals || 0), 0);
+      totalAssists = finishedMatches.reduce((sum: number, r: any) => sum + (r.assists || 0), 0);
+      matchesPlayed = finishedMatches.length;
+    }
+  }
+
+  // 첫 번째 팀의 최근 경기와 다음 경기 가져오기
+  let recentMatches: any[] = [];
+  let nextMatch: any = null;
+
+  if (firstTeam) {
+    try {
+      recentMatches = await getRecentMatches(firstTeam.id, 5);
+      nextMatch = await getNextMatch(firstTeam.id);
+    } catch (error) {
+      console.error("Failed to fetch team matches:", error);
     }
   }
 
@@ -154,13 +172,19 @@ export default async function DashboardPage() {
               </div>
               <div className="flex items-center justify-between relative">
                 <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-white/10 -z-10 transform -translate-y-1/2"></div>
-                {matchesPlayed > 0 ? (
+                {recentMatches.length > 0 ? (
                   <>
-                    <MatchResultBadge result="승" score="2-1" />
-                    <MatchResultBadge result="승" score="3-0" />
-                    <MatchResultBadge result="무" score="1-1" />
-                    <MatchResultBadge result="패" score="0-2" />
-                    <MatchResultBadge result="승" score="4-1" />
+                    {recentMatches.map((match, idx) => (
+                      <MatchResultBadge
+                        key={idx}
+                        result={match.result === "W" ? "승" : match.result === "D" ? "무" : "패"}
+                        score={`${match.homeScore}-${match.awayScore}`}
+                      />
+                    ))}
+                    {/* 5개 미만일 경우 빈 공간 채우기 */}
+                    {Array.from({ length: 5 - recentMatches.length }).map((_, idx) => (
+                      <div key={`empty-${idx}`} className="size-12 rounded-full bg-white/5"></div>
+                    ))}
                   </>
                 ) : (
                   <p className="text-white/40 text-sm w-full text-center py-4">경기 기록이 없습니다</p>
@@ -192,10 +216,14 @@ export default async function DashboardPage() {
                     <span className="size-2 rounded-full bg-[#0f2319] animate-pulse"></span>
                     다음 경기
                   </div>
-                  {firstTeam ? (
+                  {nextMatch ? (
                     <div className="flex flex-col items-end text-right">
-                      <div className="text-[#00e677] font-bold text-lg">경기 예정</div>
-                      <div className="text-white/70 text-sm font-medium">팀 상세에서 확인</div>
+                      <div className="text-[#00e677] font-bold text-lg">{formatDateTime(nextMatch.match_date).split(' ')[0]}</div>
+                      <div className="text-white/70 text-sm font-medium">{formatDateTime(nextMatch.match_date).split(' ')[1]}</div>
+                    </div>
+                  ) : firstTeam ? (
+                    <div className="flex flex-col items-end text-right">
+                      <div className="text-white/40 font-bold text-lg">일정 없음</div>
                     </div>
                   ) : (
                     <div className="flex flex-col items-end text-right">
@@ -209,9 +237,13 @@ export default async function DashboardPage() {
                       <div className="flex items-center gap-6">
                         <div className="flex flex-col items-center gap-2">
                           <div className="size-20 bg-white/10 rounded-full p-2 backdrop-blur-md border border-white/10 shadow-lg">
-                            <div className="w-full h-full rounded-full bg-[#1a4031] flex items-center justify-center">
-                              <Zap className="w-10 h-10 text-[#00e677]" />
-                            </div>
+                            {firstTeam.emblem_url ? (
+                              <img src={firstTeam.emblem_url} alt={firstTeam.name} className="w-full h-full rounded-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full rounded-full bg-[#1a4031] flex items-center justify-center">
+                                <Zap className="w-10 h-10 text-[#00e677]" />
+                              </div>
+                            )}
                           </div>
                           <span className="text-white font-bold tracking-tight">{firstTeam.name}</span>
                         </div>
@@ -220,25 +252,49 @@ export default async function DashboardPage() {
                         </div>
                         <div className="flex flex-col items-center gap-2">
                           <div className="size-20 bg-white/10 rounded-full p-2 backdrop-blur-md border border-white/10 shadow-lg">
-                            <div className="w-full h-full rounded-full bg-gray-700 flex items-center justify-center text-white/50">
-                              ?
-                            </div>
+                            {nextMatch?.opponent_team?.emblem_url ? (
+                              <img
+                                src={nextMatch.opponent_team.emblem_url}
+                                alt={nextMatch.opponent_name}
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full rounded-full bg-gray-700 flex items-center justify-center text-white/50">
+                                ?
+                              </div>
+                            )}
                           </div>
-                          <span className="text-white font-bold tracking-tight">상대팀</span>
+                          <span className="text-white font-bold tracking-tight">{nextMatch?.opponent_name || "상대팀"}</span>
                         </div>
                       </div>
                       <div className="flex-1 w-full md:w-auto">
                         <div className="flex flex-col gap-1 mb-6">
-                          <h2 className="text-3xl font-black text-white leading-none">다음 경기</h2>
+                          <h2 className="text-3xl font-black text-white leading-none">
+                            {nextMatch ? `vs ${nextMatch.opponent_name}` : "다음 경기"}
+                          </h2>
                           <div className="flex items-center gap-2 text-white/60 text-sm">
-                            경기를 생성하여 일정을 관리하세요
+                            {nextMatch ? (
+                              <>
+                                <Calendar className="w-4 h-4" />
+                                {formatDateTime(nextMatch.match_date)}
+                                {nextMatch.location && ` · ${nextMatch.location}`}
+                              </>
+                            ) : (
+                              "경기를 생성하여 일정을 관리하세요"
+                            )}
                           </div>
                         </div>
                         <div className="flex gap-3">
-                          <Link href={`/teams/${firstTeam.id}/matches/new`} className="flex-1 md:flex-none h-11 px-6 bg-[#00e677] hover:bg-green-400 text-[#0f2319] text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(0,230,119,0.3)]">
-                            <Calendar className="w-5 h-5" />
-                            경기 생성
-                          </Link>
+                          {nextMatch ? (
+                            <Link href={`/matches/${nextMatch.id}`} className="flex-1 md:flex-none h-11 px-6 bg-[#00e677] hover:bg-green-400 text-[#0f2319] text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(0,230,119,0.3)]">
+                              경기 보기
+                            </Link>
+                          ) : (
+                            <Link href={`/teams/${firstTeam.id}/matches/new`} className="flex-1 md:flex-none h-11 px-6 bg-[#00e677] hover:bg-green-400 text-[#0f2319] text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(0,230,119,0.3)]">
+                              <Calendar className="w-5 h-5" />
+                              경기 생성
+                            </Link>
+                          )}
                         </div>
                       </div>
                     </>

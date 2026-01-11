@@ -5,8 +5,9 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { updateMatch, getMatchById } from "@/services/matches";
 import { getTeamVenues } from "@/services/venues";
-import { Calendar, MapPin, Users, Save, ArrowLeft, Building2 } from "lucide-react";
-import type { Venue, Match } from "@/types/supabase";
+import { getTeams } from "@/services/teams";
+import { Calendar, MapPin, Users, Save, ArrowLeft, Building2, Search } from "lucide-react";
+import type { Venue, Match, Team } from "@/types/supabase";
 
 export default function EditMatchPage() {
   const router = useRouter();
@@ -20,6 +21,10 @@ export default function EditMatchPage() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<string>("");
   const [useCustomLocation, setUseCustomLocation] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Team[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedOpponent, setSelectedOpponent] = useState<string>("");
 
   useEffect(() => {
     async function loadData() {
@@ -51,6 +56,34 @@ export default function EditMatchPage() {
     loadData();
   }, [matchId, router]);
 
+  // Debounced search effect
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const results = await getTeams(undefined, searchQuery);
+        // 자기 팀은 제외
+        if (match) {
+          setSearchResults(results.filter((team) => team.id !== match.team_id));
+        } else {
+          setSearchResults(results);
+        }
+      } catch (err) {
+        console.error("Failed to search teams:", err);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, match]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -58,6 +91,14 @@ export default function EditMatchPage() {
 
     try {
       const formData = new FormData(e.currentTarget);
+
+      // Set opponent_name from selected opponent or input
+      if (selectedOpponent) {
+        const opponent = searchResults.find((t) => t.id === selectedOpponent);
+        if (opponent) {
+          formData.set("opponent_name", opponent.name);
+        }
+      }
 
       // Set venue_id if selected, otherwise use custom location
       if (!useCustomLocation && selectedVenue) {
@@ -226,16 +267,99 @@ export default function EditMatchPage() {
                 <h3 className="text-white font-semibold text-lg">상대팀 정보</h3>
               </div>
             </div>
+
+            {/* Search Section */}
+            <div className="flex flex-col gap-3">
+              <span className="text-gray-300 text-sm font-medium">팀 검색</span>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="팀 이름을 입력하세요..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-[#183527] border border-[#2f6a4d] rounded-xl px-4 py-3.5 pr-10 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all"
+                />
+                <Search className={`absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${isSearching ? "text-[#00e677] animate-pulse" : "text-gray-500"}`} />
+              </div>
+
+              {/* Search Results */}
+              {searchResults.length > 0 && (
+                <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
+                  <p className="text-sm text-gray-400">{searchResults.length}개의 팀을 찾았습니다</p>
+                  {searchResults.map((team) => (
+                    <label
+                      key={team.id}
+                      className={`cursor-pointer p-4 rounded-xl border-2 transition-all ${
+                        selectedOpponent === team.id
+                          ? "border-[#00e677] bg-[#00e677]/10"
+                          : "border-[#2f6a4d] bg-[#183527] hover:border-[#2f6a4d]/80"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="team_search"
+                        value={team.id}
+                        checked={selectedOpponent === team.id}
+                        onChange={(e) => setSelectedOpponent(e.target.value)}
+                        className="sr-only"
+                      />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {team.emblem_url ? (
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-[#214a36] flex items-center justify-center flex-shrink-0">
+                              <img
+                                src={team.emblem_url}
+                                alt={`${team.name} 엠블럼`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-[#214a36] flex items-center justify-center flex-shrink-0">
+                              <span className="text-[#8eccae] font-bold text-lg">
+                                {team.name.charAt(0)}
+                              </span>
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-white font-semibold">{team.name}</p>
+                            {team.region && (
+                              <p className="text-sm text-gray-400 mt-1">{team.region}</p>
+                            )}
+                          </div>
+                        </div>
+                        {selectedOpponent === team.id && (
+                          <div className="w-5 h-5 rounded-full bg-[#00e677] flex items-center justify-center">
+                            <div className="w-2 h-2 rounded-full bg-[#0f2319]" />
+                          </div>
+                        )}
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {searchQuery && searchResults.length === 0 && !isSearching && (
+                <p className="text-sm text-gray-400 text-center py-4">검색 결과가 없습니다</p>
+              )}
+            </div>
+
+            {/* Direct Input */}
             <label className="flex flex-col gap-2 group">
-              <span className="text-gray-300 text-sm font-medium group-focus-within:text-[#00e677] transition-colors">상대팀 이름</span>
+              <span className="text-gray-300 text-sm font-medium group-focus-within:text-[#00e677] transition-colors">
+                또는 직접 입력
+              </span>
               <input
                 name="opponent_name"
                 type="text"
                 placeholder="상대팀 이름"
                 defaultValue={match.opponent_name || ""}
                 required
-                className="w-full bg-[#183527] border border-[#2f6a4d] rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all"
+                disabled={!!selectedOpponent}
+                className="w-full bg-[#183527] border border-[#2f6a4d] rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
+              {selectedOpponent && (
+                <p className="text-xs text-[#00e677]">선택한 팀: {searchResults.find((t) => t.id === selectedOpponent)?.name}</p>
+              )}
             </label>
           </div>
 

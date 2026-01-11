@@ -5,8 +5,9 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createMatch } from "@/services/matches";
 import { getTeamVenues } from "@/services/venues";
+import { getTeams } from "@/services/teams";
 import { Calendar, MapPin, Users, FileText, PlusCircle, Search, Building2 } from "lucide-react";
-import type { Venue } from "@/types/supabase";
+import type { Venue, Team } from "@/types/supabase";
 
 export default function NewMatchPage() {
   const router = useRouter();
@@ -20,6 +21,10 @@ export default function NewMatchPage() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<string>("");
   const [useCustomLocation, setUseCustomLocation] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Team[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedOpponent, setSelectedOpponent] = useState<string>("");
 
   useEffect(() => {
     async function loadVenues() {
@@ -39,6 +44,30 @@ export default function NewMatchPage() {
     loadVenues();
   }, [teamId]);
 
+  // Debounced search effect
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const results = await getTeams(undefined, searchQuery);
+        // 자기 팀은 제외
+        setSearchResults(results.filter((team) => team.id !== teamId));
+      } catch (err) {
+        console.error("Failed to search teams:", err);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, teamId]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -47,6 +76,14 @@ export default function NewMatchPage() {
     try {
       const formData = new FormData(e.currentTarget);
       formData.set("team_id", teamId);
+
+      // Set opponent_name from selected opponent or input
+      if (selectedOpponent) {
+        const opponent = searchResults.find((t) => t.id === selectedOpponent);
+        if (opponent) {
+          formData.set("opponent_name", opponent.name);
+        }
+      }
 
       // Set venue_id if selected, otherwise use custom location
       if (!useCustomLocation && selectedVenue) {
@@ -241,28 +278,102 @@ export default function NewMatchPage() {
               </label>
             </div>
             {!unknownOpponent && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <label className="flex flex-col gap-2 group md:col-span-2">
-                  <span className="text-gray-300 text-sm font-medium group-focus-within:text-[#00e677] transition-colors">상대팀 검색</span>
-                  <div className="flex w-full items-stretch rounded-xl shadow-sm">
-                    <div className="relative flex-1">
-                      <input
-                        name="opponent_name"
-                        type="text"
-                        placeholder="팀 이름 검색..."
-                        required={!unknownOpponent}
-                        className="w-full bg-[#183527] border border-[#2f6a4d] rounded-xl rounded-r-none border-r-0 px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all z-10 relative"
-                      />
-                      <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <div className="space-y-4">
+                <div className="flex flex-col gap-2">
+                  <span className="text-gray-300 text-sm font-medium">상대팀 검색</span>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="팀 이름을 입력하세요..."
+                      className="w-full bg-[#183527] border border-[#2f6a4d] rounded-xl px-4 py-3.5 pr-10 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all"
+                    />
+                    <Search className={`absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${isSearching ? "text-[#00e677] animate-pulse" : "text-gray-500"}`} />
+                  </div>
+                </div>
+
+                {/* 검색 결과 */}
+                {searchResults.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-400">검색 결과 ({searchResults.length}개)</p>
+                    <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
+                      {searchResults.map((team) => (
+                        <label
+                          key={team.id}
+                          className={`cursor-pointer p-3 rounded-lg border-2 transition-all ${
+                            selectedOpponent === team.id
+                              ? "border-[#00e677] bg-[#00e677]/10"
+                              : "border-[#2f6a4d] bg-[#183527] hover:border-[#2f6a4d]/80"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="opponent_selection"
+                            value={team.id}
+                            checked={selectedOpponent === team.id}
+                            onChange={(e) => setSelectedOpponent(e.target.value)}
+                            className="sr-only"
+                          />
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              {team.emblem_url ? (
+                                <div className="w-10 h-10 rounded-full overflow-hidden bg-[#214a36] flex items-center justify-center flex-shrink-0">
+                                  <img
+                                    src={team.emblem_url}
+                                    alt={`${team.name} 엠블럼`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-[#214a36] flex items-center justify-center flex-shrink-0">
+                                  <span className="text-[#8eccae] font-bold text-lg">
+                                    {team.name.charAt(0)}
+                                  </span>
+                                </div>
+                              )}
+                              <div>
+                                <p className="text-white font-semibold">{team.name}</p>
+                                <p className="text-sm text-gray-400">{team.region || "지역 미상"}</p>
+                              </div>
+                            </div>
+                            {selectedOpponent === team.id && (
+                              <div className="w-5 h-5 rounded-full bg-[#00e677] flex items-center justify-center">
+                                <div className="w-2 h-2 rounded-full bg-[#0f2319]" />
+                              </div>
+                            )}
+                          </div>
+                        </label>
+                      ))}
                     </div>
+                  </div>
+                )}
+
+                {/* 직접 입력 */}
+                <div className="flex flex-col gap-2">
+                  <span className="text-gray-300 text-sm font-medium">또는 직접 입력</span>
+                  <input
+                    name="opponent_name"
+                    type="text"
+                    placeholder="상대팀 이름 입력"
+                    required={!unknownOpponent && !selectedOpponent}
+                    disabled={!!selectedOpponent}
+                    className="w-full bg-[#183527] border border-[#2f6a4d] rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  {selectedOpponent && (
                     <button
                       type="button"
-                      className="bg-[#183527] border border-[#2f6a4d] hover:bg-[#2f6a4d]/50 text-[#00e677] px-6 rounded-r-xl font-medium transition-colors border-l-0"
+                      onClick={() => {
+                        setSelectedOpponent("");
+                        setSearchResults([]);
+                        setSearchQuery("");
+                      }}
+                      className="text-sm text-[#00e677] hover:underline"
                     >
-                      검색
+                      선택 취소하고 직접 입력
                     </button>
-                  </div>
-                </label>
+                  )}
+                </div>
               </div>
             )}
           </div>

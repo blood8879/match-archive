@@ -1,10 +1,16 @@
 import { notFound } from "next/navigation";
 import { getTeamById, getTeamMembers } from "@/services/teams";
+import {
+  getTeamStatistics,
+  getRecentMatches,
+  getNextMatch,
+} from "@/services/team-stats";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { MapPin, Calendar, Copy, Zap, Users, UserPlus, Star } from "lucide-react";
 import { MemberList } from "./member-list";
 import { JoinTeamButton } from "./join-team-button";
+import { formatDateTime } from "@/lib/utils";
 
 interface TeamDetailPageProps {
   params: Promise<{ id: string }>;
@@ -19,10 +25,16 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
 
   let team;
   let members;
+  let stats;
+  let recentMatches;
+  let nextMatch;
 
   try {
     team = await getTeamById(id);
     members = await getTeamMembers(id);
+    stats = await getTeamStatistics(id);
+    recentMatches = await getRecentMatches(id, 5);
+    nextMatch = await getNextMatch(id);
   } catch {
     notFound();
   }
@@ -125,21 +137,47 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             <span className="material-symbols-outlined text-primary text-xl">trophy</span>
           </div>
           <div>
-            <span className="text-3xl font-bold text-white">65.4%</span>
-            <p className="text-xs text-gray-400 mt-1">26전 17승 5무 4패</p>
+            <span className="text-3xl font-bold text-white">
+              {stats.totalMatches > 0 ? `${stats.winRate}%` : "기록 없음"}
+            </span>
+            <p className="text-xs text-gray-400 mt-1">
+              {stats.totalMatches > 0
+                ? `${stats.totalMatches}전 ${stats.wins}승 ${stats.draws}무 ${stats.losses}패`
+                : "경기를 시작해보세요"}
+            </p>
           </div>
         </div>
 
         <div className="glass-card p-5 rounded-xl flex flex-col justify-between h-32">
           <p className="text-[#8eccae] text-sm font-medium mb-2">최근 5경기</p>
           <div className="flex items-center gap-2">
-            <div className="size-8 rounded-full bg-primary flex items-center justify-center text-[#0f2319] font-bold text-xs shadow-lg shadow-primary/20">W</div>
-            <div className="size-8 rounded-full bg-primary flex items-center justify-center text-[#0f2319] font-bold text-xs shadow-lg shadow-primary/20">W</div>
-            <div className="size-8 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold text-xs">L</div>
-            <div className="size-8 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold text-xs">D</div>
-            <div className="size-8 rounded-full bg-primary flex items-center justify-center text-[#0f2319] font-bold text-xs shadow-lg shadow-primary/20">W</div>
+            {recentMatches.length > 0 ? (
+              recentMatches.map((match, idx) => (
+                <div
+                  key={idx}
+                  className={`size-8 rounded-full flex items-center justify-center font-bold text-xs ${
+                    match.result === "W"
+                      ? "bg-primary text-[#0f2319] shadow-lg shadow-primary/20"
+                      : match.result === "D"
+                      ? "bg-gray-500 text-white"
+                      : "bg-gray-600 text-white"
+                  }`}
+                  title={`${match.opponentName} ${match.homeScore}-${match.awayScore}`}
+                >
+                  {match.result}
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-gray-400">경기 기록 없음</p>
+            )}
           </div>
-          <p className="text-xs text-gray-400 mt-1 text-right">최근 폼 상승세 🔥</p>
+          <p className="text-xs text-gray-400 mt-1 text-right">
+            {recentMatches.length > 0 && recentMatches.filter((m) => m.result === "W").length >= 3
+              ? "최근 폼 상승세 🔥"
+              : recentMatches.length > 0
+              ? `최근 ${recentMatches.length}경기`
+              : ""}
+          </p>
         </div>
 
         <div className="glass-card p-5 rounded-xl flex flex-col justify-between h-32">
@@ -149,19 +187,38 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
           </div>
           <div>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-white">2.4</span>
+              <span className="text-3xl font-bold text-white">
+                {stats.totalMatches > 0 ? stats.averageGoalsPerMatch : "0"}
+              </span>
               <span className="text-sm text-primary font-medium">골</span>
             </div>
-            <p className="text-xs text-gray-400 mt-1">총 득점 62 / 실점 28</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {stats.totalMatches > 0
+                ? `총 득점 ${stats.totalGoalsScored} / 실점 ${stats.totalGoalsConceded}`
+                : "경기 기록 없음"}
+            </p>
           </div>
         </div>
 
         <div className="glass-card p-5 rounded-xl flex flex-col justify-between h-32 border-l-4 border-l-primary">
           <p className="text-[#8eccae] text-sm font-medium">다음 경기 일정</p>
           <div>
-            <p className="text-white font-bold truncate">일정 없음</p>
-            <p className="text-sm text-gray-300 mt-1">경기를 생성하세요</p>
-            <p className="text-xs text-[#8eccae] mt-1">올림픽공원 제2구장</p>
+            {nextMatch ? (
+              <>
+                <p className="text-white font-bold truncate">vs {nextMatch.opponent_name}</p>
+                <p className="text-sm text-gray-300 mt-1">
+                  {formatDateTime(nextMatch.match_date)}
+                </p>
+                <p className="text-xs text-[#8eccae] mt-1">
+                  {nextMatch.location || "장소 미정"}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-white font-bold truncate">일정 없음</p>
+                <p className="text-sm text-gray-300 mt-1">경기를 생성하세요</p>
+              </>
+            )}
           </div>
         </div>
       </section>

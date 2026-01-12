@@ -376,3 +376,52 @@ export async function removeMember(memberId: string): Promise<void> {
 
   revalidatePath("/teams");
 }
+
+export async function updateMemberInfo(
+  memberId: string,
+  data: {
+    team_position?: "FW" | "MF" | "DF" | "GK" | null;
+    back_number?: number | null;
+  }
+): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("로그인이 필요합니다");
+
+  // 멤버 정보와 팀 정보 조회
+  const { data: member, error: memberError } = await supabase
+    .from("team_members")
+    .select("team_id")
+    .eq("id", memberId)
+    .single();
+
+  if (memberError || !member) throw new Error("멤버를 찾을 수 없습니다");
+
+  // 권한 확인 (OWNER 또는 MANAGER만 수정 가능)
+  const { data: currentUserMembership } = await supabase
+    .from("team_members")
+    .select("role")
+    .eq("team_id", member.team_id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (
+    !currentUserMembership ||
+    (currentUserMembership.role !== "OWNER" &&
+      currentUserMembership.role !== "MANAGER")
+  ) {
+    throw new Error("권한이 없습니다");
+  }
+
+  const { error } = await supabase
+    .from("team_members")
+    .update(data)
+    .eq("id", memberId);
+
+  if (error) throw error;
+
+  revalidatePath("/teams");
+}

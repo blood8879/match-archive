@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Check, X, MoreVertical, Search, Filter, Crown, Shield, User as UserIcon } from "lucide-react";
+import { Check, X, MoreVertical, Search, Filter, Crown, Shield, User as UserIcon, Pencil } from "lucide-react";
 import {
   approveMember,
   rejectMember,
@@ -11,6 +11,7 @@ import {
 import type { TeamMemberWithUser } from "@/services/teams";
 import { useRouter } from "next/navigation";
 import { ConfirmModal } from "./confirm-modal";
+import { EditMemberModal } from "./edit-member-modal";
 
 interface MemberManagementListProps {
   members: TeamMemberWithUser[];
@@ -39,6 +40,10 @@ export function MemberManagementList({
     memberId: string;
     memberName: string;
   }>({ isOpen: false, type: null, memberId: "", memberName: "" });
+  const [editModal, setEditModal] = useState<{
+    isOpen: boolean;
+    member: TeamMemberWithUser | null;
+  }>({ isOpen: false, member: null });
 
   const handleApprove = async (memberId: string) => {
     setLoadingId(memberId);
@@ -114,9 +119,10 @@ export function MemberManagementList({
       const matchesRole =
         roleFilter === "ALL" || member.role === roleFilter;
 
+      // 팀 포지션 우선, 없으면 사용자 선호 포지션 사용
+      const effectivePosition = member.team_position || (!member.is_guest ? member.user?.position : null);
       const matchesPosition =
-        positionFilter === "ALL" ||
-        (!member.is_guest && member.user?.position === positionFilter);
+        positionFilter === "ALL" || effectivePosition === positionFilter;
 
       return matchesSearch && matchesRole && matchesPosition;
     });
@@ -192,7 +198,10 @@ export function MemberManagementList({
               member.is_guest && member.guest_name
                 ? member.guest_name
                 : member.user?.nickname || "알 수 없음";
-            const position = member.is_guest ? "용병" : member.user?.position;
+            // 팀 포지션 우선 표시, 없으면 사용자 선호 포지션
+            const teamPosition = member.team_position;
+            const userPosition = member.is_guest ? null : member.user?.position;
+            const displayPosition = member.is_guest ? "용병" : (teamPosition || userPosition);
             const isOwnerMember = member.role === "OWNER";
             const canManage = isOwner || (!isOwnerMember && !showActions);
 
@@ -248,16 +257,19 @@ export function MemberManagementList({
                         {roleInfo.label}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      {position && (
-                        <span className="text-sm text-text-400">
-                          {position}
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      {displayPosition && (
+                        <span className={`text-sm ${teamPosition ? "text-primary font-medium" : "text-text-400"}`}>
+                          {displayPosition}
+                          {teamPosition && userPosition && teamPosition !== userPosition && (
+                            <span className="text-text-500 font-normal"> (선호: {userPosition})</span>
+                          )}
                         </span>
                       )}
                       {member.back_number && (
                         <>
                           <span className="text-text-400">·</span>
-                          <span className="text-sm text-text-400">
+                          <span className="text-sm text-primary font-medium">
                             #{member.back_number}
                           </span>
                         </>
@@ -313,6 +325,16 @@ export function MemberManagementList({
                             onClick={() => setOpenMenuId(null)}
                           />
                           <div className="absolute right-0 top-full mt-1 w-48 rounded-lg bg-surface-800 border border-white/10 shadow-xl z-20 py-1">
+                            <button
+                              onClick={() => {
+                                setEditModal({ isOpen: true, member });
+                                setOpenMenuId(null);
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-white hover:bg-surface-700 transition-colors flex items-center gap-2"
+                            >
+                              <Pencil className="w-4 h-4" />
+                              정보 수정
+                            </button>
                             {member.role === "MANAGER" && (
                               <button
                                 onClick={() =>
@@ -371,6 +393,12 @@ export function MemberManagementList({
         cancelText="취소"
         isLoading={loadingId === confirmModal.memberId}
         variant="destructive"
+      />
+
+      <EditMemberModal
+        isOpen={editModal.isOpen}
+        onClose={() => setEditModal({ isOpen: false, member: null })}
+        member={editModal.member}
       />
     </div>
   );

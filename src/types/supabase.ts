@@ -110,6 +110,7 @@ export interface Database {
           is_guest: boolean;
           guest_name: string | null;
           back_number: number | null;
+          team_position: "FW" | "MF" | "DF" | "GK" | null;
           joined_at: string;
         };
         Insert: {
@@ -121,6 +122,7 @@ export interface Database {
           is_guest?: boolean;
           guest_name?: string | null;
           back_number?: number | null;
+          team_position?: "FW" | "MF" | "DF" | "GK" | null;
           joined_at?: string;
         };
         Update: {
@@ -132,6 +134,7 @@ export interface Database {
           is_guest?: boolean;
           guest_name?: string | null;
           back_number?: number | null;
+          team_position?: "FW" | "MF" | "DF" | "GK" | null;
           joined_at?: string;
         };
         Relationships: [

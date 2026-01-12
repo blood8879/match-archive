@@ -380,7 +380,7 @@ export async function removeMember(memberId: string): Promise<void> {
 export async function updateMemberInfo(
   memberId: string,
   data: {
-    team_position?: "FW" | "MF" | "DF" | "GK" | null;
+    team_positions?: string[];
     back_number?: number | null;
   }
 ): Promise<void> {

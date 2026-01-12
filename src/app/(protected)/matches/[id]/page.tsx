@@ -84,6 +84,9 @@ export default async function MatchDetailPage({
   // 라인업에 있는 선수 ID 목록 (match_records 기반)
   const lineupMemberIds = records.map((r) => r.team_member_id);
 
+  // opponent_team이 있으면 현재 팀명 사용, 없으면 저장된 opponent_name 사용
+  const opponentDisplayName = (match as any).opponent_team?.name || match.opponent_name;
+
   return (
     <div className="min-h-screen bg-[#0f2319] relative">
       <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#00e677]/5 rounded-full blur-[100px] pointer-events-none" />
@@ -108,7 +111,7 @@ export default async function MatchDetailPage({
               <div className="flex items-center gap-2 text-[#8eccae] text-sm mt-1">
                 <Calendar className="h-3.5 w-3.5" />
                 <p className="font-medium">
-                  {formatDateTime(match.match_date)} vs {match.opponent_name}
+                  {formatDateTime(match.match_date)} vs {opponentDisplayName}
                 </p>
               </div>
             </div>
@@ -176,18 +179,18 @@ export default async function MatchDetailPage({
                 {(match as any).opponent_team?.emblem_url ? (
                   <img
                     src={(match as any).opponent_team.emblem_url}
-                    alt={match.opponent_name || "Away Team"}
+                    alt={opponentDisplayName || "Away Team"}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <span className="text-2xl font-bold text-[#8eccae]">
-                    {match.opponent_name?.charAt(0) || "Z"}
+                    {opponentDisplayName?.charAt(0) || "Z"}
                   </span>
                 )}
               </div>
               <div className="text-center">
                 <p className="text-white font-bold text-sm">
-                  {match.opponent_name}
+                  {opponentDisplayName}
                 </p>
                 <p className="text-[#8eccae] text-xs mt-0.5">AWAY</p>
               </div>
@@ -313,7 +316,7 @@ export default async function MatchDetailPage({
               <div>
                 <h4 className="text-white text-sm font-bold mb-3 flex items-center gap-2">
                   <span className="px-2 py-1 rounded bg-[#214a36] text-[#8eccae] text-xs">AWAY</span>
-                  {match.opponent_name} ({opponentPlayers.filter((p) => p.is_playing).length}명)
+                  {opponentDisplayName} ({opponentPlayers.filter((p) => p.is_playing).length}명)
                 </h4>
                 <OpponentLineup
                   matchId={match.id}
@@ -355,7 +358,7 @@ export default async function MatchDetailPage({
         <PreviousMeetings
           stats={headToHeadStats}
           teamName={team?.name || "우리팀"}
-          opponentName={match.opponent_name}
+          opponentName={opponentDisplayName}
         />
 
         {/* Finish Button */}

@@ -310,6 +310,9 @@ function MatchCard({ match }: { match: MatchWithTeam }) {
     ? getMatchResultLabel(match.home_score, match.away_score)
     : null;
 
+  // opponent_team이 있으면 현재 팀명 사용, 없으면 저장된 opponent_name 사용
+  const opponentDisplayName = match.opponent_team?.name || match.opponent_name;
+
   const getResultText = (r: "W" | "D" | "L") => {
     if (r === "W") return "승리";
     if (r === "L") return "패배";
@@ -367,18 +370,18 @@ function MatchCard({ match }: { match: MatchWithTeam }) {
 
               <div className="flex items-center gap-2">
                 <span className="font-bold text-white text-sm md:text-base truncate max-w-[80px] md:max-w-[120px]">
-                  {match.opponent_name}
+                  {opponentDisplayName}
                 </span>
                 <div className="size-10 md:size-12 rounded-full bg-[#214a36] flex items-center justify-center border border-[#2f6a4d] overflow-hidden">
                   {match.opponent_team?.emblem_url ? (
                     <img
                       src={match.opponent_team.emblem_url}
-                      alt={match.opponent_name || "상대팀"}
+                      alt={opponentDisplayName || "상대팀"}
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <span className="text-lg md:text-xl font-bold text-[#8eccae]">
-                      {match.opponent_name?.charAt(0) || "A"}
+                      {opponentDisplayName?.charAt(0) || "A"}
                     </span>
                   )}
                 </div>

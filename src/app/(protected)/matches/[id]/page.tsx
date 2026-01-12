@@ -5,6 +5,7 @@ import {
   getMatchRecords,
   getMatchGoals,
   getMatchAttendance,
+  getHeadToHeadStats,
 } from "@/services/matches";
 import { getOpponentPlayers } from "@/services/opponent-players";
 import { getTeamById, getTeamMembers } from "@/services/teams";
@@ -16,6 +17,8 @@ import { FinishMatchButton } from "./finish-match-button";
 import { AttendanceButton } from "./attendance-button";
 import { GoalList } from "./goal-list";
 import { OpponentLineup } from "./opponent-lineup";
+import { DeleteMatchButton } from "./delete-match-button";
+import { PreviousMeetings } from "./previous-meetings";
 
 interface MatchDetailPageProps {
   params: Promise<{ id: string }>;
@@ -57,6 +60,14 @@ export default async function MatchDetailPage({
 
   const team = await getTeamById(match.team_id);
   const teamMembers = await getTeamMembers(match.team_id);
+
+  // 상대전적 통계 가져오기
+  const headToHeadStats = await getHeadToHeadStats(
+    match.team_id,
+    match.opponent_name,
+    match.opponent_team_id,
+    match.id
+  );
 
   const currentUserMembership = teamMembers.find((m) => m.user_id === user?.id);
   const isManager =
@@ -102,13 +113,16 @@ export default async function MatchDetailPage({
               </div>
             </div>
             {isManager && (
-              <Link
-                href={`/matches/${match.id}/edit`}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#214a36] hover:bg-[#2b5d45] text-white text-sm font-medium transition-colors"
-              >
-                <Edit className="h-4 w-4" />
-                경기 수정
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/matches/${match.id}/edit`}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#214a36] hover:bg-[#2b5d45] text-white text-sm font-medium transition-colors"
+                >
+                  <Edit className="h-4 w-4" />
+                  경기 수정
+                </Link>
+                <DeleteMatchButton matchId={match.id} teamId={match.team_id} />
+              </div>
             )}
           </div>
         </div>
@@ -336,6 +350,13 @@ export default async function MatchDetailPage({
             />
           </div>
         </section>
+
+        {/* Previous Meetings - 상대전적 통계 */}
+        <PreviousMeetings
+          stats={headToHeadStats}
+          teamName={team?.name || "우리팀"}
+          opponentName={match.opponent_name}
+        />
 
         {/* Finish Button */}
         {isManager && !isFinished && records.length > 0 && (

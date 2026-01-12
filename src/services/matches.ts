@@ -553,3 +553,111 @@ export async function getAttendingMembers(matchId: string): Promise<string[]> {
 
   return data.map((record) => record.team_member_id);
 }
+
+/**
+ * 두 팀 간의 상대전적 통계를 가져옵니다 (Previous Meetings)
+ */
+export type HeadToHeadStats = {
+  totalMatches: number;
+  homeWins: number;
+  awayWins: number;
+  draws: number;
+  homeGoals: number;
+  awayGoals: number;
+  recentMatches: {
+    id: string;
+    date: string;
+    homeScore: number;
+    awayScore: number;
+    result: "W" | "D" | "L";
+  }[];
+};
+
+export async function getHeadToHeadStats(
+  teamId: string,
+  opponentName: string,
+  opponentTeamId: string | null,
+  currentMatchId?: string
+): Promise<HeadToHeadStats> {
+  const supabase = await createClient();
+
+  // 상대팀과의 모든 경기 조회 (완료된 경기만)
+  let query = supabase
+    .from("matches")
+    .select("id, match_date, home_score, away_score, status")
+    .eq("team_id", teamId)
+    .eq("status", "FINISHED")
+    .order("match_date", { ascending: false });
+
+  // opponent_team_id가 있으면 우선 사용, 없으면 이름으로 검색
+  if (opponentTeamId) {
+    query = query.eq("opponent_team_id", opponentTeamId);
+  } else {
+    query = query.eq("opponent_name", opponentName);
+  }
+
+  const { data: matches, error } = await query;
+
+  if (error) {
+    console.error("Failed to fetch head-to-head stats:", error);
+    return {
+      totalMatches: 0,
+      homeWins: 0,
+      awayWins: 0,
+      draws: 0,
+      homeGoals: 0,
+      awayGoals: 0,
+      recentMatches: [],
+    };
+  }
+
+  // 현재 경기는 제외
+  const filteredMatches = currentMatchId
+    ? matches.filter((m) => m.id !== currentMatchId)
+    : matches;
+
+  let homeWins = 0;
+  let awayWins = 0;
+  let draws = 0;
+  let homeGoals = 0;
+  let awayGoals = 0;
+
+  const recentMatches = filteredMatches.slice(0, 5).map((match) => {
+    const result: "W" | "D" | "L" =
+      match.home_score > match.away_score
+        ? "W"
+        : match.home_score < match.away_score
+        ? "L"
+        : "D";
+    return {
+      id: match.id,
+      date: match.match_date,
+      homeScore: match.home_score,
+      awayScore: match.away_score,
+      result,
+    };
+  });
+
+  filteredMatches.forEach((match) => {
+    homeGoals += match.home_score;
+    awayGoals += match.away_score;
+
+    if (match.home_score > match.away_score) {
+      homeWins++;
+    } else if (match.home_score < match.away_score) {
+      awayWins++;
+    } else {
+      draws++;
+    }
+  });
+
+  return {
+    totalMatches: filteredMatches.length,
+    homeWins,
+    awayWins,
+    draws,
+    homeGoals,
+    awayGoals,
+    recentMatches,
+  };
+}

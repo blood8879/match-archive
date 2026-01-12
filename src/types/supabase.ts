@@ -155,6 +155,7 @@ export interface Database {
           team_id: string;
           opponent_name: string;
           opponent_team_id: string | null;
+          guest_team_id: string | null;
           is_guest_opponent: boolean;
           match_date: string;
           location: string | null;
@@ -170,6 +171,7 @@ export interface Database {
           team_id: string;
           opponent_name: string;
           opponent_team_id?: string | null;
+          guest_team_id?: string | null;
           is_guest_opponent?: boolean;
           match_date: string;
           location?: string | null;
@@ -185,6 +187,7 @@ export interface Database {
           team_id?: string;
           opponent_name?: string;
           opponent_team_id?: string | null;
+          guest_team_id?: string | null;
           is_guest_opponent?: boolean;
           match_date?: string;
           location?: string | null;
@@ -206,6 +209,12 @@ export interface Database {
             foreignKeyName: "matches_opponent_team_id_fkey";
             columns: ["opponent_team_id"];
             referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "matches_guest_team_id_fkey";
+            columns: ["guest_team_id"];
+            referencedRelation: "guest_teams";
             referencedColumns: ["id"];
           },
           {

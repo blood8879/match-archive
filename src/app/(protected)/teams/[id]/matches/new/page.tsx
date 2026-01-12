@@ -26,11 +26,13 @@ export default function NewMatchPage() {
   const [searchResults, setSearchResults] = useState<Team[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedOpponent, setSelectedOpponent] = useState<string>("");
-  const [opponentTab, setOpponentTab] = useState<"registered" | "guest" | "manual">("registered");
+  const [opponentTab, setOpponentTab] = useState<"registered" | "guest">("registered");
   const [guestTeams, setGuestTeams] = useState<GuestTeam[]>([]);
   const [selectedGuestTeam, setSelectedGuestTeam] = useState<string>("");
   const [showGuestTeamForm, setShowGuestTeamForm] = useState(false);
   const [isCreatingGuestTeam, setIsCreatingGuestTeam] = useState(false);
+  const [guestTeamSearchQuery, setGuestTeamSearchQuery] = useState("");
+  const [showGuestTeamModal, setShowGuestTeamModal] = useState(false);
 
   useEffect(() => {
     async function loadVenues() {
@@ -87,13 +89,39 @@ export default function NewMatchPage() {
     return () => clearTimeout(timeoutId);
   }, [searchQuery, teamId]);
 
-  const handleCreateGuestTeam = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // ESC key handler for modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showGuestTeamModal) {
+        setShowGuestTeamModal(false);
+        setGuestTeamSearchQuery("");
+        setShowGuestTeamForm(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [showGuestTeamModal]);
+
+  const handleCreateGuestTeam = async () => {
     setIsCreatingGuestTeam(true);
     setError(null);
 
     try {
-      const formData = new FormData(e.currentTarget);
+      // Manually construct FormData from input values
+      const formData = new FormData();
+      const nameInput = document.querySelector<HTMLInputElement>('input[name="guest_team_name"]');
+      const regionInput = document.querySelector<HTMLInputElement>('input[name="guest_team_region"]');
+
+      if (!nameInput?.value) {
+        throw new Error("팀 이름을 입력해주세요");
+      }
+
+      formData.set("name", nameInput.value);
+      if (regionInput?.value) {
+        formData.set("region", regionInput.value);
+      }
+
       const newGuestTeam = await createGuestTeam(teamId, formData);
 
       // Reload guest teams
@@ -103,6 +131,10 @@ export default function NewMatchPage() {
       // Select the newly created guest team
       setSelectedGuestTeam(newGuestTeam.id);
       setShowGuestTeamForm(false);
+
+      // Clear input values
+      if (nameInput) nameInput.value = "";
+      if (regionInput) regionInput.value = "";
     } catch (err) {
       setError(err instanceof Error ? err.message : "게스트팀 생성에 실패했습니다");
     } finally {
@@ -130,7 +162,7 @@ export default function NewMatchPage() {
         const guestTeam = guestTeams.find((t) => t.id === selectedGuestTeam);
         if (guestTeam) {
           formData.set("opponent_name", guestTeam.name);
-          formData.set("opponent_team_id", guestTeam.id);
+          formData.set("guest_team_id", guestTeam.id);
           formData.set("is_guest_opponent", "true");
         }
       }
@@ -331,7 +363,7 @@ export default function NewMatchPage() {
             {!unknownOpponent && (
               <div className="space-y-4">
                 {/* Tab buttons */}
-                <div className="grid grid-cols-3 gap-2 p-1 bg-[#183527]/50 rounded-xl border border-[#2f6a4d]/30">
+                <div className="grid grid-cols-2 gap-2 p-1 bg-[#183527]/50 rounded-xl border border-[#2f6a4d]/30">
                   <button
                     type="button"
                     onClick={() => {
@@ -359,21 +391,6 @@ export default function NewMatchPage() {
                     }`}
                   >
                     게스트팀
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOpponentTab("manual");
-                      setSelectedOpponent("");
-                      setSelectedGuestTeam("");
-                    }}
-                    className={`py-2.5 px-4 rounded-lg font-medium text-sm transition-all ${
-                      opponentTab === "manual"
-                        ? "bg-[#00e677] text-[#0f2319]"
-                        : "text-gray-400 hover:text-gray-200"
-                    }`}
-                  >
-                    직접 입력
                   </button>
                 </div>
 
@@ -454,131 +471,67 @@ export default function NewMatchPage() {
                 {/* Guest teams tab */}
                 {opponentTab === "guest" && (
                   <div className="space-y-4">
-                    {guestTeams.length > 0 ? (
-                      <div className="space-y-2">
-                        <p className="text-sm text-gray-400">게스트팀 목록 ({guestTeams.length}개)</p>
-                        <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
-                          {guestTeams.map((team) => (
-                            <label
-                              key={team.id}
-                              className={`cursor-pointer p-3 rounded-lg border-2 transition-all ${
-                                selectedGuestTeam === team.id
-                                  ? "border-[#00e677] bg-[#00e677]/10"
-                                  : "border-[#2f6a4d] bg-[#183527] hover:border-[#2f6a4d]/80"
-                              }`}
-                            >
-                              <input
-                                type="radio"
-                                name="guest_team_selection"
-                                value={team.id}
-                                checked={selectedGuestTeam === team.id}
-                                onChange={(e) => setSelectedGuestTeam(e.target.value)}
-                                className="sr-only"
-                              />
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                  {team.emblem_url ? (
-                                    <div className="w-10 h-10 rounded-full overflow-hidden bg-[#214a36] flex items-center justify-center flex-shrink-0">
-                                      <img
-                                        src={team.emblem_url}
-                                        alt={`${team.name} 엠블럼`}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </div>
-                                  ) : (
-                                    <div className="w-10 h-10 rounded-full bg-[#214a36] flex items-center justify-center flex-shrink-0">
-                                      <span className="text-[#8eccae] font-bold text-lg">
-                                        {team.name.charAt(0)}
-                                      </span>
-                                    </div>
-                                  )}
-                                  <div>
-                                    <div className="flex items-center gap-2">
-                                      <p className="text-white font-semibold">{team.name}</p>
-                                      <span className="text-xs bg-[#00e677]/20 text-[#00e677] px-2 py-0.5 rounded-full">
-                                        게스트
-                                      </span>
-                                    </div>
-                                    <p className="text-sm text-gray-400">{team.region || "지역 미상"}</p>
-                                  </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowGuestTeamModal(true)}
+                      className="w-full px-4 py-3.5 rounded-xl bg-[#183527] border-2 border-[#2f6a4d] text-white font-medium hover:bg-[#214a36] hover:border-[#00e677]/50 transition-all flex items-center justify-center gap-2"
+                    >
+                      <Users className="w-5 h-5" />
+                      게스트팀 선택
+                    </button>
+
+                    {/* Selected guest team card */}
+                    {selectedGuestTeam && (() => {
+                      const selectedTeam = guestTeams.find(t => t.id === selectedGuestTeam);
+                      if (!selectedTeam) return null;
+                      return (
+                        <div className="bg-[#183527] border border-[#00e677] rounded-xl p-4">
+                          <p className="text-xs text-gray-400 mb-2">선택된 게스트팀</p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              {selectedTeam.emblem_url ? (
+                                <div className="w-12 h-12 rounded-full overflow-hidden bg-[#214a36] flex items-center justify-center flex-shrink-0">
+                                  <img
+                                    src={selectedTeam.emblem_url}
+                                    alt="Team emblem"
+                                    className="w-full h-full object-cover"
+                                  />
                                 </div>
-                                {selectedGuestTeam === team.id && (
-                                  <div className="w-5 h-5 rounded-full bg-[#00e677] flex items-center justify-center">
-                                    <div className="w-2 h-2 rounded-full bg-[#0f2319]" />
-                                  </div>
-                                )}
+                              ) : (
+                                <div className="w-12 h-12 rounded-full bg-[#214a36] flex items-center justify-center flex-shrink-0">
+                                  <span className="text-[#8eccae] font-bold text-lg">
+                                    {selectedTeam.name.charAt(0)}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-white font-semibold">
+                                    {selectedTeam.name}
+                                  </p>
+                                  <span className="text-xs bg-[#00e677]/20 text-[#00e677] px-2 py-0.5 rounded-full">
+                                    게스트
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-400">
+                                  {selectedTeam.region || "지역 미상"}
+                                </p>
                               </div>
-                            </label>
-                          ))}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedGuestTeam("")}
+                              className="text-gray-400 hover:text-white transition-colors"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="bg-[#183527] border border-[#2f6a4d] rounded-xl p-6 text-center">
-                        <Users className="w-10 h-10 text-gray-600 mx-auto mb-2" />
-                        <p className="text-gray-400 text-sm mb-3">등록된 게스트팀이 없습니다</p>
-                      </div>
-                    )}
-
-                    {/* Guest team creation form */}
-                    {showGuestTeamForm ? (
-                      <form onSubmit={handleCreateGuestTeam} className="bg-[#183527] border border-[#2f6a4d] rounded-xl p-4 space-y-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-white font-semibold">새 게스트팀 추가</h4>
-                          <button
-                            type="button"
-                            onClick={() => setShowGuestTeamForm(false)}
-                            className="text-gray-400 hover:text-white transition-colors"
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
-                        </div>
-                        <input
-                          name="name"
-                          type="text"
-                          placeholder="팀 이름 (필수)"
-                          required
-                          className="w-full bg-[#0f2319] border border-[#2f6a4d] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all text-sm"
-                        />
-                        <input
-                          name="region"
-                          type="text"
-                          placeholder="지역 (선택)"
-                          className="w-full bg-[#0f2319] border border-[#2f6a4d] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all text-sm"
-                        />
-                        <button
-                          type="submit"
-                          disabled={isCreatingGuestTeam}
-                          className="w-full px-4 py-2 rounded-lg bg-[#00e677] text-[#0f2319] font-semibold hover:bg-[#05c96b] transition-all disabled:opacity-50 text-sm"
-                        >
-                          {isCreatingGuestTeam ? "생성 중..." : "게스트팀 생성"}
-                        </button>
-                      </form>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setShowGuestTeamForm(true)}
-                        className="w-full px-4 py-2.5 rounded-xl bg-[#183527] border border-[#2f6a4d] text-[#00e677] font-medium hover:bg-[#214a36] transition-all flex items-center justify-center gap-2"
-                      >
-                        <PlusCircle className="w-4 h-4" />
-                        새 게스트팀 추가
-                      </button>
-                    )}
+                      );
+                    })()}
                   </div>
                 )}
 
-                {/* Manual input tab */}
-                {opponentTab === "manual" && (
-                  <div className="flex flex-col gap-2">
-                    <span className="text-gray-300 text-sm font-medium">상대팀 이름</span>
-                    <input
-                      name="opponent_name"
-                      type="text"
-                      placeholder="상대팀 이름을 입력하세요"
-                      required={opponentTab === "manual"}
-                      className="w-full bg-[#183527] border border-[#2f6a4d] rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all"
-                    />
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -634,6 +587,201 @@ export default function NewMatchPage() {
           </div>
         </form>
       </div>
+
+      {/* Guest Team Selection Modal */}
+      {showGuestTeamModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowGuestTeamModal(false);
+            }
+          }}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+
+          {/* Modal Panel */}
+          <div className="relative w-full max-w-[600px] bg-[#183527] border border-[#2f6a4d] rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-[#2f6a4d]">
+              <h2 className="text-2xl font-bold text-white">게스트팀 선택</h2>
+              <button
+                type="button"
+                onClick={() => setShowGuestTeamModal(false)}
+                className="text-gray-400 hover:text-white transition-colors p-1"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {/* Search input */}
+              <div className="relative">
+                <input
+                  type="text"
+                  value={guestTeamSearchQuery}
+                  onChange={(e) => setGuestTeamSearchQuery(e.target.value)}
+                  placeholder="팀 이름 또는 지역을 입력하세요..."
+                  className="w-full bg-[#0f2319] border border-[#2f6a4d] rounded-xl px-4 py-3.5 pr-10 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all"
+                />
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              </div>
+
+              {/* Guest teams list */}
+              {guestTeams.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-400">
+                    게스트팀 목록 ({guestTeams.filter(team => {
+                      const query = guestTeamSearchQuery.toLowerCase();
+                      return team.name.toLowerCase().includes(query) ||
+                             (team.region?.toLowerCase() || "").includes(query);
+                    }).length}개)
+                  </p>
+                  <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                    {guestTeams
+                      .filter(team => {
+                        const query = guestTeamSearchQuery.toLowerCase();
+                        return team.name.toLowerCase().includes(query) ||
+                               (team.region?.toLowerCase() || "").includes(query);
+                      })
+                      .map((team) => (
+                      <label
+                        key={team.id}
+                        className={`cursor-pointer p-4 rounded-xl border-2 transition-all block ${
+                          selectedGuestTeam === team.id
+                            ? "border-[#00e677] bg-[#00e677]/10"
+                            : "border-[#2f6a4d] bg-[#0f2319] hover:border-[#2f6a4d]/80"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="modal_guest_team_selection"
+                          value={team.id}
+                          checked={selectedGuestTeam === team.id}
+                          onChange={(e) => setSelectedGuestTeam(e.target.value)}
+                          className="sr-only"
+                        />
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {team.emblem_url ? (
+                              <div className="w-10 h-10 rounded-full overflow-hidden bg-[#214a36] flex items-center justify-center flex-shrink-0">
+                                <img
+                                  src={team.emblem_url}
+                                  alt={`${team.name} 엠블럼`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-[#214a36] flex items-center justify-center flex-shrink-0">
+                                <span className="text-[#8eccae] font-bold">
+                                  {team.name.charAt(0)}
+                                </span>
+                              </div>
+                            )}
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="text-white font-semibold">{team.name}</p>
+                                <span className="text-xs bg-[#00e677]/20 text-[#00e677] px-2 py-0.5 rounded-full">
+                                  게스트
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-400">{team.region || "지역 미상"}</p>
+                            </div>
+                          </div>
+                          {selectedGuestTeam === team.id && (
+                            <div className="w-5 h-5 rounded-full bg-[#00e677] flex items-center justify-center">
+                              <div className="w-2 h-2 rounded-full bg-[#0f2319]" />
+                            </div>
+                          )}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-[#0f2319] border border-[#2f6a4d] rounded-xl p-8 text-center">
+                  <Users className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-400">등록된 게스트팀이 없습니다</p>
+                </div>
+              )}
+
+              {/* Guest team creation form */}
+              {showGuestTeamForm ? (
+                <div className="bg-[#0f2319] border border-[#2f6a4d] rounded-xl p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-white font-semibold">새 게스트팀 추가</h4>
+                    <button
+                      type="button"
+                      onClick={() => setShowGuestTeamForm(false)}
+                      className="text-gray-400 hover:text-white transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <input
+                    name="guest_team_name"
+                    type="text"
+                    placeholder="팀 이름 (필수)"
+                    className="w-full bg-[#183527] border border-[#2f6a4d] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all"
+                  />
+                  <input
+                    name="guest_team_region"
+                    type="text"
+                    placeholder="지역 (선택)"
+                    className="w-full bg-[#183527] border border-[#2f6a4d] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCreateGuestTeam}
+                    disabled={isCreatingGuestTeam}
+                    className="w-full px-4 py-3 rounded-lg bg-[#00e677] text-[#0f2319] font-bold hover:bg-[#05c96b] transition-all disabled:opacity-50"
+                  >
+                    {isCreatingGuestTeam ? "생성 중..." : "게스트팀 생성"}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowGuestTeamForm(true)}
+                  className="w-full px-4 py-3 rounded-xl bg-[#0f2319] border border-[#2f6a4d] text-[#00e677] font-medium hover:bg-[#183527] hover:border-[#00e677]/50 transition-all flex items-center justify-center gap-2"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  새 게스트팀 추가
+                </button>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-[#2f6a4d] flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowGuestTeamModal(false);
+                  setGuestTeamSearchQuery("");
+                  setShowGuestTeamForm(false);
+                }}
+                className="flex-1 px-6 py-3 rounded-xl border border-[#2f6a4d] text-gray-300 font-medium hover:bg-[#0f2319] transition-all"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowGuestTeamModal(false);
+                  setGuestTeamSearchQuery("");
+                  setShowGuestTeamForm(false);
+                }}
+                disabled={!selectedGuestTeam}
+                className="flex-1 px-6 py-3 rounded-xl bg-[#00e677] text-[#0f2319] font-bold hover:bg-[#05c96b] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                선택 완료
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Trash2, Shield, MapPin } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Plus, Trash2, Shield, MapPin, Search } from "lucide-react";
 import { createGuestTeam, deleteGuestTeam } from "@/services/guest-teams";
 import { useRouter } from "next/navigation";
 import type { GuestTeam } from "@/services/guest-teams";
@@ -17,6 +17,7 @@ export function GuestTeamList({ teamId, initialGuestTeams }: GuestTeamListProps)
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,6 +48,18 @@ export function GuestTeamList({ teamId, initialGuestTeams }: GuestTeamListProps)
       alert(err.message || "게스트팀 삭제에 실패했습니다");
     }
   };
+
+  // Filter guest teams based on search query
+  const filteredGuestTeams = useMemo(() => {
+    if (!searchQuery.trim()) return guestTeams;
+
+    const query = searchQuery.toLowerCase();
+    return guestTeams.filter((team) => {
+      const nameMatch = team.name.toLowerCase().includes(query);
+      const regionMatch = team.region?.toLowerCase().includes(query);
+      return nameMatch || regionMatch;
+    });
+  }, [guestTeams, searchQuery]);
 
   return (
     <div className="space-y-4">
@@ -167,70 +180,90 @@ export function GuestTeamList({ teamId, initialGuestTeams }: GuestTeamListProps)
         </form>
       )}
 
-      {/* Guest Teams List */}
-      <div className="space-y-3">
-        {guestTeams.length === 0 && !showForm && (
-          <div className="glass-panel rounded-2xl p-12 text-center">
-            <Shield className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-            <p className="text-white/60 mb-2">등록된 게스트팀이 없습니다</p>
-            <p className="text-sm text-white/40">
-              상대팀을 게스트팀으로 추가하여 경기 기록을 관리하세요
-            </p>
-          </div>
-        )}
+      {/* Search Bar */}
+      {guestTeams.length > 0 && (
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="팀 이름 또는 지역으로 검색..."
+            className="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-white placeholder-white/30 focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
+          />
+        </div>
+      )}
 
-        {guestTeams.map((guestTeam) => (
-          <div
-            key={guestTeam.id}
-            className="glass-panel rounded-2xl p-5 flex items-center justify-between hover:bg-[#214a36]/30 transition-all"
-          >
-            <div className="flex items-center gap-4">
-              {guestTeam.emblem_url ? (
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-[#214a36] flex items-center justify-center flex-shrink-0">
-                  <img
-                    src={guestTeam.emblem_url}
-                    alt={`${guestTeam.name} 엠블럼`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="w-14 h-14 rounded-full bg-[#214a36] flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-7 h-7 text-[#8eccae]" />
-                </div>
-              )}
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-white font-bold">{guestTeam.name}</h3>
-                  <span className="px-2 py-0.5 rounded-full bg-[#00e677]/20 text-[#00e677] text-xs font-medium">
-                    Guest
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-white/60">
-                  {guestTeam.region && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5" />
-                      {guestTeam.region}
+      {/* Guest Teams List */}
+      {guestTeams.length === 0 && !showForm ? (
+        <div className="glass-panel rounded-2xl p-12 text-center">
+          <Shield className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+          <p className="text-white/60 mb-2">등록된 게스트팀이 없습니다</p>
+          <p className="text-sm text-white/40">
+            상대팀을 게스트팀으로 추가하여 경기 기록을 관리하세요
+          </p>
+        </div>
+      ) : filteredGuestTeams.length === 0 ? (
+        <div className="glass-panel rounded-2xl p-12 text-center">
+          <Search className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+          <p className="text-white/60 mb-2">검색 결과가 없습니다</p>
+          <p className="text-sm text-white/40">
+            다른 검색어를 입력해보세요
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {filteredGuestTeams.map((guestTeam) => (
+            <div
+              key={guestTeam.id}
+              className="glass-panel rounded-2xl p-4 flex flex-col hover:bg-[#214a36]/30 transition-all"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  {guestTeam.emblem_url ? (
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-[#214a36] flex items-center justify-center flex-shrink-0">
+                      <img
+                        src={guestTeam.emblem_url}
+                        alt={`${guestTeam.name} 엠블럼`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-[#214a36] flex items-center justify-center flex-shrink-0">
+                      <Shield className="w-6 h-6 text-[#8eccae]" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-white font-bold truncate">{guestTeam.name}</h3>
+                    <span className="inline-block px-2 py-0.5 rounded-full bg-[#00e677]/20 text-[#00e677] text-xs font-medium mt-1">
+                      Guest
                     </span>
-                  )}
-                  {guestTeam.notes && (
-                    <span className="text-white/40">• {guestTeam.notes}</span>
-                  )}
+                  </div>
                 </div>
+                <button
+                  onClick={() => handleDelete(guestTeam.id)}
+                  className="p-2 rounded-lg text-white/60 hover:text-red-400 hover:bg-red-500/10 transition-all flex-shrink-0"
+                  title="삭제"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-1.5">
+                {guestTeam.region && (
+                  <div className="flex items-center gap-1.5 text-sm text-white/60">
+                    <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>{guestTeam.region}</span>
+                  </div>
+                )}
+                {guestTeam.notes && (
+                  <p className="text-sm text-white/40 line-clamp-2">{guestTeam.notes}</p>
+                )}
               </div>
             </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleDelete(guestTeam.id)}
-                className="p-2 rounded-lg text-white/60 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                title="삭제"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

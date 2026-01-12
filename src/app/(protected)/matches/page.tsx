@@ -7,6 +7,7 @@ import type { Match, Team, TeamMember } from "@/types/supabase";
 type MatchWithTeam = Match & {
   team: Team | null;
   opponent_team: { id: string; name: string; emblem_url: string | null } | null;
+  venue: { id: string; name: string; address: string } | null;
 };
 type TeamMemberWithTeam = TeamMember & { team: Team | null };
 
@@ -35,14 +36,19 @@ export default async function MatchesPage() {
   if (teamIds.length > 0) {
     const { data: matchesRaw } = await supabase
       .from("matches")
-      .select("*, team:teams!matches_team_id_fkey(*), opponent_team:teams!matches_opponent_team_id_fkey(id, name, emblem_url)")
+      .select("*, team:teams!matches_team_id_fkey(*), opponent_team:teams!matches_opponent_team_id_fkey(id, name, emblem_url), venue:venues(id, name, address)")
       .in("team_id", teamIds)
       .order("match_date", { ascending: false });
 
     matches = (matchesRaw as MatchWithTeam[]) ?? [];
   }
 
-  const scheduledMatches = matches.filter((m) => m.status === "SCHEDULED");
+  // 예정된 경기: 오름차순 (가장 가까운 경기가 위로)
+  const scheduledMatches = matches
+    .filter((m) => m.status === "SCHEDULED")
+    .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime());
+
+  // 완료된 경기: 내림차순 (최근 경기가 위로)
   const finishedMatches = matches.filter((m) => m.status === "FINISHED");
 
   return (
@@ -195,10 +201,10 @@ function MatchCard({ match }: { match: MatchWithTeam }) {
               </div>
             </div>
 
-            {match.location && (
+            {(match.venue || match.location) && (
               <div className="mt-2 flex items-center gap-1.5 text-sm text-gray-400">
                 <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                <span className="truncate">{match.location}</span>
+                <span className="truncate">{match.venue?.name || match.location}</span>
               </div>
             )}
           </div>

@@ -155,6 +155,7 @@ export interface Database {
           team_id: string;
           opponent_name: string;
           opponent_team_id: string | null;
+          is_guest_opponent: boolean;
           match_date: string;
           location: string | null;
           venue_id: string | null;
@@ -169,6 +170,7 @@ export interface Database {
           team_id: string;
           opponent_name: string;
           opponent_team_id?: string | null;
+          is_guest_opponent?: boolean;
           match_date: string;
           location?: string | null;
           venue_id?: string | null;
@@ -183,6 +185,7 @@ export interface Database {
           team_id?: string;
           opponent_name?: string;
           opponent_team_id?: string | null;
+          is_guest_opponent?: boolean;
           match_date?: string;
           location?: string | null;
           venue_id?: string | null;
@@ -495,6 +498,46 @@ export interface Database {
           }
         ];
       };
+      guest_teams: {
+        Row: {
+          id: string;
+          team_id: string;
+          name: string;
+          region: string | null;
+          emblem_url: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          name: string;
+          region?: string | null;
+          emblem_url?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          name?: string;
+          region?: string | null;
+          emblem_url?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "guest_teams_team_id_fkey";
+            columns: ["team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -535,4 +578,5 @@ export type Goal = Tables<"goals">;
 export type MatchAttendance = Tables<"match_attendance">;
 export type TeamInvite = Tables<"team_invites">;
 export type Venue = Tables<"venues">;
+export type GuestTeam = Tables<"guest_teams">;
 export type OpponentPlayer = Tables<"opponent_players">;

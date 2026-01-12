@@ -66,6 +66,7 @@ export async function createMatch(formData: FormData): Promise<Match> {
   const teamId = formData.get("team_id") as string;
   const opponentName = formData.get("opponent_name") as string || "미정";
   const opponentTeamId = formData.get("opponent_team_id") as string;
+  const isGuestOpponent = formData.get("is_guest_opponent") === "true";
   const matchDate = formData.get("match_date") as string;
   const location = formData.get("location") as string;
   const venueId = formData.get("venue_id") as string;
@@ -77,6 +78,7 @@ export async function createMatch(formData: FormData): Promise<Match> {
       team_id: teamId,
       opponent_name: opponentName,
       opponent_team_id: opponentTeamId || null,
+      is_guest_opponent: isGuestOpponent,
       match_date: matchDate,
       location: location || null,
       venue_id: venueId || null,

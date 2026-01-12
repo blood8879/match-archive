@@ -132,13 +132,22 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             </Link>
           )}
           {isManager && (
-            <Link
-              href={`/teams/${team.id}/settings`}
-              className="flex-1 sm:flex-none h-12 px-6 rounded-xl bg-[#214a36] hover:bg-[#2b5d45] text-white font-semibold text-base transition-all border border-white/5 flex items-center justify-center gap-2"
-            >
-              <Settings className="h-5 w-5" />
-              설정
-            </Link>
+            <>
+              <Link
+                href={`/teams/${team.id}/guest-teams`}
+                className="flex-1 sm:flex-none h-12 px-6 rounded-xl bg-[#214a36] hover:bg-[#2b5d45] text-white font-semibold text-base transition-all border border-white/5 flex items-center justify-center gap-2"
+              >
+                <Users className="h-5 w-5" />
+                게스트팀
+              </Link>
+              <Link
+                href={`/teams/${team.id}/settings`}
+                className="flex-1 sm:flex-none h-12 px-6 rounded-xl bg-[#214a36] hover:bg-[#2b5d45] text-white font-semibold text-base transition-all border border-white/5 flex items-center justify-center gap-2"
+              >
+                <Settings className="h-5 w-5" />
+                설정
+              </Link>
+            </>
           )}
           <button className="flex-1 sm:flex-none h-12 px-6 rounded-xl bg-[#214a36] hover:bg-[#2b5d45] text-white font-semibold text-base transition-all border border-white/5 flex items-center justify-center gap-2">
             <span className="material-symbols-outlined text-[20px]">chat</span>

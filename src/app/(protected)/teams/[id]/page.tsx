@@ -84,7 +84,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
               )}
             </div>
             <div className="absolute bottom-0 right-0 bg-primary text-[#0f2319] text-xs font-bold px-2 py-1 rounded-full border-2 border-[#10231a]">
-              LV. {team.member_count || 1}
+              LV. {team.level || 1}
             </div>
           </div>
 

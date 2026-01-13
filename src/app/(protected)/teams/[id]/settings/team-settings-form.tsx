@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useTransition } from "react";
-import { Shield, MapPin, Upload, Edit, Trash2, Hash, X, Plus, Clock, UserPlus, FileText } from "lucide-react";
+import { Shield, MapPin, Upload, Edit, Trash2, Hash, X, Plus, Clock, UserPlus, FileText, Star } from "lucide-react";
 import { updateTeam } from "@/services/teams";
 import imageCompression from "browser-image-compression";
 import type { Team } from "@/types/supabase";
@@ -37,6 +37,7 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
     DF: team.recruiting_positions?.DF ?? 0,
     GK: team.recruiting_positions?.GK ?? 0,
   });
+  const [level, setLevel] = useState(team.level || 1);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,6 +51,7 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
     formData.append("activity_time", activityTime);
     formData.append("is_recruiting", isRecruiting.toString());
     formData.append("recruiting_positions", JSON.stringify(recruitingPositions));
+    formData.append("level", level.toString());
     if (emblemFile) {
       formData.append("emblem", emblemFile);
     }
@@ -282,6 +284,28 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
                   <option value="제주">제주</option>
                 </select>
               </div>
+            </label>
+
+            {/* Team Level */}
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-semibold text-white/80">팀 레벨</span>
+              <div className="relative">
+                <Star className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                <select
+                  value={level}
+                  onChange={(e) => setLevel(parseInt(e.target.value, 10))}
+                  className="w-full appearance-none rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-10 text-white focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
+                >
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((lv) => (
+                    <option key={lv} value={lv}>
+                      LV. {lv} {lv <= 3 ? "(입문)" : lv <= 5 ? "(초급)" : lv <= 7 ? "(중급)" : lv <= 9 ? "(상급)" : "(프로)"}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <p className="text-xs text-white/50">
+                팀의 실력 수준을 선택하세요
+              </p>
             </label>
           </div>
 

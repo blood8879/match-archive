@@ -193,6 +193,8 @@ export async function updateTeam(teamId: string, formData: FormData): Promise<vo
   const activityTime = formData.get("activity_time") as string | null;
   const isRecruiting = formData.get("is_recruiting") === "true";
   const recruitingPositionsJson = formData.get("recruiting_positions") as string | null;
+  const levelStr = formData.get("level") as string | null;
+  const level = levelStr ? parseInt(levelStr, 10) : 1;
 
   if (!name) throw new Error("팀 이름은 필수입니다");
 
@@ -297,6 +299,7 @@ export async function updateTeam(teamId: string, formData: FormData): Promise<vo
     activity_time: activityTime || null,
     is_recruiting: isRecruiting,
     recruiting_positions: recruitingPositions,
+    level: Math.max(1, Math.min(10, level)),
   };
 
   if (emblemUrl !== undefined) {

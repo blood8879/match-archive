@@ -74,6 +74,7 @@ export interface Database {
           activity_time: string | null;
           is_recruiting: boolean;
           recruiting_positions: { FW?: number; MF?: number; DF?: number; GK?: number } | null;
+          level: number;
           created_at: string;
         };
         Insert: {
@@ -89,6 +90,7 @@ export interface Database {
           activity_time?: string | null;
           is_recruiting?: boolean;
           recruiting_positions?: { FW?: number; MF?: number; DF?: number; GK?: number } | null;
+          level?: number;
           created_at?: string;
         };
         Update: {
@@ -104,6 +106,7 @@ export interface Database {
           activity_time?: string | null;
           is_recruiting?: boolean;
           recruiting_positions?: { FW?: number; MF?: number; DF?: number; GK?: number } | null;
+          level?: number;
           created_at?: string;
         };
         Relationships: [

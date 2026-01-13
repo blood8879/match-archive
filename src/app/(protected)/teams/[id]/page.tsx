@@ -237,7 +237,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
                   {formatDateTime(nextMatch.match_date)}
                 </p>
                 <p className="text-xs text-[#8eccae] mt-1">
-                  {nextMatch.location || "장소 미정"}
+                  {nextMatch.venue?.name || nextMatch.location || "장소 미정"}
                 </p>
               </>
             ) : (

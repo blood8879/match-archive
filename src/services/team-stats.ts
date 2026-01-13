@@ -146,6 +146,7 @@ export async function getRecentMatches(
 
 export type MatchWithOpponentTeam = Match & {
   opponent_team: { id: string; name: string; emblem_url: string | null } | null;
+  venue: { id: string; name: string; address: string } | null;
 };
 
 /**
@@ -158,7 +159,11 @@ export async function getNextMatch(teamId: string): Promise<MatchWithOpponentTea
 
   const { data: matches, error } = await supabase
     .from("matches")
-    .select("*, opponent_team:teams!matches_opponent_team_id_fkey(id, name, emblem_url)")
+    .select(`
+      *,
+      opponent_team:teams!matches_opponent_team_id_fkey(id, name, emblem_url),
+      venue:venues!matches_venue_id_fkey(id, name, address)
+    `)
     .eq("team_id", teamId)
     .eq("status", "SCHEDULED")
     .gte("match_date", now)

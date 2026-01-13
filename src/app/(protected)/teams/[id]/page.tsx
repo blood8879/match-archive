@@ -97,11 +97,15 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
               <span className="material-symbols-outlined text-sm">location_on</span>
               {team.region || "지역 미설정"} · {new Date().getFullYear()}년 설립
             </p>
-            <div className="flex gap-2 text-sm text-gray-300">
-              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5">#매너팀</span>
-              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5">#주말오전</span>
-              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5">#2030</span>
-            </div>
+            {team.hashtags && team.hashtags.length > 0 && (
+              <div className="flex flex-wrap gap-2 text-sm text-gray-300">
+                {team.hashtags.map((tag, index) => (
+                  <span key={index} className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
             {isManager && (
               <div className="mt-3 flex items-center gap-2">
                 <span className="rounded bg-[#214a36] px-2 py-1 text-xs text-[#8eccae]">
@@ -257,17 +261,13 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
               <span className="w-1 h-6 bg-[#00e677] rounded-full"></span>
               팀 소개
             </h3>
-            <div className="text-gray-300 max-w-none">
-              <p className="leading-relaxed text-base">
-                <strong>{team.name}</strong>은 축구를 사랑하는 사람들이 모여 만든 팀입니다. 
-                승리도 중요하지만 부상 없이 즐겁게 차는 것을 최우선으로 생각합니다.
-              </p>
-              <p className="leading-relaxed text-base mt-4">
-                {team.region ? `주로 ${team.region} 일대에서 활동하며, ` : ""}
-                정기 매치와 자체 리그를 진행하고 있습니다. 
-                실력보다는 열정과 매너를 갖춘 분들을 환영합니다!
-              </p>
-            </div>
+            {team.description ? (
+              <div className="text-gray-300 max-w-none">
+                <p className="leading-relaxed text-base whitespace-pre-wrap">{team.description}</p>
+              </div>
+            ) : (
+              <p className="text-gray-400 text-sm">아직 팀 소개가 작성되지 않았습니다.</p>
+            )}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-black/20 border border-white/5">
                 <p className="text-[#8eccae] text-xs font-medium mb-1">주 활동 지역</p>
@@ -280,7 +280,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
                 <p className="text-[#8eccae] text-xs font-medium mb-1">주 활동 시간</p>
                 <p className="text-white text-sm font-semibold flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  주말
+                  {team.activity_time || "미설정"}
                 </p>
               </div>
               <div className="p-4 rounded-xl bg-black/20 border border-white/5">
@@ -292,10 +292,36 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
               </div>
               <div className="p-4 rounded-xl bg-black/20 border border-white/5">
                 <p className="text-[#8eccae] text-xs font-medium mb-1">모집 상태</p>
-                <p className="text-white text-sm font-semibold flex items-center gap-2">
-                  <UserPlus className="w-4 h-4" />
-                  모집중
-                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-white text-sm font-semibold flex items-center gap-2">
+                    <UserPlus className="w-4 h-4" />
+                    {team.is_recruiting ? "모집중" : "모집 마감"}
+                  </p>
+                  {team.is_recruiting && team.recruiting_positions && (
+                    <>
+                      {(team.recruiting_positions.FW ?? 0) > 0 && (
+                        <span className="px-2 py-0.5 rounded bg-[#00e677]/20 text-[#00e677] text-xs font-medium">
+                          FW {team.recruiting_positions.FW}
+                        </span>
+                      )}
+                      {(team.recruiting_positions.MF ?? 0) > 0 && (
+                        <span className="px-2 py-0.5 rounded bg-[#00e677]/20 text-[#00e677] text-xs font-medium">
+                          MF {team.recruiting_positions.MF}
+                        </span>
+                      )}
+                      {(team.recruiting_positions.DF ?? 0) > 0 && (
+                        <span className="px-2 py-0.5 rounded bg-[#00e677]/20 text-[#00e677] text-xs font-medium">
+                          DF {team.recruiting_positions.DF}
+                        </span>
+                      )}
+                      {(team.recruiting_positions.GK ?? 0) > 0 && (
+                        <span className="px-2 py-0.5 rounded bg-[#00e677]/20 text-[#00e677] text-xs font-medium">
+                          GK {team.recruiting_positions.GK}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </section>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useTransition } from "react";
-import { Shield, MapPin, Upload, Edit, Trash2 } from "lucide-react";
+import { Shield, MapPin, Upload, Edit, Trash2, Hash, X, Plus, Clock, UserPlus, FileText } from "lucide-react";
 import { updateTeam } from "@/services/teams";
 import imageCompression from "browser-image-compression";
 import type { Team } from "@/types/supabase";
@@ -21,6 +21,22 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
     team.emblem_url
   );
   const [emblemFile, setEmblemFile] = useState<File | null>(null);
+  const [hashtags, setHashtags] = useState<string[]>(team.hashtags || []);
+  const [hashtagInput, setHashtagInput] = useState("");
+  const [description, setDescription] = useState(team.description || "");
+  const [activityTime, setActivityTime] = useState(team.activity_time || "");
+  const [isRecruiting, setIsRecruiting] = useState(team.is_recruiting || false);
+  const [recruitingPositions, setRecruitingPositions] = useState<{
+    FW: number;
+    MF: number;
+    DF: number;
+    GK: number;
+  }>({
+    FW: team.recruiting_positions?.FW ?? 0,
+    MF: team.recruiting_positions?.MF ?? 0,
+    DF: team.recruiting_positions?.DF ?? 0,
+    GK: team.recruiting_positions?.GK ?? 0,
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,6 +45,11 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("region", region);
+    formData.append("hashtags", JSON.stringify(hashtags));
+    formData.append("description", description);
+    formData.append("activity_time", activityTime);
+    formData.append("is_recruiting", isRecruiting.toString());
+    formData.append("recruiting_positions", JSON.stringify(recruitingPositions));
     if (emblemFile) {
       formData.append("emblem", emblemFile);
     }
@@ -101,6 +122,43 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const handleAddHashtag = () => {
+    const cleaned = hashtagInput.trim().replace(/^#/, "");
+    if (!cleaned) return;
+
+    if (hashtags.length >= 5) {
+      alert("해시태그는 최대 5개까지 입력 가능합니다.");
+      return;
+    }
+
+    const newTag = `#${cleaned}`;
+    if (hashtags.includes(newTag)) {
+      alert("이미 추가된 해시태그입니다.");
+      return;
+    }
+
+    setHashtags([...hashtags, newTag]);
+    setHashtagInput("");
+  };
+
+  const handleRemoveHashtag = (index: number) => {
+    setHashtags(hashtags.filter((_, i) => i !== index));
+  };
+
+  const handleHashtagKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddHashtag();
+    }
+  };
+
+  const handlePositionChange = (position: "FW" | "MF" | "DF" | "GK", value: number) => {
+    setRecruitingPositions((prev) => ({
+      ...prev,
+      [position]: Math.max(0, Math.min(10, value)),
+    }));
   };
 
   return (
@@ -227,8 +285,158 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
             </label>
           </div>
 
-          {/* Invite Code (Read-only) */}
+          {/* Hashtags */}
+          <div className="flex flex-col gap-2 md:col-span-2">
+            <span className="text-sm font-semibold text-white/80">
+              해시태그 (최대 5개)
+            </span>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {hashtags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#214a36] text-[#8eccae] text-sm font-medium"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveHashtag(index)}
+                    className="p-0.5 hover:bg-white/10 rounded transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </span>
+              ))}
+            </div>
+            {hashtags.length < 5 && (
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <input
+                    type="text"
+                    value={hashtagInput}
+                    onChange={(e) => setHashtagInput(e.target.value)}
+                    onKeyDown={handleHashtagKeyDown}
+                    className="w-full rounded-xl border border-white/10 bg-black/20 py-3 pl-12 pr-4 text-white placeholder-white/30 focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
+                    placeholder="해시태그 입력 (예: 매너팀)"
+                    maxLength={20}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddHashtag}
+                  disabled={!hashtagInput.trim()}
+                  className="flex items-center justify-center rounded-xl bg-[#214a36] px-4 py-2 text-white hover:bg-[#2b5d45] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+            <p className="text-xs text-white/50">
+              팀을 설명하는 해시태그를 입력하세요. (예: #매너팀, #주말오전, #2030)
+            </p>
+          </div>
+
+          {/* Team Description */}
+          <div className="flex flex-col gap-2 md:col-span-2">
+            <span className="text-sm font-semibold text-white/80">
+              팀 소개
+            </span>
+            <div className="relative">
+              <FileText className="absolute left-4 top-4 w-5 h-5 text-white/40" />
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-white placeholder-white/30 focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all min-h-[120px] resize-none"
+                placeholder="팀을 소개하는 글을 작성하세요"
+                maxLength={500}
+              />
+            </div>
+            <p className="text-xs text-white/50 text-right">
+              {description.length}/500
+            </p>
+          </div>
+
+          {/* Activity Time */}
           <label className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-white/80">
+              주 활동 시간
+            </span>
+            <div className="relative">
+              <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+              <input
+                type="text"
+                value={activityTime}
+                onChange={(e) => setActivityTime(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-white placeholder-white/30 focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
+                placeholder="예: 토요일 오전 10시"
+                maxLength={50}
+              />
+            </div>
+          </label>
+
+          {/* Recruiting Status */}
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-white/80">
+              모집 상태
+            </span>
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isRecruiting}
+                  onChange={(e) => setIsRecruiting(e.target.checked)}
+                  className="w-5 h-5 rounded border-white/20 bg-black/20 text-[#00e677] focus:ring-[#00e677] focus:ring-offset-0"
+                />
+                <span className="text-white flex items-center gap-2">
+                  <UserPlus className="w-4 h-4" />
+                  팀원 모집중
+                </span>
+              </label>
+            </div>
+          </div>
+
+          {/* Recruiting Positions */}
+          {isRecruiting && (
+            <div className="flex flex-col gap-3 md:col-span-2 p-4 rounded-xl bg-black/20 border border-white/10">
+              <span className="text-sm font-semibold text-white/80">
+                포지션별 모집 인원
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {(["FW", "MF", "DF", "GK"] as const).map((pos) => (
+                  <div key={pos} className="flex flex-col gap-2">
+                    <span className="text-xs text-[#8eccae] font-medium">
+                      {pos === "FW" ? "공격수" : pos === "MF" ? "미드필더" : pos === "DF" ? "수비수" : "골키퍼"}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handlePositionChange(pos, recruitingPositions[pos] - 1)}
+                        className="w-8 h-8 rounded-lg bg-[#214a36] text-white hover:bg-[#2b5d45] transition-colors flex items-center justify-center"
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center text-white font-bold">
+                        {recruitingPositions[pos]}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handlePositionChange(pos, recruitingPositions[pos] + 1)}
+                        className="w-8 h-8 rounded-lg bg-[#214a36] text-white hover:bg-[#2b5d45] transition-colors flex items-center justify-center"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-white/50">
+                각 포지션별 모집 인원을 설정하세요. (0은 모집 안함)
+              </p>
+            </div>
+          )}
+
+          {/* Invite Code (Read-only) */}
+          <label className="flex flex-col gap-2 md:col-span-2">
             <span className="text-sm font-semibold text-white/80">
               초대 코드
             </span>

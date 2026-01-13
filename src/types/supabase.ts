@@ -69,6 +69,11 @@ export interface Database {
           owner_id: string;
           code: string;
           member_count: number;
+          hashtags: string[];
+          description: string | null;
+          activity_time: string | null;
+          is_recruiting: boolean;
+          recruiting_positions: { FW?: number; MF?: number; DF?: number; GK?: number } | null;
           created_at: string;
         };
         Insert: {
@@ -79,6 +84,11 @@ export interface Database {
           owner_id: string;
           code: string;
           member_count?: number;
+          hashtags?: string[];
+          description?: string | null;
+          activity_time?: string | null;
+          is_recruiting?: boolean;
+          recruiting_positions?: { FW?: number; MF?: number; DF?: number; GK?: number } | null;
           created_at?: string;
         };
         Update: {
@@ -89,6 +99,11 @@ export interface Database {
           owner_id?: string;
           code?: string;
           member_count?: number;
+          hashtags?: string[];
+          description?: string | null;
+          activity_time?: string | null;
+          is_recruiting?: boolean;
+          recruiting_positions?: { FW?: number; MF?: number; DF?: number; GK?: number } | null;
           created_at?: string;
         };
         Relationships: [

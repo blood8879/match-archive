@@ -188,8 +188,47 @@ export async function updateTeam(teamId: string, formData: FormData): Promise<vo
   const name = formData.get("name") as string;
   const region = formData.get("region") as string;
   const emblemFile = formData.get("emblem") as File | null;
+  const hashtagsJson = formData.get("hashtags") as string | null;
+  const description = formData.get("description") as string | null;
+  const activityTime = formData.get("activity_time") as string | null;
+  const isRecruiting = formData.get("is_recruiting") === "true";
+  const recruitingPositionsJson = formData.get("recruiting_positions") as string | null;
 
   if (!name) throw new Error("팀 이름은 필수입니다");
+
+  // 해시태그 파싱 및 검증
+  let hashtags: string[] = [];
+  if (hashtagsJson) {
+    try {
+      hashtags = JSON.parse(hashtagsJson);
+      if (!Array.isArray(hashtags)) {
+        throw new Error("해시태그 형식이 올바르지 않습니다");
+      }
+      if (hashtags.length > 5) {
+        throw new Error("해시태그는 최대 5개까지 입력 가능합니다");
+      }
+      // 각 해시태그 정리 (# 제거 후 다시 추가)
+      hashtags = hashtags.map((tag) => {
+        const cleaned = tag.trim().replace(/^#/, "");
+        return cleaned ? `#${cleaned}` : "";
+      }).filter(Boolean);
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        throw new Error("해시태그 형식이 올바르지 않습니다");
+      }
+      throw e;
+    }
+  }
+
+  // 모집 포지션 파싱
+  let recruitingPositions: { FW?: number; MF?: number; DF?: number; GK?: number } | null = null;
+  if (recruitingPositionsJson) {
+    try {
+      recruitingPositions = JSON.parse(recruitingPositionsJson);
+    } catch {
+      recruitingPositions = null;
+    }
+  }
 
   let emblemUrl: string | undefined = undefined;
 
@@ -253,6 +292,11 @@ export async function updateTeam(teamId: string, formData: FormData): Promise<vo
   const updateData: any = {
     name,
     region: region || null,
+    hashtags,
+    description: description || null,
+    activity_time: activityTime || null,
+    is_recruiting: isRecruiting,
+    recruiting_positions: recruitingPositions,
   };
 
   if (emblemUrl !== undefined) {

@@ -112,7 +112,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <header className="sticky top-0 z-50 w-full bg-[#173627]/60 backdrop-blur-xl border-b border-white/[0.08]">
         <div className="px-6 lg:px-10 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="flex items-center gap-3 text-white">
+            <Link href={currentTeam ? `/teams/${currentTeam.id}` : "/dashboard"} className="flex items-center gap-3 text-white">
               <div className="flex size-10 items-center justify-center rounded-lg bg-[#00e677]/10 text-[#00e677] overflow-hidden">
                 {currentTeam?.emblem_url ? (
                   <img

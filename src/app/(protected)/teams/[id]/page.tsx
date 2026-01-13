@@ -313,7 +313,10 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             </div>
 
             {activeMembers.length > 0 && activeMembers[0] && (
-              <div className="flex items-center gap-4 mb-6 bg-gradient-to-r from-[#00e677]/20 to-transparent p-3 rounded-xl border border-[#00e677]/10">
+              <Link
+                href={`/players/${activeMembers[0].id}`}
+                className="flex items-center gap-4 mb-6 bg-gradient-to-r from-[#00e677]/20 to-transparent p-3 rounded-xl border border-[#00e677]/10 hover:bg-[#00e677]/10 transition-colors cursor-pointer"
+              >
                 <div className="relative">
                   {activeMembers[0].user?.avatar_url ? (
                     <img
@@ -337,7 +340,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
                   <p className="text-white font-bold text-sm">{activeMembers[0].user?.nickname || "Unknown"}</p>
                   <p className="text-xs text-gray-400">{activeMembers[0].user?.position || "미지정"}</p>
                 </div>
-              </div>
+              </Link>
             )}
 
             <MemberList members={activeMembers.slice(1, 7)} isManager={isManager} />

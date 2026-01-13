@@ -6,19 +6,19 @@ import {
   getMatchGoals,
   getMatchAttendance,
   getHeadToHeadStats,
+  getTeamForm,
 } from "@/services/matches";
 import { getOpponentPlayers } from "@/services/opponent-players";
 import { getTeamById, getTeamMembers } from "@/services/teams";
 import { createClient } from "@/lib/supabase/server";
-import { ArrowLeft, Calendar, Users, Target, Edit } from "lucide-react";
+import { ArrowLeft, Calendar, Users, Target, Edit, MapPin } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
-import { ScoreForm } from "./score-form";
-import { FinishMatchButton } from "./finish-match-button";
 import { AttendanceButton } from "./attendance-button";
 import { GoalList } from "./goal-list";
 import { OpponentLineup } from "./opponent-lineup";
 import { DeleteMatchButton } from "./delete-match-button";
 import { PreviousMeetings } from "./previous-meetings";
+import { TeamFormSection } from "./team-form";
 
 interface MatchDetailPageProps {
   params: Promise<{ id: string }>;
@@ -69,6 +69,12 @@ export default async function MatchDetailPage({
     match.id
   );
 
+  // Team Form 가져오기 (항상 표시)
+  const homeTeamForm = await getTeamForm(match.team_id, match.id);
+  const awayTeamForm = match.opponent_team_id
+    ? await getTeamForm(match.opponent_team_id, match.id)
+    : null;
+
   const currentUserMembership = teamMembers.find((m) => m.user_id === user?.id);
   const isManager =
     currentUserMembership?.role === "OWNER" ||
@@ -86,6 +92,14 @@ export default async function MatchDetailPage({
 
   // opponent_team이 있으면 현재 팀명 사용, 없으면 저장된 opponent_name 사용
   const opponentDisplayName = (match as any).opponent_team?.name || match.opponent_name;
+
+  // 경기장 정보
+  const venue = (match as any).venue;
+  const venueAddress = venue
+    ? venue.address_detail
+      ? `${venue.address} ${venue.address_detail}`
+      : venue.address
+    : match.location;
 
   return (
     <div className="min-h-screen bg-[#0f2319] relative">
@@ -114,6 +128,16 @@ export default async function MatchDetailPage({
                   {formatDateTime(match.match_date)} vs {opponentDisplayName}
                 </p>
               </div>
+              {(venue?.name || venueAddress) && (
+                <div className="flex items-center gap-2 text-[#8eccae] text-sm mt-1">
+                  <MapPin className="h-3.5 w-3.5" />
+                  <p className="font-medium">
+                    {venue?.name && <span className="text-white">{venue.name}</span>}
+                    {venue?.name && venueAddress && <span className="mx-1">·</span>}
+                    {venueAddress && <span>{venueAddress}</span>}
+                  </p>
+                </div>
+              )}
             </div>
             {isManager && (
               <div className="flex items-center gap-2">
@@ -215,21 +239,15 @@ export default async function MatchDetailPage({
           </section>
         )}
 
-        {/* Score Input */}
+        {/* 결과 입력 버튼 - 운영진만 표시 */}
         {isManager && !isFinished && (
-          <section className="glass-panel rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="p-1 bg-[#00e677]/20 rounded-md">
-                <Target className="h-4 w-4 text-[#00e677]" />
-              </div>
-              <h3 className="text-white text-sm font-bold">스코어 입력</h3>
-            </div>
-            <ScoreForm
-              matchId={match.id}
-              homeScore={match.home_score}
-              awayScore={match.away_score}
-            />
-          </section>
+          <Link
+            href={`/matches/${match.id}/result`}
+            className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-[#00e677] hover:bg-green-400 text-[#0f2319] font-bold transition-colors"
+          >
+            <Target className="h-5 w-5" />
+            경기 결과 입력
+          </Link>
         )}
 
         {/* Combined Lineup Section - 2 Column Layout */}
@@ -350,9 +368,17 @@ export default async function MatchDetailPage({
               isManager={isManager}
               isFinished={isFinished}
               attendingMemberIds={lineupMemberIds}
+              readOnly={true}
             />
           </div>
         </section>
+
+        {/* Team Form - 양팀의 최근 경기 폼 */}
+        <TeamFormSection
+          homeTeamForm={homeTeamForm}
+          awayTeamForm={awayTeamForm}
+          isGuestOpponent={match.is_guest_opponent}
+        />
 
         {/* Previous Meetings - 상대전적 통계 */}
         <PreviousMeetings
@@ -360,13 +386,6 @@ export default async function MatchDetailPage({
           teamName={team?.name || "우리팀"}
           opponentName={opponentDisplayName}
         />
-
-        {/* Finish Button */}
-        {isManager && !isFinished && records.length > 0 && (
-          <div className="flex justify-end pt-2">
-            <FinishMatchButton matchId={match.id} />
-          </div>
-        )}
       </div>
     </div>
   );

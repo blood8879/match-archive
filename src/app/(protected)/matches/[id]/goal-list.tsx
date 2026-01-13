@@ -15,6 +15,7 @@ interface GoalListProps {
   isManager: boolean;
   isFinished: boolean;
   attendingMemberIds: string[];
+  readOnly?: boolean;
 }
 
 export function GoalList({
@@ -25,6 +26,7 @@ export function GoalList({
   isManager,
   isFinished,
   attendingMemberIds,
+  readOnly = false,
 }: GoalListProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [scoringTeam, setScoringTeam] = useState<"HOME" | "AWAY">("HOME");
@@ -165,7 +167,7 @@ export function GoalList({
                     {goal.type}
                   </span>
                 )}
-                {isManager && !isFinished && (
+                {isManager && !isFinished && !readOnly && (
                   <button
                     onClick={() => handleDelete(goal.id)}
                     disabled={isPending}
@@ -184,7 +186,7 @@ export function GoalList({
         )}
       </ul>
 
-      {isManager && !isFinished && (
+      {isManager && !isFinished && !readOnly && (
         <>
           {isAdding ? (
             <div className="space-y-4 rounded-xl bg-[#162e23] p-4 border border-[#214a36]">

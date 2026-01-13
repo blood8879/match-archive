@@ -27,7 +27,11 @@ export async function getMatchById(id: string): Promise<Match | null> {
 
   const { data, error } = await supabase
     .from("matches")
-    .select("*, opponent_team:teams!matches_opponent_team_id_fkey(id, name, emblem_url)")
+    .select(`
+      *,
+      opponent_team:teams!matches_opponent_team_id_fkey(id, name, emblem_url),
+      venue:venues!matches_venue_id_fkey(id, name, address, address_detail)
+    `)
     .eq("id", id)
     .single();
 
@@ -659,5 +663,152 @@ export async function getHeadToHeadStats(
     homeGoals,
     awayGoals,
     recentMatches,
+  };
+}
+
+/**
+ * 팀의 최근 경기 폼(Team Form)을 가져옵니다
+ * 프리미어리그 스타일의 최근 5경기 결과
+ */
+export type TeamFormMatch = {
+  id: string;
+  date: string;
+  opponentName: string;
+  opponentEmblemUrl: string | null;
+  homeScore: number;
+  awayScore: number;
+  result: "W" | "D" | "L";
+  isHome: boolean;
+};
+
+export type TeamForm = {
+  teamId: string;
+  teamName: string;
+  teamEmblemUrl: string | null;
+  recentForm: ("W" | "D" | "L")[]; // 최근 5경기 결과 (최신순)
+  matches: TeamFormMatch[];
+  stats: {
+    wins: number;
+    draws: number;
+    losses: number;
+    goalsFor: number;
+    goalsAgainst: number;
+  };
+};
+
+export async function getTeamForm(
+  teamId: string,
+  excludeMatchId?: string,
+  limit: number = 5
+): Promise<TeamForm | null> {
+  const supabase = await createClient();
+
+  // 팀 정보 조회
+  const { data: team, error: teamError } = await supabase
+    .from("teams")
+    .select("id, name, emblem_url")
+    .eq("id", teamId)
+    .single();
+
+  if (teamError || !team) {
+    console.error("Failed to fetch team:", teamError);
+    return null;
+  }
+
+  // 팀의 최근 완료된 경기 조회
+  let query = supabase
+    .from("matches")
+    .select("id, match_date, opponent_name, opponent_team_id, home_score, away_score, status")
+    .eq("team_id", teamId)
+    .eq("status", "FINISHED")
+    .order("match_date", { ascending: false })
+    .limit(limit);
+
+  if (excludeMatchId) {
+    query = query.neq("id", excludeMatchId);
+  }
+
+  const { data: matches, error: matchesError } = await query;
+
+  if (matchesError) {
+    console.error("Failed to fetch matches:", matchesError);
+    return null;
+  }
+
+  // 상대팀 정보 조회 (opponent_team_id가 있는 경우)
+  const opponentTeamIds = matches
+    .filter((m): m is typeof m & { opponent_team_id: string } => m.opponent_team_id !== null)
+    .map((m) => m.opponent_team_id);
+
+  let opponentTeams: Record<string, { name: string; emblem_url: string | null }> = {};
+
+  if (opponentTeamIds.length > 0) {
+    const { data: teams } = await supabase
+      .from("teams")
+      .select("id, name, emblem_url")
+      .in("id", opponentTeamIds);
+
+    if (teams) {
+      opponentTeams = teams.reduce((acc, t) => {
+        acc[t.id] = { name: t.name, emblem_url: t.emblem_url };
+        return acc;
+      }, {} as Record<string, { name: string; emblem_url: string | null }>);
+    }
+  }
+
+  // 결과 계산
+  let wins = 0;
+  let draws = 0;
+  let losses = 0;
+  let goalsFor = 0;
+  let goalsAgainst = 0;
+  const recentForm: ("W" | "D" | "L")[] = [];
+
+  const formMatches: TeamFormMatch[] = matches.map((match) => {
+    const result: "W" | "D" | "L" =
+      match.home_score > match.away_score
+        ? "W"
+        : match.home_score < match.away_score
+        ? "L"
+        : "D";
+
+    recentForm.push(result);
+    goalsFor += match.home_score;
+    goalsAgainst += match.away_score;
+
+    if (result === "W") wins++;
+    else if (result === "D") draws++;
+    else losses++;
+
+    // 상대팀 정보 (연결된 팀이 있으면 현재 이름 사용)
+    const opponentInfo = match.opponent_team_id
+      ? opponentTeams[match.opponent_team_id]
+      : null;
+
+    return {
+      id: match.id,
+      date: match.match_date,
+      opponentName: opponentInfo?.name || match.opponent_name,
+      opponentEmblemUrl: opponentInfo?.emblem_url || null,
+      homeScore: match.home_score,
+      awayScore: match.away_score,
+      result,
+      isHome: true, // 현재 시스템에서는 항상 홈 팀으로 기록
+    };
+  });
+
+  return {
+    teamId: team.id,
+    teamName: team.name,
+    teamEmblemUrl: team.emblem_url,
+    recentForm,
+    matches: formMatches,
+    stats: {
+      wins,
+      draws,
+      losses,
+      goalsFor,
+      goalsAgainst,
+    },
   };
 }

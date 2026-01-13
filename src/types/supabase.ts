@@ -72,6 +72,7 @@ export interface Database {
           hashtags: string[];
           description: string | null;
           activity_time: string | null;
+          activity_days: string[];
           is_recruiting: boolean;
           recruiting_positions: { FW?: number; MF?: number; DF?: number; GK?: number } | null;
           level: number;
@@ -88,6 +89,7 @@ export interface Database {
           hashtags?: string[];
           description?: string | null;
           activity_time?: string | null;
+          activity_days?: string[];
           is_recruiting?: boolean;
           recruiting_positions?: { FW?: number; MF?: number; DF?: number; GK?: number } | null;
           level?: number;
@@ -104,6 +106,7 @@ export interface Database {
           hashtags?: string[];
           description?: string | null;
           activity_time?: string | null;
+          activity_days?: string[];
           is_recruiting?: boolean;
           recruiting_positions?: { FW?: number; MF?: number; DF?: number; GK?: number } | null;
           level?: number;

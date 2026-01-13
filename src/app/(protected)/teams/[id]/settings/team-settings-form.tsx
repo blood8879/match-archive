@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useTransition } from "react";
-import { Shield, MapPin, Upload, Edit, Trash2, Hash, X, Plus, Clock, UserPlus, FileText, Star } from "lucide-react";
+import { Shield, MapPin, Upload, Edit, Trash2, Hash, X, Plus, UserPlus, FileText, Star } from "lucide-react";
 import { updateTeam } from "@/services/teams";
 import imageCompression from "browser-image-compression";
 import type { Team } from "@/types/supabase";
@@ -24,7 +24,7 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
   const [hashtags, setHashtags] = useState<string[]>(team.hashtags || []);
   const [hashtagInput, setHashtagInput] = useState("");
   const [description, setDescription] = useState(team.description || "");
-  const [activityTime, setActivityTime] = useState(team.activity_time || "");
+  const [activityDays, setActivityDays] = useState<string[]>(team.activity_days || []);
   const [isRecruiting, setIsRecruiting] = useState(team.is_recruiting || false);
   const [recruitingPositions, setRecruitingPositions] = useState<{
     FW: number;
@@ -48,7 +48,7 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
     formData.append("region", region);
     formData.append("hashtags", JSON.stringify(hashtags));
     formData.append("description", description);
-    formData.append("activity_time", activityTime);
+    formData.append("activity_days", JSON.stringify(activityDays));
     formData.append("is_recruiting", isRecruiting.toString());
     formData.append("recruiting_positions", JSON.stringify(recruitingPositions));
     formData.append("level", level.toString());
@@ -380,23 +380,45 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
             </p>
           </div>
 
-          {/* Activity Time */}
-          <label className="flex flex-col gap-2">
+          {/* Activity Days */}
+          <div className="flex flex-col gap-2 md:col-span-2">
             <span className="text-sm font-semibold text-white/80">
-              주 활동 시간
+              주 활동 요일
             </span>
-            <div className="relative">
-              <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-              <input
-                type="text"
-                value={activityTime}
-                onChange={(e) => setActivityTime(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-white placeholder-white/30 focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
-                placeholder="예: 토요일 오전 10시"
-                maxLength={50}
-              />
+            <div className="flex flex-wrap gap-2">
+              {[
+                { value: "월", label: "월" },
+                { value: "화", label: "화" },
+                { value: "수", label: "수" },
+                { value: "목", label: "목" },
+                { value: "금", label: "금" },
+                { value: "토", label: "토" },
+                { value: "일", label: "일" },
+              ].map((day) => (
+                <button
+                  key={day.value}
+                  type="button"
+                  onClick={() => {
+                    if (activityDays.includes(day.value)) {
+                      setActivityDays(activityDays.filter((d) => d !== day.value));
+                    } else {
+                      setActivityDays([...activityDays, day.value]);
+                    }
+                  }}
+                  className={`w-12 h-12 rounded-xl font-bold text-sm transition-all ${
+                    activityDays.includes(day.value)
+                      ? "bg-[#00e677] text-[#0f2319] shadow-lg shadow-[#00e677]/20"
+                      : "bg-black/20 text-white/70 border border-white/10 hover:border-[#00e677]/50 hover:text-white"
+                  }`}
+                >
+                  {day.label}
+                </button>
+              ))}
             </div>
-          </label>
+            <p className="text-xs text-white/50">
+              주로 활동하는 요일을 선택하세요 (복수 선택 가능)
+            </p>
+          </div>
 
           {/* Recruiting Status */}
           <div className="flex flex-col gap-2">

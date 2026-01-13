@@ -277,11 +277,24 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
                 </p>
               </div>
               <div className="p-4 rounded-xl bg-black/20 border border-white/5">
-                <p className="text-[#8eccae] text-xs font-medium mb-1">주 활동 시간</p>
-                <p className="text-white text-sm font-semibold flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  {team.activity_time || "미설정"}
-                </p>
+                <p className="text-[#8eccae] text-xs font-medium mb-1">주 활동 요일</p>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-white" />
+                  {team.activity_days && team.activity_days.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {team.activity_days.map((day) => (
+                        <span
+                          key={day}
+                          className="px-2 py-0.5 rounded bg-[#00e677]/20 text-[#00e677] text-xs font-medium"
+                        >
+                          {day}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-white text-sm font-semibold">미설정</span>
+                  )}
+                </div>
               </div>
               <div className="p-4 rounded-xl bg-black/20 border border-white/5">
                 <p className="text-[#8eccae] text-xs font-medium mb-1">팀원 수</p>

@@ -190,7 +190,7 @@ export async function updateTeam(teamId: string, formData: FormData): Promise<vo
   const emblemFile = formData.get("emblem") as File | null;
   const hashtagsJson = formData.get("hashtags") as string | null;
   const description = formData.get("description") as string | null;
-  const activityTime = formData.get("activity_time") as string | null;
+  const activityDaysJson = formData.get("activity_days") as string | null;
   const isRecruiting = formData.get("is_recruiting") === "true";
   const recruitingPositionsJson = formData.get("recruiting_positions") as string | null;
   const levelStr = formData.get("level") as string | null;
@@ -219,6 +219,19 @@ export async function updateTeam(teamId: string, formData: FormData): Promise<vo
         throw new Error("해시태그 형식이 올바르지 않습니다");
       }
       throw e;
+    }
+  }
+
+  // 활동 요일 파싱
+  let activityDays: string[] = [];
+  if (activityDaysJson) {
+    try {
+      activityDays = JSON.parse(activityDaysJson);
+      if (!Array.isArray(activityDays)) {
+        activityDays = [];
+      }
+    } catch {
+      activityDays = [];
     }
   }
 
@@ -296,7 +309,7 @@ export async function updateTeam(teamId: string, formData: FormData): Promise<vo
     region: region || null,
     hashtags,
     description: description || null,
-    activity_time: activityTime || null,
+    activity_days: activityDays,
     is_recruiting: isRecruiting,
     recruiting_positions: recruitingPositions,
     level: Math.max(1, Math.min(10, level)),

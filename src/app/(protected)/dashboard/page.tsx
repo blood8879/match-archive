@@ -113,8 +113,16 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <div className="px-6 lg:px-10 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="flex items-center gap-3 text-white">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-[#00e677]/10 text-[#00e677]">
-                <Zap className="w-6 h-6" />
+              <div className="flex size-10 items-center justify-center rounded-lg bg-[#00e677]/10 text-[#00e677] overflow-hidden">
+                {currentTeam?.emblem_url ? (
+                  <img
+                    src={currentTeam.emblem_url}
+                    alt={currentTeam.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Zap className="w-6 h-6" />
+                )}
               </div>
               <h2 className="text-white text-lg font-bold leading-tight tracking-tight">
                 {currentTeam?.name || "Match Archive"}

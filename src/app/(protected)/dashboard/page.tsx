@@ -1,19 +1,25 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Users, Calendar, Zap, Bell, Search } from "lucide-react";
+import { Users, Calendar, Zap, Bell } from "lucide-react";
 import type { Team, TeamMember, User, Venue } from "@/types/supabase";
 import { getMyInvites } from "@/services/invites";
 import { TeamInvitesSection } from "./team-invites-section";
 import { getRecentMatches, getNextMatch } from "@/services/team-stats";
 import { getTeamMembers } from "@/services/teams";
 import { LockerRoomTabs } from "./locker-room-tabs";
+import { TeamSwitcher } from "./team-switcher";
 
 type TeamMemberWithTeam = TeamMember & { team: Team | null };
 type TeamMemberWithUser = TeamMember & {
   user: Pick<User, "id" | "nickname" | "avatar_url" | "position"> | null;
 };
 
-export default async function DashboardPage() {
+interface DashboardPageProps {
+  searchParams: Promise<{ team?: string }>;
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const { team: selectedTeamId } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -37,18 +43,23 @@ export default async function DashboardPage() {
 
   const myTeams = myTeamsRaw as TeamMemberWithTeam[] | null;
 
-  const firstMembershipId = myTeams?.[0]?.id;
-  const firstTeam = myTeams?.[0]?.team;
-  const firstMembership = myTeams?.[0];
+  // 선택된 팀 찾기 (쿼리 파라미터가 있으면 해당 팀, 없으면 첫 번째 팀)
+  const currentMembership = selectedTeamId
+    ? myTeams?.find((m) => m.team?.id === selectedTeamId) || myTeams?.[0]
+    : myTeams?.[0];
+
+  const currentMembershipId = currentMembership?.id;
+  const currentTeam = currentMembership?.team;
+
   let totalGoals = 0;
   let totalAssists = 0;
   let matchesPlayed = 0;
 
-  if (firstMembershipId) {
+  if (currentMembershipId) {
     const { data: myStats } = await supabase
       .from("match_records")
       .select("goals, assists, match:matches!match_records_match_id_fkey(id, status)")
-      .eq("team_member_id", firstMembershipId);
+      .eq("team_member_id", currentMembershipId);
 
     if (myStats) {
       const finishedMatches = myStats.filter((record: any) => record.match?.status === "FINISHED");
@@ -64,17 +75,16 @@ export default async function DashboardPage() {
   let members: TeamMemberWithUser[] = [];
   let venues: Venue[] = [];
 
-  if (firstTeam) {
+  if (currentTeam) {
     try {
-      recentMatches = await getRecentMatches(firstTeam.id, 5);
-      nextMatch = await getNextMatch(firstTeam.id);
-      members = await getTeamMembers(firstTeam.id);
+      recentMatches = await getRecentMatches(currentTeam.id, 5);
+      nextMatch = await getNextMatch(currentTeam.id);
+      members = await getTeamMembers(currentTeam.id);
 
-      // 경기장 정보 가져오기
       const { data: venueData } = await supabase
         .from("venues")
         .select("*")
-        .eq("team_id", firstTeam.id)
+        .eq("team_id", currentTeam.id)
         .order("is_primary", { ascending: false });
 
       venues = (venueData || []) as Venue[];
@@ -87,63 +97,56 @@ export default async function DashboardPage() {
   const myInvites = await getMyInvites();
 
   const isManager =
-    firstMembership?.role === "OWNER" || firstMembership?.role === "MANAGER";
+    currentMembership?.role === "OWNER" || currentMembership?.role === "MANAGER";
+
+  // 팀 목록 (팀 전환용)
+  const teamList = myTeams?.map((m) => ({
+    id: m.team?.id || "",
+    name: m.team?.name || "",
+    emblem_url: m.team?.emblem_url || null,
+    role: m.role,
+  })).filter((t) => t.id) || [];
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-hidden">
       <header className="sticky top-0 z-50 w-full bg-[#173627]/60 backdrop-blur-xl border-b border-white/[0.08]">
         <div className="px-6 lg:px-10 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-3 text-white">
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard" className="flex items-center gap-3 text-white">
               <div className="flex size-10 items-center justify-center rounded-lg bg-[#00e677]/10 text-[#00e677]">
                 <Zap className="w-6 h-6" />
               </div>
               <h2 className="text-white text-lg font-bold leading-tight tracking-tight">
-                {firstTeam?.name || "Match Archive"}
+                {currentTeam?.name || "Match Archive"}
               </h2>
-            </div>
-            <nav className="hidden md:flex items-center gap-1 bg-white/5 rounded-full p-1 border border-white/5">
-              <Link href="/dashboard" className="px-4 py-1.5 rounded-full text-sm font-bold text-[#0f2319] bg-[#00e677] shadow-sm shadow-[#00e677]/20">
-                라커룸
-              </Link>
-              <Link href="/teams" className="px-4 py-1.5 rounded-full text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">
-                팀
-              </Link>
-              <Link href="/matches" className="px-4 py-1.5 rounded-full text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">
-                경기
-              </Link>
-              <Link href="/profile" className="px-4 py-1.5 rounded-full text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">
-                프로필
-              </Link>
-            </nav>
+            </Link>
+            {/* 팀 전환 메뉴 */}
+            {teamList.length > 1 && (
+              <TeamSwitcher
+                teams={teamList}
+                currentTeamId={currentTeam?.id || ""}
+              />
+            )}
           </div>
-          <div className="flex items-center gap-4 md:gap-6">
-            <label className="hidden md:flex flex-col min-w-40 h-9 max-w-64 group">
-              <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-black/20 border border-white/10 focus-within:border-[#00e677]/50 transition-colors">
-                <div className="text-white/50 flex items-center justify-center pl-3">
-                  <Search className="w-5 h-5" />
-                </div>
-                <input className="flex w-full min-w-0 flex-1 bg-transparent text-white focus:outline-none border-none placeholder:text-white/30 px-3 text-sm font-normal" placeholder="선수 검색..." />
-              </div>
-            </label>
-            <div className="flex items-center gap-3">
-              <button className="relative p-2 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-2 right-2 size-2 rounded-full bg-red-500 ring-2 ring-[#0f2319]"></span>
-              </button>
-              <div className="h-8 w-[1px] bg-white/10 mx-1"></div>
+          <div className="flex items-center gap-3">
+            <button className="relative p-2 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-2 right-2 size-2 rounded-full bg-red-500 ring-2 ring-[#0f2319]"></span>
+            </button>
+            <div className="h-8 w-[1px] bg-white/10 mx-1"></div>
+            <Link href="/profile">
               {typedProfile?.avatar_url ? (
                 <img
                   src={typedProfile.avatar_url}
                   alt={typedProfile.nickname || "User"}
-                  className="size-9 rounded-full object-cover ring-2 ring-white/10"
+                  className="size-9 rounded-full object-cover ring-2 ring-white/10 hover:ring-[#00e677]/50 transition-all"
                 />
               ) : (
-                <div className="size-9 rounded-full bg-[#00e677]/20 flex items-center justify-center text-[#00e677] font-bold ring-2 ring-white/10">
+                <div className="size-9 rounded-full bg-[#00e677]/20 flex items-center justify-center text-[#00e677] font-bold ring-2 ring-white/10 hover:ring-[#00e677]/50 transition-all">
                   {typedProfile?.nickname?.charAt(0) || "U"}
                 </div>
               )}
-            </div>
+            </Link>
           </div>
         </div>
       </header>
@@ -161,8 +164,8 @@ export default async function DashboardPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {firstTeam && myTeams && myTeams[0] && (myTeams[0].role === "OWNER" || myTeams[0].role === "MANAGER") ? (
-              <Link href={`/teams/${firstTeam.id}/manage`} className="bg-white/[0.03] hover:bg-white/10 backdrop-blur-xl border border-white/[0.08] h-10 px-4 rounded-lg flex items-center gap-2 text-sm font-medium text-white transition-all">
+            {currentTeam && currentMembership && (currentMembership.role === "OWNER" || currentMembership.role === "MANAGER") ? (
+              <Link href={`/teams/${currentTeam.id}/manage`} className="bg-white/[0.03] hover:bg-white/10 backdrop-blur-xl border border-white/[0.08] h-10 px-4 rounded-lg flex items-center gap-2 text-sm font-medium text-white transition-all">
                 <Users className="w-5 h-5" />
                 팀 관리
               </Link>
@@ -172,8 +175,8 @@ export default async function DashboardPage() {
                 팀 찾기
               </Link>
             )}
-            {firstTeam && (
-              <Link href={`/teams/${firstTeam.id}/matches/new`} className="bg-[#00e677] hover:bg-green-400 text-[#0f2319] h-10 px-5 rounded-lg flex items-center gap-2 text-sm font-bold transition-all shadow-lg shadow-[#00e677]/20">
+            {currentTeam && (
+              <Link href={`/teams/${currentTeam.id}/matches/new`} className="bg-[#00e677] hover:bg-green-400 text-[#0f2319] h-10 px-5 rounded-lg flex items-center gap-2 text-sm font-bold transition-all shadow-lg shadow-[#00e677]/20">
                 <Calendar className="w-5 h-5" />
                 경기 생성
               </Link>
@@ -186,7 +189,7 @@ export default async function DashboardPage() {
 
         {/* 탭 컴포넌트 */}
         <LockerRoomTabs
-          firstTeam={firstTeam || null}
+          firstTeam={currentTeam || null}
           myTeams={myTeams}
           typedProfile={typedProfile}
           recentMatches={recentMatches}

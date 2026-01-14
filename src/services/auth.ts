@@ -11,6 +11,9 @@ export async function updateUserProfile(data: {
   bio?: string;
   is_public?: boolean;
   email_notifications?: boolean;
+  nationality?: string | null;
+  birth_date?: string | null;
+  preferred_foot?: "left" | "right" | "both" | null;
 }) {
   const supabase = await createClient();
 
@@ -31,6 +34,9 @@ export async function updateUserProfile(data: {
       bio: data.bio || null,
       is_public: data.is_public ?? true,
       email_notifications: data.email_notifications ?? false,
+      nationality: data.nationality || null,
+      birth_date: data.birth_date || null,
+      preferred_foot: data.preferred_foot || null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", user.id);

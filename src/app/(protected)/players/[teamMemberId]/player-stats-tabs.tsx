@@ -8,7 +8,6 @@ import {
   Users,
   Target,
   Shield,
-  TrendingUp,
   ChevronDown,
   X,
 } from "lucide-react";
@@ -51,7 +50,7 @@ export function PlayerStatsTabs({
   allSeasonStats,
   availableSeasons,
 }: PlayerStatsTabsProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "season" | "matches">("overview");
+  const [activeTab, setActiveTab] = useState<"season" | "matches">("season");
   const [selectedSeason, setSelectedSeason] = useState(currentYear);
   const [isSeasonModalOpen, setIsSeasonModalOpen] = useState(false);
 
@@ -154,18 +153,38 @@ export function PlayerStatsTabs({
         </div>
       )}
 
+      {/* Career Stats Summary - 통산 기록 카드 */}
+      <div className="mb-8 bg-gradient-to-r from-[#162e23] to-[#0f2319] rounded-2xl p-5 border border-[#2d5842]/50">
+        <div className="flex items-center gap-2 mb-4">
+          <Trophy className="w-5 h-5 text-yellow-500" />
+          <h3 className="text-white font-bold">통산 기록</h3>
+        </div>
+        <div className="grid grid-cols-5 gap-3">
+          <div className="text-center">
+            <div className="text-2xl md:text-3xl font-black text-white">{careerTotals.matches}</div>
+            <div className="text-xs text-text-secondary">경기</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl md:text-3xl font-black text-primary">{careerTotals.goals}</div>
+            <div className="text-xs text-text-secondary">득점</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl md:text-3xl font-black text-[#8eccae]">{careerTotals.assists}</div>
+            <div className="text-xs text-text-secondary">도움</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl md:text-3xl font-black text-yellow-500">{careerTotals.mom}</div>
+            <div className="text-xs text-text-secondary">MOM</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl md:text-3xl font-black text-blue-400">{careerTotals.cleanSheets}</div>
+            <div className="text-xs text-text-secondary">클린시트</div>
+          </div>
+        </div>
+      </div>
+
       {/* Tab Navigation */}
       <div className="flex gap-2 mb-6">
-        <button
-          onClick={() => setActiveTab("overview")}
-          className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
-            activeTab === "overview"
-              ? "bg-primary text-[#0f2319]"
-              : "bg-[#214a36] text-[#8eccae] hover:bg-[#2b5d45]"
-          }`}
-        >
-          통합 기록
-        </button>
         <button
           onClick={() => setActiveTab("season")}
           className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
@@ -187,249 +206,6 @@ export function PlayerStatsTabs({
           경기 기록
         </button>
       </div>
-
-      {/* Overview Tab - 통합 기록 (프리미어리그 스타일) */}
-      {activeTab === "overview" && (
-        <>
-          {/* 커리어 통합 스탯 - 대형 카드 */}
-          <section className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              <h3 className="text-white text-lg font-bold">커리어 통계</h3>
-            </div>
-
-            {/* 주요 스탯 - 크게 표시 */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-              {/* Matches */}
-              <div className="bg-gradient-to-br from-[#162e23] to-[#0f2319] p-6 rounded-2xl border border-[#2d5842]/50 text-center group hover:border-primary/50 transition-colors">
-                <div className="mb-2">
-                  <Users className="w-6 h-6 text-primary/60 mx-auto group-hover:text-primary transition-colors" />
-                </div>
-                <div className="text-4xl md:text-5xl font-black text-white mb-1">
-                  {careerTotals.matches}
-                </div>
-                <div className="text-xs text-text-secondary uppercase tracking-wider font-medium">
-                  출전
-                </div>
-              </div>
-
-              {/* Goals */}
-              <div className="bg-gradient-to-br from-[#162e23] to-[#0f2319] p-6 rounded-2xl border border-[#2d5842]/50 text-center group hover:border-primary/50 transition-colors relative overflow-hidden">
-                <div className="absolute right-2 top-2 opacity-5 group-hover:opacity-10 transition-opacity">
-                  <Target className="w-20 h-20" />
-                </div>
-                <div className="mb-2 relative z-10">
-                  <Target className="w-6 h-6 text-primary/60 mx-auto group-hover:text-primary transition-colors" />
-                </div>
-                <div className="text-4xl md:text-5xl font-black text-white mb-1 relative z-10">
-                  {careerTotals.goals}
-                </div>
-                <div className="text-xs text-text-secondary uppercase tracking-wider font-medium relative z-10">
-                  득점
-                </div>
-              </div>
-
-              {/* Assists */}
-              <div className="bg-gradient-to-br from-[#162e23] to-[#0f2319] p-6 rounded-2xl border border-[#2d5842]/50 text-center group hover:border-primary/50 transition-colors">
-                <div className="mb-2">
-                  <svg
-                    className="w-6 h-6 text-primary/60 mx-auto group-hover:text-primary transition-colors"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"
-                    />
-                  </svg>
-                </div>
-                <div className="text-4xl md:text-5xl font-black text-white mb-1">
-                  {careerTotals.assists}
-                </div>
-                <div className="text-xs text-text-secondary uppercase tracking-wider font-medium">
-                  도움
-                </div>
-              </div>
-
-              {/* MOM */}
-              <div className="bg-gradient-to-br from-[#162e23] to-[#0f2319] p-6 rounded-2xl border border-[#2d5842]/50 text-center group hover:border-primary/50 transition-colors">
-                <div className="mb-2">
-                  <Trophy className="w-6 h-6 text-yellow-500/60 mx-auto group-hover:text-yellow-500 transition-colors" />
-                </div>
-                <div className="text-4xl md:text-5xl font-black text-white mb-1">
-                  {careerTotals.mom}
-                </div>
-                <div className="text-xs text-text-secondary uppercase tracking-wider font-medium">
-                  MOM
-                </div>
-              </div>
-
-              {/* Clean Sheets */}
-              <div className="bg-gradient-to-br from-[#162e23] to-[#0f2319] p-6 rounded-2xl border border-[#2d5842]/50 text-center group hover:border-primary/50 transition-colors col-span-2 md:col-span-1">
-                <div className="mb-2">
-                  <Shield className="w-6 h-6 text-blue-400/60 mx-auto group-hover:text-blue-400 transition-colors" />
-                </div>
-                <div className="text-4xl md:text-5xl font-black text-white mb-1">
-                  {careerTotals.cleanSheets}
-                </div>
-                <div className="text-xs text-text-secondary uppercase tracking-wider font-medium">
-                  클린시트
-                </div>
-              </div>
-            </div>
-
-            {/* 공격 포인트 하이라이트 */}
-            <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-6 rounded-2xl border border-primary/30 mb-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-primary font-medium mb-1">총 공격 포인트</div>
-                  <div className="text-5xl md:text-6xl font-black text-white">
-                    {careerTotals.goals + careerTotals.assists}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-white">{careerTotals.goals}</div>
-                      <div className="text-text-secondary">득점</div>
-                    </div>
-                    <div className="text-2xl text-text-secondary">+</div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-white">{careerTotals.assists}</div>
-                      <div className="text-text-secondary">도움</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 평균 스탯 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-card-dark p-4 rounded-xl border border-[#2d5842]/30">
-                <div className="text-xs text-text-secondary mb-1">경기당 평균 득점</div>
-                <div className="text-2xl font-bold text-primary">
-                  {careerTotals.matches > 0
-                    ? (careerTotals.goals / careerTotals.matches).toFixed(2)
-                    : "0.00"}
-                </div>
-              </div>
-              <div className="bg-card-dark p-4 rounded-xl border border-[#2d5842]/30">
-                <div className="text-xs text-text-secondary mb-1">경기당 평균 도움</div>
-                <div className="text-2xl font-bold text-[#8eccae]">
-                  {careerTotals.matches > 0
-                    ? (careerTotals.assists / careerTotals.matches).toFixed(2)
-                    : "0.00"}
-                </div>
-              </div>
-              <div className="bg-card-dark p-4 rounded-xl border border-[#2d5842]/30">
-                <div className="text-xs text-text-secondary mb-1">경기당 공격포인트</div>
-                <div className="text-2xl font-bold text-white">
-                  {careerTotals.matches > 0
-                    ? ((careerTotals.goals + careerTotals.assists) / careerTotals.matches).toFixed(2)
-                    : "0.00"}
-                </div>
-              </div>
-              <div className="bg-card-dark p-4 rounded-xl border border-[#2d5842]/30">
-                <div className="text-xs text-text-secondary mb-1">MOM 선정률</div>
-                <div className="text-2xl font-bold text-yellow-500">
-                  {careerTotals.matches > 0
-                    ? ((careerTotals.mom / careerTotals.matches) * 100).toFixed(1)
-                    : "0.0"}
-                  <span className="text-sm">%</span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* 시즌별 기록 테이블 */}
-          <section className="bg-card-dark rounded-2xl p-6 border border-[#2d5842]/30">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-white text-lg font-bold flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-primary" />
-                시즌별 기록
-              </h3>
-            </div>
-
-            {careerStats.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="text-text-secondary text-xs uppercase tracking-wider border-b border-[#2d5842]">
-                      <th className="pb-3 pl-2 font-medium">시즌</th>
-                      <th className="pb-3 font-medium text-center">출전</th>
-                      <th className="pb-3 font-medium text-center">득점</th>
-                      <th className="pb-3 font-medium text-center">도움</th>
-                      <th className="pb-3 font-medium text-center">MOM</th>
-                      <th className="pb-3 pr-2 font-medium text-center">클린시트</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-sm">
-                    {careerStats.map((season) => (
-                      <tr
-                        key={season.season}
-                        className="group hover:bg-[#10231a] transition-colors border-b border-[#2d5842]/50 last:border-0 cursor-pointer"
-                        onClick={() => {
-                          setSelectedSeason(season.season);
-                          setActiveTab("season");
-                        }}
-                      >
-                        <td className="py-4 pl-2">
-                          <span className="text-white font-bold">
-                            {season.season}
-                          </span>
-                        </td>
-                        <td className="py-4 text-center">
-                          <span className="text-white">{season.matches}</span>
-                        </td>
-                        <td className="py-4 text-center">
-                          <span className="text-primary font-bold">
-                            {season.goals}
-                          </span>
-                        </td>
-                        <td className="py-4 text-center">
-                          <span className="text-[#8eccae]">{season.assists}</span>
-                        </td>
-                        <td className="py-4 text-center">
-                          <span className="text-yellow-500">{season.mom}</span>
-                        </td>
-                        <td className="py-4 pr-2 text-center">
-                          <span className="text-blue-400">{season.cleanSheets}</span>
-                        </td>
-                      </tr>
-                    ))}
-                    {/* Total Row */}
-                    <tr className="bg-[#10231a] font-bold">
-                      <td className="py-4 pl-2 text-primary">총계</td>
-                      <td className="py-4 text-center text-white">
-                        {careerTotals.matches}
-                      </td>
-                      <td className="py-4 text-center text-primary">
-                        {careerTotals.goals}
-                      </td>
-                      <td className="py-4 text-center text-[#8eccae]">
-                        {careerTotals.assists}
-                      </td>
-                      <td className="py-4 text-center text-yellow-500">
-                        {careerTotals.mom}
-                      </td>
-                      <td className="py-4 pr-2 text-center text-blue-400">
-                        {careerTotals.cleanSheets}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className="text-center text-text-secondary py-8">
-                아직 커리어 기록이 없습니다
-              </p>
-            )}
-          </section>
-        </>
-      )}
 
       {/* Season Stats Tab */}
       {activeTab === "season" && (

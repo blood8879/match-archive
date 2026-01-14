@@ -14,7 +14,7 @@ export type PlayerStats = {
 
 export type PlayerWithStats = {
   teamMember: TeamMember;
-  user: Pick<User, "id" | "nickname" | "avatar_url" | "position"> | null;
+  user: Pick<User, "id" | "nickname" | "avatar_url" | "position" | "birth_date" | "nationality" | "preferred_foot"> | null;
   stats: PlayerStats;
 };
 
@@ -582,7 +582,7 @@ export async function getPlayerByTeamMemberId(
   // 팀 멤버 정보 가져오기
   const { data: teamMember, error: memberError } = await supabase
     .from("team_members")
-    .select("*, user:users(id, nickname, avatar_url, position)")
+    .select("*, user:users(id, nickname, avatar_url, position, birth_date, nationality, preferred_foot)")
     .eq("id", teamMemberId)
     .single();
 
@@ -629,7 +629,7 @@ export async function getPlayerByTeamMemberId(
     teamMember: teamMember as TeamMember,
     user: teamMember.user as Pick<
       User,
-      "id" | "nickname" | "avatar_url" | "position"
+      "id" | "nickname" | "avatar_url" | "position" | "birth_date" | "nationality" | "preferred_foot"
     > | null,
     stats,
   };

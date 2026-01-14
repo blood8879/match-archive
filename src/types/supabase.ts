@@ -23,6 +23,9 @@ export interface Database {
           bio: string | null;
           is_public: boolean;
           email_notifications: boolean;
+          birth_date: string | null;
+          nationality: string | null;
+          preferred_foot: "left" | "right" | "both" | null;
           created_at: string;
           updated_at: string;
         };
@@ -39,6 +42,9 @@ export interface Database {
           bio?: string | null;
           is_public?: boolean;
           email_notifications?: boolean;
+          birth_date?: string | null;
+          nationality?: string | null;
+          preferred_foot?: "left" | "right" | "both" | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -55,6 +61,9 @@ export interface Database {
           bio?: string | null;
           is_public?: boolean;
           email_notifications?: boolean;
+          birth_date?: string | null;
+          nationality?: string | null;
+          preferred_foot?: "left" | "right" | "both" | null;
           created_at?: string;
           updated_at?: string;
         };

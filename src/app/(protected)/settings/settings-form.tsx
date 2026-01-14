@@ -1,11 +1,21 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { User, Mail, Phone, Zap, Edit, Trash2, LogOut, Upload, Hash, Copy, Check } from "lucide-react";
+import { useState, useRef, useMemo } from "react";
+import { User, Mail, Phone, Zap, Edit, Trash2, LogOut, Upload, Hash, Copy, Check, Globe, Calendar, Footprints } from "lucide-react";
 import { updateUserProfile, signOut } from "@/services/auth";
 import { createClient } from "@/lib/supabase/client";
 import imageCompression from "browser-image-compression";
 import type { User as UserType } from "@/types/supabase";
+import { countries, TCountryCode } from "countries-list";
+
+// ISO 국가 코드를 국기 이모지로 변환
+function countryCodeToEmoji(code: string): string {
+  const codePoints = code
+    .toUpperCase()
+    .split("")
+    .map((char) => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+}
 
 interface SettingsFormProps {
   user: UserType;
@@ -22,7 +32,27 @@ export function SettingsForm({ user }: SettingsFormProps) {
   const [emailNotifications, setEmailNotifications] = useState(user.email_notifications ?? false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar_url);
   const [copied, setCopied] = useState(false);
+  const [nationality, setNationality] = useState(user.nationality || "KR");
+  const [birthDate, setBirthDate] = useState(user.birth_date || "");
+  const [preferredFoot, setPreferredFoot] = useState<"left" | "right" | "both" | "">(user.preferred_foot || "");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 국가 목록 정렬 (한국어 이름 기준, 대한민국을 맨 위로)
+  const sortedCountries = useMemo(() => {
+    const countryList = Object.entries(countries).map(([code, data]) => ({
+      code: code as TCountryCode,
+      name: data.native,
+      englishName: data.name,
+      emoji: countryCodeToEmoji(code),
+    }));
+
+    // 한국을 맨 위로
+    return countryList.sort((a, b) => {
+      if (a.code === "KR") return -1;
+      if (b.code === "KR") return 1;
+      return a.name.localeCompare(b.name, "ko");
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +66,9 @@ export function SettingsForm({ user }: SettingsFormProps) {
         bio,
         is_public: isPublic,
         email_notifications: emailNotifications,
+        nationality,
+        birth_date: birthDate || null,
+        preferred_foot: preferredFoot || null,
       });
 
       alert("프로필이 성공적으로 업데이트되었습니다!");
@@ -372,6 +405,58 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <option value="MF">미드필더 (MF)</option>
                   <option value="DF">수비수 (DF)</option>
                   <option value="GK">골키퍼 (GK)</option>
+                </select>
+              </div>
+            </label>
+
+            {/* Nationality */}
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-semibold text-white/80">국적</span>
+              <div className="relative">
+                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                <select
+                  value={nationality}
+                  onChange={(e) => setNationality(e.target.value)}
+                  className="w-full appearance-none rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-10 text-white focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
+                >
+                  {sortedCountries.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.emoji} {country.name} ({country.englishName})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </label>
+
+            {/* Birth Date */}
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-semibold text-white/80">생년월일</span>
+              <div className="relative">
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                <input
+                  type="date"
+                  value={birthDate}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                  max={new Date().toISOString().split("T")[0]}
+                  className="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-white focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all [color-scheme:dark]"
+                />
+              </div>
+            </label>
+
+            {/* Preferred Foot */}
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-semibold text-white/80">주발</span>
+              <div className="relative">
+                <Footprints className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                <select
+                  value={preferredFoot}
+                  onChange={(e) => setPreferredFoot(e.target.value as "left" | "right" | "both" | "")}
+                  className="w-full appearance-none rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-10 text-white focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
+                >
+                  <option value="">선택하세요</option>
+                  <option value="right">오른발</option>
+                  <option value="left">왼발</option>
+                  <option value="both">양발</option>
                 </select>
               </div>
             </label>

@@ -11,6 +11,16 @@ import {
 import type { MonthlyStats, RecentMatch } from "@/services/player-stats";
 import { ArrowLeft } from "lucide-react";
 import { PlayerStatsTabs } from "./player-stats-tabs";
+import { countries } from "countries-list";
+
+// ISO 국가 코드를 국기 이모지로 변환
+function countryCodeToEmoji(code: string): string {
+  const codePoints = code
+    .toUpperCase()
+    .split("")
+    .map((char) => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+}
 
 interface PlayerPageProps {
   params: Promise<{
@@ -100,6 +110,55 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   const position = teamMember.is_guest ? "용병" : user?.position || "-";
   const avatarUrl = user?.avatar_url;
   const backNumber = teamMember.back_number;
+  const birthDate = user?.birth_date;
+  const nationality = user?.nationality || "KR";
+  const preferredFoot = user?.preferred_foot;
+
+  // 만 나이 계산
+  const calculateAge = (birthDateStr: string | null | undefined): number | null => {
+    if (!birthDateStr) return null;
+    const birth = new Date(birthDateStr);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const age = calculateAge(birthDate);
+
+  // 국적 코드를 국기 이모지와 국가명으로 변환 (countries-list 라이브러리 사용)
+  const getNationalityInfo = (code: string): { flag: string; name: string } => {
+    try {
+      const countryData = countries[code as keyof typeof countries];
+      if (countryData) {
+        return {
+          flag: countryCodeToEmoji(code),
+          name: countryData.native || countryData.name,
+        };
+      }
+    } catch {
+      // fallback
+    }
+    return { flag: "🏳️", name: code };
+  };
+
+  const nationalityInfo = getNationalityInfo(nationality);
+
+  // 주발 표시
+  const getFootLabel = (foot: "left" | "right" | "both" | null | undefined): string | null => {
+    if (!foot) return null;
+    const labels: Record<string, string> = {
+      left: "왼발",
+      right: "오른발",
+      both: "양발",
+    };
+    return labels[foot] || null;
+  };
+
+  const footLabel = getFootLabel(preferredFoot);
 
   return (
     <main className="flex-1 w-full max-w-[1200px] mx-auto px-4 py-6 md:px-8">
@@ -168,11 +227,49 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
               </div>
             </div>
 
-            <p className="text-text-secondary max-w-2xl mb-6 text-sm leading-relaxed">
+            <p className="text-text-secondary max-w-2xl mb-4 text-sm leading-relaxed">
               {teamMember.is_guest
                 ? "이 경기에 참가한 용병 선수입니다."
                 : `총 ${stats.totalMatches}경기 출전, ${stats.totalGoals}골 ${stats.totalAssists}도움을 기록한 선수입니다.`}
             </p>
+
+            {/* 선수 정보 - 생년월일, 나이, 국적, 주발 */}
+            {!teamMember.is_guest && user && (
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm">
+                {/* 국적 */}
+                <div className="flex items-center gap-2 bg-[#10231a] px-3 py-1.5 rounded-lg">
+                  <span className="text-lg">{nationalityInfo.flag}</span>
+                  <span className="text-text-secondary">{nationalityInfo.name}</span>
+                </div>
+
+                {/* 생년월일 & 나이 */}
+                {birthDate && (
+                  <div className="flex items-center gap-2 bg-[#10231a] px-3 py-1.5 rounded-lg">
+                    <span className="text-text-secondary">
+                      {new Date(birthDate).toLocaleDateString("ko-KR", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </span>
+                    {age !== null && (
+                      <>
+                        <span className="text-[#2d5842]">|</span>
+                        <span className="text-white font-medium">만 {age}세</span>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* 주발 */}
+                {footLabel && (
+                  <div className="flex items-center gap-2 bg-[#10231a] px-3 py-1.5 rounded-lg">
+                    <span className="text-text-secondary">주발:</span>
+                    <span className="text-white font-medium">{footLabel}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </section>

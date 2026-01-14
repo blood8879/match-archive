@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { MemberManagementList } from "./member-management-list";
 import { CopyCodeButton } from "./copy-code-button";
 import Link from "next/link";
-import { ArrowLeft, UserPlus, Users, Clock, Zap } from "lucide-react";
+import { ArrowLeft, UserPlus, Users, Clock, Zap, GitMerge } from "lucide-react";
 
 interface TeamMembersManagePageProps {
   params: Promise<{ id: string }>;
@@ -171,13 +171,22 @@ export default async function TeamMembersManagePage({
                 </p>
               </div>
             </div>
-            <Link
-              href={`/teams/${id}/guests/new`}
-              className="h-10 px-4 rounded-xl bg-surface-700 hover:bg-surface-dark-hover text-white font-semibold text-sm transition-all border border-white/5 flex items-center gap-2"
-            >
-              <UserPlus className="w-4 h-4" />
-              용병 추가
-            </Link>
+            <div className="flex gap-2">
+              <Link
+                href={`/teams/${id}/manage/merge-records`}
+                className="h-10 px-4 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 font-semibold text-sm transition-all border border-purple-500/30 flex items-center gap-2"
+              >
+                <GitMerge className="w-4 h-4" />
+                기록 병합
+              </Link>
+              <Link
+                href={`/teams/${id}/guests/new`}
+                className="h-10 px-4 rounded-xl bg-surface-700 hover:bg-surface-dark-hover text-white font-semibold text-sm transition-all border border-white/5 flex items-center gap-2"
+              >
+                <UserPlus className="w-4 h-4" />
+                용병 추가
+              </Link>
+            </div>
           </div>
           <MemberManagementList
             members={guestMembers}

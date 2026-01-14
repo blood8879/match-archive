@@ -127,36 +127,42 @@ export interface Database {
           team_id: string;
           user_id: string | null;
           role: "OWNER" | "MANAGER" | "MEMBER";
-          status: "active" | "pending";
+          status: "active" | "pending" | "merged";
           is_guest: boolean;
           guest_name: string | null;
           back_number: number | null;
           team_positions: string[];
           joined_at: string;
+          merged_to: string | null;
+          merged_at: string | null;
         };
         Insert: {
           id?: string;
           team_id: string;
           user_id?: string | null;
           role?: "OWNER" | "MANAGER" | "MEMBER";
-          status?: "active" | "pending";
+          status?: "active" | "pending" | "merged";
           is_guest?: boolean;
           guest_name?: string | null;
           back_number?: number | null;
           team_positions?: string[];
           joined_at?: string;
+          merged_to?: string | null;
+          merged_at?: string | null;
         };
         Update: {
           id?: string;
           team_id?: string;
           user_id?: string | null;
           role?: "OWNER" | "MANAGER" | "MEMBER";
-          status?: "active" | "pending";
+          status?: "active" | "pending" | "merged";
           is_guest?: boolean;
           guest_name?: string | null;
           back_number?: number | null;
           team_positions?: string[];
           joined_at?: string;
+          merged_to?: string | null;
+          merged_at?: string | null;
         };
         Relationships: [
           {
@@ -571,6 +577,67 @@ export interface Database {
           }
         ];
       };
+      record_merge_requests: {
+        Row: {
+          id: string;
+          team_id: string;
+          guest_member_id: string;
+          inviter_id: string;
+          invitee_id: string;
+          status: "pending" | "accepted" | "rejected" | "cancelled";
+          created_at: string;
+          updated_at: string;
+          processed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          guest_member_id: string;
+          inviter_id: string;
+          invitee_id: string;
+          status?: "pending" | "accepted" | "rejected" | "cancelled";
+          created_at?: string;
+          updated_at?: string;
+          processed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          guest_member_id?: string;
+          inviter_id?: string;
+          invitee_id?: string;
+          status?: "pending" | "accepted" | "rejected" | "cancelled";
+          created_at?: string;
+          updated_at?: string;
+          processed_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "record_merge_requests_team_id_fkey";
+            columns: ["team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "record_merge_requests_guest_member_id_fkey";
+            columns: ["guest_member_id"];
+            referencedRelation: "team_members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "record_merge_requests_inviter_id_fkey";
+            columns: ["inviter_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "record_merge_requests_invitee_id_fkey";
+            columns: ["invitee_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -582,11 +649,25 @@ export interface Database {
         };
         Returns: Database["public"]["Tables"]["teams"]["Row"];
       };
+      process_record_merge: {
+        Args: {
+          p_merge_request_id: string;
+          p_user_id: string;
+        };
+        Returns: {
+          success: boolean;
+          new_member_id?: string;
+          records_updated?: number;
+          goals_updated?: number;
+          assists_updated?: number;
+          error?: string;
+        };
+      };
     };
     Enums: {
       position: "FW" | "MF" | "DF" | "GK";
       member_role: "OWNER" | "MANAGER" | "MEMBER";
-      member_status: "active" | "pending";
+      member_status: "active" | "pending" | "merged";
       match_status: "SCHEDULED" | "FINISHED" | "CANCELED";
       goal_type: "NORMAL" | "PK" | "FREEKICK" | "OWN_GOAL";
       attendance_status: "attending" | "maybe" | "absent";
@@ -613,3 +694,19 @@ export type TeamInvite = Tables<"team_invites">;
 export type Venue = Tables<"venues">;
 export type GuestTeam = Tables<"guest_teams">;
 export type OpponentPlayer = Tables<"opponent_players">;
+export type RecordMergeRequest = Tables<"record_merge_requests">;
+
+// 기록 병합 요청 with 관계 데이터
+export type RecordMergeRequestWithDetails = RecordMergeRequest & {
+  team: Pick<Team, "id" | "name" | "emblem_url">;
+  guest_member: Pick<TeamMember, "id" | "guest_name" | "is_guest">;
+  inviter: Pick<User, "id" | "nickname" | "avatar_url">;
+  invitee: Pick<User, "id" | "nickname" | "avatar_url">;
+};
+
+// 용병 기록 with 통계 정보
+export type GuestMemberWithStats = TeamMember & {
+  total_matches: number;
+  total_goals: number;
+  total_assists: number;
+};

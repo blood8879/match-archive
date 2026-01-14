@@ -3,7 +3,9 @@ import Link from "next/link";
 import { Users, Calendar, Zap, Bell } from "lucide-react";
 import type { Team, TeamMember, User, Venue } from "@/types/supabase";
 import { getMyInvites } from "@/services/invites";
+import { getMyMergeRequests } from "@/services/record-merge";
 import { TeamInvitesSection } from "./team-invites-section";
+import { MergeRequestsSection } from "./merge-requests-section";
 import { getRecentMatches, getNextMatch } from "@/services/team-stats";
 import { getTeamMembers } from "@/services/teams";
 import { LockerRoomTabs } from "./locker-room-tabs";
@@ -95,6 +97,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const typedProfile = userProfile as User | null;
   const myInvites = await getMyInvites();
+  const myMergeRequests = await getMyMergeRequests();
 
   const isManager =
     currentMembership?.role === "OWNER" || currentMembership?.role === "MANAGER";
@@ -194,6 +197,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
         {/* 팀 초대 섹션 */}
         <TeamInvitesSection invites={myInvites} />
+
+        {/* 기록 병합 요청 섹션 */}
+        <MergeRequestsSection requests={myMergeRequests} />
 
         {/* 탭 컴포넌트 */}
         <LockerRoomTabs

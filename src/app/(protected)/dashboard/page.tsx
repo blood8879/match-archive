@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Users, Calendar, Zap, Bell } from "lucide-react";
+import { Users, Calendar, Zap } from "lucide-react";
 import type { Team, TeamMember, User, Venue } from "@/types/supabase";
 import { getMyInvites } from "@/services/invites";
 import { getMyMergeRequests } from "@/services/record-merge";
@@ -10,6 +10,7 @@ import { getRecentMatches, getNextMatch } from "@/services/team-stats";
 import { getTeamMembers } from "@/services/teams";
 import { LockerRoomTabs } from "./locker-room-tabs";
 import { TeamSwitcher } from "./team-switcher";
+import { NotificationDropdown } from "./notification-dropdown";
 
 type TeamMemberWithTeam = TeamMember & { team: Team | null };
 type TeamMemberWithUser = TeamMember & {
@@ -140,10 +141,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             )}
           </div>
           <div className="flex items-center gap-3">
-            <button className="relative p-2 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 size-2 rounded-full bg-red-500 ring-2 ring-[#0f2319]"></span>
-            </button>
+            <NotificationDropdown
+              invites={myInvites}
+              mergeRequests={myMergeRequests}
+            />
             <div className="h-8 w-[1px] bg-white/10 mx-1"></div>
             <Link href="/profile">
               {typedProfile?.avatar_url ? (

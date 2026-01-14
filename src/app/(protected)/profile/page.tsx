@@ -1,11 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { 
-  Trophy, 
-  Target, 
-  Users, 
-  Shield, 
-  Zap, 
+import {
+  Trophy,
+  Target,
+  Users,
+  Shield,
+  Zap,
   Star,
   TrendingUp,
   Calendar,
@@ -13,6 +13,7 @@ import {
   Settings
 } from "lucide-react";
 import type { User, TeamMember, Team, Match, MatchRecord } from "@/types/supabase";
+import { PlayerCodeBadge } from "./player-code-badge";
 
 type TeamMemberWithTeam = TeamMember & { team: Team | null };
 type MatchRecordWithMatch = MatchRecord & { match: Match & { team: Team | null } | null };
@@ -137,16 +138,19 @@ export default async function ProfilePage() {
                 )}
               </div>
               
-              <p className="text-[#8eccae] text-sm md:text-base mb-4">
+              <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-[#8eccae] text-sm md:text-base mb-4">
                 {firstTeam ? (
-                  <span className="flex items-center gap-1.5 justify-center md:justify-start">
+                  <span className="flex items-center gap-1.5">
                     <Users className="w-4 h-4" />
                     {firstTeam.name}
                   </span>
                 ) : (
-                  "소속 팀 없음"
+                  <span>소속 팀 없음</span>
                 )}
-              </p>
+                {typedProfile?.user_code && (
+                  <PlayerCodeBadge code={typedProfile.user_code} />
+                )}
+              </div>
 
               <p className="text-gray-400 text-sm max-w-md mx-auto md:mx-0">
                 축구를 사랑하는 플레이어. 팀과 함께 성장하며 즐거운 경기를 추구합니다.

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { User, Mail, Phone, Zap, Edit, Trash2, LogOut, Upload } from "lucide-react";
+import { User, Mail, Phone, Zap, Edit, Trash2, LogOut, Upload, Hash, Copy, Check } from "lucide-react";
 import { updateUserProfile, signOut } from "@/services/auth";
 import { createClient } from "@/lib/supabase/client";
 import imageCompression from "browser-image-compression";
@@ -21,6 +21,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
   const [isPublic, setIsPublic] = useState(user.is_public ?? true);
   const [emailNotifications, setEmailNotifications] = useState(user.email_notifications ?? false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar_url);
+  const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -201,6 +202,17 @@ export function SettingsForm({ user }: SettingsFormProps) {
     return positions[pos] || "미지정";
   };
 
+  const handleCopyUserCode = async () => {
+    if (!user.user_code) return;
+    try {
+      await navigator.clipboard.writeText(user.user_code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error("Failed to copy:", error);
+    }
+  };
+
   return (
     <>
       <div className="glass-panel rounded-2xl p-6 lg:p-10 shadow-xl bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15">
@@ -298,6 +310,36 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   className="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-white/50 cursor-not-allowed outline-none"
                 />
               </div>
+            </label>
+
+            {/* Player Code (Read-only) */}
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-semibold text-white/80">플레이어 코드</span>
+              <div className="relative">
+                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                <input
+                  type="text"
+                  value={user.user_code || "생성 중..."}
+                  readOnly
+                  disabled
+                  className="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-12 text-white/50 cursor-not-allowed outline-none font-mono tracking-wider"
+                />
+                {user.user_code && (
+                  <button
+                    type="button"
+                    onClick={handleCopyUserCode}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                    title="코드 복사"
+                  >
+                    {copied ? (
+                      <Check className="w-4 h-4 text-[#00e677]" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-white/40 hover:text-white/70" />
+                    )}
+                  </button>
+                )}
+              </div>
+              <span className="text-xs text-white/40">팀원 초대 시 이 코드를 공유하세요</span>
             </label>
 
             {/* Phone */}

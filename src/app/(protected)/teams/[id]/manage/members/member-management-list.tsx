@@ -337,72 +337,72 @@ export function MemberManagementList({
                     </>
                   )}
 
+                  {/* 팀장 포함 모든 멤버의 등번호/포지션 수정 버튼 */}
+                  {!showActions && canManage && (
+                    <button
+                      onClick={() => setEditModal({ isOpen: true, member })}
+                      disabled={loadingId === member.id}
+                      className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-50 transition-colors"
+                      title="등번호/포지션 수정"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                  )}
+
+                  {/* 기타 메뉴 (역할 변경, 제거) - 팀장은 제외 */}
                   {!showActions && canManage && !isOwnerMember && (
-                    <>
-                      {/* 정보 수정 버튼 직접 노출 */}
+                    <div className="relative">
                       <button
-                        onClick={() => setEditModal({ isOpen: true, member })}
+                        onClick={() =>
+                          setOpenMenuId(
+                            openMenuId === member.id ? null : member.id
+                          )
+                        }
                         disabled={loadingId === member.id}
-                        className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-50 transition-colors"
-                        title="등번호/포지션 수정"
+                        className="p-2 rounded-lg hover:bg-surface-800 text-text-400 hover:text-white disabled:opacity-50 transition-colors"
                       >
-                        <Pencil className="w-4 h-4" />
+                        <MoreVertical className="w-5 h-5" />
                       </button>
 
-                      {/* 기타 메뉴 (역할 변경, 제거) */}
-                      <div className="relative">
-                        <button
-                          onClick={() =>
-                            setOpenMenuId(
-                              openMenuId === member.id ? null : member.id
-                            )
-                          }
-                          disabled={loadingId === member.id}
-                          className="p-2 rounded-lg hover:bg-surface-800 text-text-400 hover:text-white disabled:opacity-50 transition-colors"
-                        >
-                          <MoreVertical className="w-5 h-5" />
-                        </button>
-
-                        {openMenuId === member.id && (
-                          <>
-                            <div
-                              className="fixed inset-0 z-10"
-                              onClick={() => setOpenMenuId(null)}
-                            />
-                            <div className="absolute right-0 top-full mt-1 w-48 rounded-lg bg-surface-800 border border-white/10 shadow-xl z-20 py-1">
-                              {member.role === "MANAGER" && (
-                                <button
-                                  onClick={() =>
-                                    handleRoleChange(member.id, "MEMBER")
-                                  }
-                                  className="w-full px-4 py-2 text-left text-sm text-white hover:bg-surface-700 transition-colors"
-                                >
-                                  팀원으로 변경
-                                </button>
-                              )}
-                              {member.role === "MEMBER" && (
-                                <button
-                                  onClick={() =>
-                                    handleRoleChange(member.id, "MANAGER")
-                                  }
-                                  className="w-full px-4 py-2 text-left text-sm text-white hover:bg-surface-700 transition-colors"
-                                >
-                                  운영진으로 승격
-                                </button>
-                              )}
+                      {openMenuId === member.id && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-10"
+                            onClick={() => setOpenMenuId(null)}
+                          />
+                          <div className="absolute right-0 top-full mt-1 w-48 rounded-lg bg-surface-800 border border-white/10 shadow-xl z-20 py-1">
+                            {member.role === "MANAGER" && (
                               <button
                                 onClick={() =>
-                                  handleRemoveMember(member.id, displayName)
+                                  handleRoleChange(member.id, "MEMBER")
                                 }
-                                className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-surface-700 transition-colors"
+                                className="w-full px-4 py-2 text-left text-sm text-white hover:bg-surface-700 transition-colors"
                               >
-                                팀에서 제거
+                                팀원으로 변경
                               </button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </>
+                            )}
+                            {member.role === "MEMBER" && (
+                              <button
+                                onClick={() =>
+                                  handleRoleChange(member.id, "MANAGER")
+                                }
+                                className="w-full px-4 py-2 text-left text-sm text-white hover:bg-surface-700 transition-colors"
+                              >
+                                운영진으로 승격
+                              </button>
+                            )}
+                            <button
+                              onClick={() =>
+                                handleRemoveMember(member.id, displayName)
+                              }
+                              className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-surface-700 transition-colors"
+                            >
+                              팀에서 제거
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

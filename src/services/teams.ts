@@ -476,6 +476,22 @@ export async function updateMemberInfo(
     throw new Error("권한이 없습니다");
   }
 
+  // 등번호 중복 체크 (같은 팀 내에서 동일한 등번호가 있는지 확인)
+  if (data.back_number !== undefined && data.back_number !== null) {
+    const { data: existingMember } = await supabase
+      .from("team_members")
+      .select("id")
+      .eq("team_id", member.team_id)
+      .eq("back_number", data.back_number)
+      .neq("id", memberId)
+      .eq("status", "active")
+      .single();
+
+    if (existingMember) {
+      throw new Error(`등번호 ${data.back_number}번은 이미 다른 선수가 사용 중입니다`);
+    }
+  }
+
   const { error } = await supabase
     .from("team_members")
     .update(data)

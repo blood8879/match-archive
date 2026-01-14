@@ -10,6 +10,7 @@ interface EditMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
   member: TeamMemberWithUser | null;
+  existingBackNumbers?: number[];
 }
 
 type Position = "FW" | "MF" | "DF" | "GK";
@@ -25,6 +26,7 @@ export function EditMemberModal({
   isOpen,
   onClose,
   member,
+  existingBackNumbers = [],
 }: EditMemberModalProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -74,6 +76,12 @@ export function EditMemberModal({
 
     if (parsedBackNumber !== null && (parsedBackNumber < 1 || parsedBackNumber > 99)) {
       setError("등번호는 1~99 사이의 숫자여야 합니다");
+      return;
+    }
+
+    // 등번호 중복 체크
+    if (parsedBackNumber !== null && existingBackNumbers.includes(parsedBackNumber)) {
+      setError(`등번호 ${parsedBackNumber}번은 이미 다른 선수가 사용 중입니다`);
       return;
     }
 
@@ -166,8 +174,17 @@ export function EditMemberModal({
                 value={backNumber}
                 onChange={(e) => setBackNumber(e.target.value)}
                 placeholder="1~99"
-                className="w-full px-4 py-3 rounded-lg bg-surface-700 text-white text-lg font-bold placeholder:text-text-400 placeholder:font-normal border border-white/5 focus:border-primary/50 focus:outline-none transition-colors"
+                className={`w-full px-4 py-3 rounded-lg bg-surface-700 text-white text-lg font-bold placeholder:text-text-400 placeholder:font-normal border transition-colors focus:outline-none ${
+                  backNumber && existingBackNumbers.includes(parseInt(backNumber, 10))
+                    ? "border-destructive focus:border-destructive"
+                    : "border-white/5 focus:border-primary/50"
+                }`}
               />
+              {backNumber && existingBackNumbers.includes(parseInt(backNumber, 10)) && (
+                <p className="mt-2 text-sm text-destructive">
+                  이 등번호는 이미 다른 선수가 사용 중입니다
+                </p>
+              )}
             </div>
 
             {/* 포지션 선택 (복수 선택) */}

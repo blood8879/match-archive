@@ -435,6 +435,9 @@ export function MemberManagementList({
         isOpen={editModal.isOpen}
         onClose={() => setEditModal({ isOpen: false, member: null })}
         member={editModal.member}
+        existingBackNumbers={members
+          .filter((m) => m.status === "active" && m.back_number !== null && m.id !== editModal.member?.id)
+          .map((m) => m.back_number as number)}
       />
     </div>
   );

@@ -506,7 +506,14 @@ function SquadContent({
           </div>
 
           {positions.map((pos) => {
-            const positionMembers = members.filter((m) => m.user?.position === pos);
+            // team_positions를 우선 확인, 없으면 user.position 확인
+            const positionMembers = members.filter((m) => {
+              const teamPositions = m.team_positions || [];
+              if (teamPositions.length > 0) {
+                return teamPositions.includes(pos);
+              }
+              return m.user?.position === pos;
+            });
             if (positionMembers.length === 0) return null;
 
             return (
@@ -547,7 +554,11 @@ function SquadContent({
 
           {/* 포지션 미설정 선수들 */}
           {(() => {
-            const unassigned = members.filter((m) => !m.user?.position);
+            // team_positions가 없고 user.position도 없는 경우만 포지션 미설정
+            const unassigned = members.filter((m) => {
+              const teamPositions = m.team_positions || [];
+              return teamPositions.length === 0 && !m.user?.position;
+            });
             if (unassigned.length === 0) return null;
 
             return (

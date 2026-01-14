@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { MapPin, Building2, PlusCircle, Star, X, Trash2 } from "lucide-react";
 import { getTeamById } from "@/services/teams";
-import { getTeamVenues, createVenue, deleteVenue } from "@/services/venues";
+import { getTeamVenues, createVenue, deleteVenue, setPrimaryVenue } from "@/services/venues";
 import { DaumPostcode, type DaumPostcodeData } from "@/components/daum-postcode";
 import type { Team, Venue } from "@/types/supabase";
 
@@ -118,6 +118,16 @@ export default function VenuesPage() {
     }
   }
 
+  async function handleSetPrimary(venueId: string) {
+    try {
+      await setPrimaryVenue(venueId, teamId);
+      await loadData();
+    } catch (err) {
+      console.error("Failed to set primary venue:", err);
+      alert("기본 경기장 설정에 실패했습니다");
+    }
+  }
+
   if (loading) {
     return (
       <main className="flex-1 flex items-center justify-center">
@@ -227,6 +237,15 @@ export default function VenuesPage() {
                   )}
 
                   <div className="flex items-center gap-2 pt-4 border-t border-[#2f6a4d]/50">
+                    {!venue.is_primary && (
+                      <button
+                        onClick={() => handleSetPrimary(venue.id)}
+                        className="flex-1 h-10 px-4 rounded-lg bg-[#183527] border border-[#2f6a4d] text-gray-300 font-medium hover:border-[#00e677] hover:text-[#00e677] transition-all flex items-center justify-center gap-2"
+                      >
+                        <Star className="w-4 h-4" />
+                        기본으로 설정
+                      </button>
+                    )}
                     <button
                       onClick={() => setShowDeleteConfirm(venue.id)}
                       className="flex-1 h-10 px-4 rounded-lg bg-[#183527] border border-[#2f6a4d] text-gray-300 font-medium hover:border-red-500 hover:text-red-400 transition-all flex items-center justify-center gap-2"
@@ -382,7 +401,7 @@ export default function VenuesPage() {
               정말로 이 경기장을 삭제하시겠습니까?
               <br />
               <span className="text-sm text-gray-400">
-                이 작업은 되돌릴 수 없습니다.
+                이 경기장은 삭제 목록으로 이동됩니다. 기존 경기 기록에서는 계속 표시됩니다.
               </span>
             </p>
             <div className="flex gap-3">

@@ -1,29 +1,46 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, GitMerge, Mail, Check, X, Loader2 } from "lucide-react";
-import type { TeamInviteWithUsers } from "@/services/invites";
-import type { RecordMergeRequestWithDetails } from "@/types/supabase";
+import { Bell, GitMerge, Mail, Check, X, Loader2, CheckCheck, Trash2 } from "lucide-react";
+import type { NotificationWithDetails, NotificationType } from "@/types/supabase";
 import { acceptTeamInvite, rejectTeamInvite } from "@/services/invites";
 import { acceptMergeRequest, rejectMergeRequest } from "@/services/record-merge";
+import {
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  deleteNotification,
+} from "@/services/notifications";
+import { formatDistanceToNow } from "date-fns";
+import { ko } from "date-fns/locale";
 
 interface NotificationDropdownProps {
-  invites: TeamInviteWithUsers[];
-  mergeRequests: RecordMergeRequestWithDetails[];
+  notifications: NotificationWithDetails[];
 }
 
+const notificationIcons: Record<NotificationType, { icon: typeof Bell; color: string; bg: string }> = {
+  team_invite: { icon: Mail, color: "text-[#FFC400]", bg: "bg-[#FFC400]/20" },
+  merge_request: { icon: GitMerge, color: "text-purple-400", bg: "bg-purple-500/20" },
+  invite_accepted: { icon: Check, color: "text-green-400", bg: "bg-green-500/20" },
+  invite_rejected: { icon: X, color: "text-red-400", bg: "bg-red-500/20" },
+  merge_accepted: { icon: Check, color: "text-purple-400", bg: "bg-purple-500/20" },
+  merge_rejected: { icon: X, color: "text-red-400", bg: "bg-red-500/20" },
+  team_joined: { icon: Bell, color: "text-green-400", bg: "bg-green-500/20" },
+  match_created: { icon: Bell, color: "text-blue-400", bg: "bg-blue-500/20" },
+  match_reminder: { icon: Bell, color: "text-orange-400", bg: "bg-orange-500/20" },
+};
+
 export function NotificationDropdown({
-  invites,
-  mergeRequests,
+  notifications,
 }: NotificationDropdownProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [actionType, setActionType] = useState<"accept" | "reject" | null>(null);
+  const [actionType, setActionType] = useState<"accept" | "reject" | "read" | "delete" | null>(null);
+  const [isPending, startTransition] = useTransition();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const totalCount = invites.length + mergeRequests.length;
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   // 외부 클릭 감지
   useEffect(() => {
@@ -37,12 +54,15 @@ export function NotificationDropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleAcceptInvite = async (inviteId: string) => {
-    setLoadingId(inviteId);
+  const handleAcceptInvite = async (notification: NotificationWithDetails) => {
+    if (!notification.related_invite_id) return;
+
+    setLoadingId(notification.id);
     setActionType("accept");
 
     try {
-      await acceptTeamInvite(inviteId);
+      await acceptTeamInvite(notification.related_invite_id);
+      await markNotificationAsRead(notification.id);
       router.refresh();
     } catch (error) {
       alert(error instanceof Error ? error.message : "수락에 실패했습니다");
@@ -52,12 +72,15 @@ export function NotificationDropdown({
     }
   };
 
-  const handleRejectInvite = async (inviteId: string) => {
-    setLoadingId(inviteId);
+  const handleRejectInvite = async (notification: NotificationWithDetails) => {
+    if (!notification.related_invite_id) return;
+
+    setLoadingId(notification.id);
     setActionType("reject");
 
     try {
-      await rejectTeamInvite(inviteId);
+      await rejectTeamInvite(notification.related_invite_id);
+      await markNotificationAsRead(notification.id);
       router.refresh();
     } catch (error) {
       alert(error instanceof Error ? error.message : "거절에 실패했습니다");
@@ -67,12 +90,15 @@ export function NotificationDropdown({
     }
   };
 
-  const handleAcceptMerge = async (requestId: string) => {
-    setLoadingId(requestId);
+  const handleAcceptMerge = async (notification: NotificationWithDetails) => {
+    if (!notification.related_merge_request_id) return;
+
+    setLoadingId(notification.id);
     setActionType("accept");
 
     try {
-      const response = await acceptMergeRequest(requestId);
+      const response = await acceptMergeRequest(notification.related_merge_request_id);
+      await markNotificationAsRead(notification.id);
       alert(
         `기록 병합이 완료되었습니다!\n` +
         `- ${response.recordsUpdated || 0}개의 경기 기록이 통합되었습니다.`
@@ -86,12 +112,15 @@ export function NotificationDropdown({
     }
   };
 
-  const handleRejectMerge = async (requestId: string) => {
-    setLoadingId(requestId);
+  const handleRejectMerge = async (notification: NotificationWithDetails) => {
+    if (!notification.related_merge_request_id) return;
+
+    setLoadingId(notification.id);
     setActionType("reject");
 
     try {
-      await rejectMergeRequest(requestId);
+      await rejectMergeRequest(notification.related_merge_request_id);
+      await markNotificationAsRead(notification.id);
       router.refresh();
     } catch (error) {
       alert(error instanceof Error ? error.message : "거절에 실패했습니다");
@@ -101,6 +130,182 @@ export function NotificationDropdown({
     }
   };
 
+  const handleMarkAsRead = async (notificationId: string) => {
+    setLoadingId(notificationId);
+    setActionType("read");
+
+    try {
+      await markNotificationAsRead(notificationId);
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to mark as read:", error);
+    } finally {
+      setLoadingId(null);
+      setActionType(null);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    startTransition(async () => {
+      try {
+        await markAllNotificationsAsRead();
+        router.refresh();
+      } catch (error) {
+        console.error("Failed to mark all as read:", error);
+      }
+    });
+  };
+
+  const handleDelete = async (notificationId: string) => {
+    setLoadingId(notificationId);
+    setActionType("delete");
+
+    try {
+      await deleteNotification(notificationId);
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
+    } finally {
+      setLoadingId(null);
+      setActionType(null);
+    }
+  };
+
+  const renderNotificationContent = (notification: NotificationWithDetails) => {
+    const { type } = notification;
+    const iconConfig = notificationIcons[type] || notificationIcons.team_invite;
+    const Icon = iconConfig.icon;
+
+    // 액션이 필요한 알림인지 확인
+    const isActionable = type === "team_invite" || type === "merge_request";
+
+    return (
+      <div
+        key={notification.id}
+        className={`p-4 border-b border-white/5 hover:bg-white/5 transition-colors ${
+          !notification.is_read ? "bg-white/[0.02]" : ""
+        }`}
+      >
+        <div className="flex items-start gap-3">
+          <div className={`p-2 ${iconConfig.bg} rounded-lg shrink-0`}>
+            <Icon className={`w-4 h-4 ${iconConfig.color}`} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-sm text-white font-medium truncate">
+                {notification.title}
+              </p>
+              {!notification.is_read && (
+                <span className="w-2 h-2 bg-[#00e677] rounded-full shrink-0 mt-1.5" />
+              )}
+            </div>
+            <p className="text-xs text-text-muted mt-0.5">
+              {notification.message}
+            </p>
+            <p className="text-xs text-text-muted/60 mt-1">
+              {formatDistanceToNow(new Date(notification.created_at), {
+                addSuffix: true,
+                locale: ko,
+              })}
+            </p>
+
+            {/* 액션 버튼 - 팀 초대 */}
+            {type === "team_invite" && notification.related_invite_id && (
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={() => handleAcceptInvite(notification)}
+                  disabled={loadingId === notification.id}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg bg-constructive/20 text-constructive hover:bg-constructive/30 disabled:opacity-50 transition-colors flex items-center gap-1"
+                >
+                  {loadingId === notification.id && actionType === "accept" ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Check className="w-3 h-3" />
+                  )}
+                  수락
+                </button>
+                <button
+                  onClick={() => handleRejectInvite(notification)}
+                  disabled={loadingId === notification.id}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg bg-destructive/20 text-destructive hover:bg-destructive/30 disabled:opacity-50 transition-colors flex items-center gap-1"
+                >
+                  {loadingId === notification.id && actionType === "reject" ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <X className="w-3 h-3" />
+                  )}
+                  거절
+                </button>
+              </div>
+            )}
+
+            {/* 액션 버튼 - 기록 병합 */}
+            {type === "merge_request" && notification.related_merge_request_id && (
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={() => handleAcceptMerge(notification)}
+                  disabled={loadingId === notification.id}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 disabled:opacity-50 transition-colors flex items-center gap-1"
+                >
+                  {loadingId === notification.id && actionType === "accept" ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Check className="w-3 h-3" />
+                  )}
+                  수락
+                </button>
+                <button
+                  onClick={() => handleRejectMerge(notification)}
+                  disabled={loadingId === notification.id}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg bg-destructive/20 text-destructive hover:bg-destructive/30 disabled:opacity-50 transition-colors flex items-center gap-1"
+                >
+                  {loadingId === notification.id && actionType === "reject" ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <X className="w-3 h-3" />
+                  )}
+                  거절
+                </button>
+              </div>
+            )}
+
+            {/* 일반 알림 액션 버튼 (읽음 처리, 삭제) */}
+            {!isActionable && (
+              <div className="flex gap-2 mt-2">
+                {!notification.is_read && (
+                  <button
+                    onClick={() => handleMarkAsRead(notification.id)}
+                    disabled={loadingId === notification.id}
+                    className="px-2 py-1 text-xs text-text-muted hover:text-white transition-colors flex items-center gap-1"
+                  >
+                    {loadingId === notification.id && actionType === "read" ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Check className="w-3 h-3" />
+                    )}
+                    읽음
+                  </button>
+                )}
+                <button
+                  onClick={() => handleDelete(notification.id)}
+                  disabled={loadingId === notification.id}
+                  className="px-2 py-1 text-xs text-text-muted hover:text-destructive transition-colors flex items-center gap-1"
+                >
+                  {loadingId === notification.id && actionType === "delete" ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-3 h-3" />
+                  )}
+                  삭제
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -108,9 +313,9 @@ export function NotificationDropdown({
         className="relative p-2 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors"
       >
         <Bell className="w-5 h-5" />
-        {totalCount > 0 && (
+        {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center ring-2 ring-[#0f2319]">
-            {totalCount > 9 ? "9+" : totalCount}
+            {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
@@ -119,129 +324,35 @@ export function NotificationDropdown({
         <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-surface-800 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
           <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
             <h3 className="font-semibold text-white">알림</h3>
-            {totalCount > 0 && (
-              <span className="text-xs text-text-muted">{totalCount}개의 새 알림</span>
-            )}
+            <div className="flex items-center gap-2">
+              {unreadCount > 0 && (
+                <>
+                  <span className="text-xs text-text-muted">{unreadCount}개의 새 알림</span>
+                  <button
+                    onClick={handleMarkAllAsRead}
+                    disabled={isPending}
+                    className="p-1.5 rounded-lg text-text-muted hover:text-white hover:bg-white/10 transition-colors"
+                    title="모두 읽음 처리"
+                  >
+                    {isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <CheckCheck className="w-4 h-4" />
+                    )}
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           <div className="max-h-[400px] overflow-y-auto">
-            {totalCount === 0 ? (
+            {notifications.length === 0 ? (
               <div className="py-12 text-center">
                 <Bell className="w-10 h-10 text-text-muted mx-auto mb-3" />
                 <p className="text-text-muted text-sm">새로운 알림이 없습니다</p>
               </div>
             ) : (
-              <>
-                {/* 팀 초대 알림 */}
-                {invites.map((invite) => {
-                  const teamName = invite.team?.name || "알 수 없는 팀";
-                  const inviterName = invite.inviter?.nickname || "알 수 없는 사용자";
-
-                  return (
-                    <div
-                      key={`invite-${invite.id}`}
-                      className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 bg-[#FFC400]/20 rounded-lg shrink-0">
-                          <Mail className="w-4 h-4 text-[#FFC400]" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-white font-medium truncate">
-                            {teamName}
-                          </p>
-                          <p className="text-xs text-text-muted mt-0.5">
-                            {inviterName}님이 팀에 초대했습니다
-                          </p>
-                          <div className="flex gap-2 mt-2">
-                            <button
-                              onClick={() => handleAcceptInvite(invite.id)}
-                              disabled={loadingId === invite.id}
-                              className="px-3 py-1.5 text-xs font-medium rounded-lg bg-constructive/20 text-constructive hover:bg-constructive/30 disabled:opacity-50 transition-colors flex items-center gap-1"
-                            >
-                              {loadingId === invite.id && actionType === "accept" ? (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                              ) : (
-                                <Check className="w-3 h-3" />
-                              )}
-                              수락
-                            </button>
-                            <button
-                              onClick={() => handleRejectInvite(invite.id)}
-                              disabled={loadingId === invite.id}
-                              className="px-3 py-1.5 text-xs font-medium rounded-lg bg-destructive/20 text-destructive hover:bg-destructive/30 disabled:opacity-50 transition-colors flex items-center gap-1"
-                            >
-                              {loadingId === invite.id && actionType === "reject" ? (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                              ) : (
-                                <X className="w-3 h-3" />
-                              )}
-                              거절
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* 기록 병합 요청 알림 */}
-                {mergeRequests.map((request) => {
-                  const teamName = request.team?.name || "알 수 없는 팀";
-                  const guestName = request.guest_member?.guest_name || "용병";
-                  const inviterName = request.inviter?.nickname || "알 수 없는 사용자";
-
-                  return (
-                    <div
-                      key={`merge-${request.id}`}
-                      className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 bg-purple-500/20 rounded-lg shrink-0">
-                          <GitMerge className="w-4 h-4 text-purple-400" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-white font-medium truncate">
-                            {teamName} - 기록 병합 요청
-                          </p>
-                          <p className="text-xs text-text-muted mt-0.5">
-                            "{guestName}" 용병 기록을 내 계정에 통합
-                          </p>
-                          <p className="text-xs text-text-muted">
-                            {inviterName}님이 요청
-                          </p>
-                          <div className="flex gap-2 mt-2">
-                            <button
-                              onClick={() => handleAcceptMerge(request.id)}
-                              disabled={loadingId === request.id}
-                              className="px-3 py-1.5 text-xs font-medium rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 disabled:opacity-50 transition-colors flex items-center gap-1"
-                            >
-                              {loadingId === request.id && actionType === "accept" ? (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                              ) : (
-                                <Check className="w-3 h-3" />
-                              )}
-                              수락
-                            </button>
-                            <button
-                              onClick={() => handleRejectMerge(request.id)}
-                              disabled={loadingId === request.id}
-                              className="px-3 py-1.5 text-xs font-medium rounded-lg bg-destructive/20 text-destructive hover:bg-destructive/30 disabled:opacity-50 transition-colors flex items-center gap-1"
-                            >
-                              {loadingId === request.id && actionType === "reject" ? (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                              ) : (
-                                <X className="w-3 h-3" />
-                              )}
-                              거절
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </>
+              notifications.map(renderNotificationContent)
             )}
           </div>
         </div>

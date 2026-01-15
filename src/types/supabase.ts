@@ -6,6 +6,18 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+// 알림 타입
+export type NotificationType =
+  | "team_invite"
+  | "merge_request"
+  | "invite_accepted"
+  | "invite_rejected"
+  | "merge_accepted"
+  | "merge_rejected"
+  | "team_joined"
+  | "match_created"
+  | "match_reminder";
+
 export interface Database {
   public: {
     Tables: {
@@ -650,6 +662,85 @@ export interface Database {
           }
         ];
       };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          type: NotificationType;
+          title: string;
+          message: string;
+          is_read: boolean;
+          related_team_id: string | null;
+          related_invite_id: string | null;
+          related_merge_request_id: string | null;
+          related_match_id: string | null;
+          metadata: Record<string, unknown>;
+          created_at: string;
+          read_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          type: NotificationType;
+          title: string;
+          message: string;
+          is_read?: boolean;
+          related_team_id?: string | null;
+          related_invite_id?: string | null;
+          related_merge_request_id?: string | null;
+          related_match_id?: string | null;
+          metadata?: Record<string, unknown>;
+          created_at?: string;
+          read_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          type?: NotificationType;
+          title?: string;
+          message?: string;
+          is_read?: boolean;
+          related_team_id?: string | null;
+          related_invite_id?: string | null;
+          related_merge_request_id?: string | null;
+          related_match_id?: string | null;
+          metadata?: Record<string, unknown>;
+          created_at?: string;
+          read_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_related_team_id_fkey";
+            columns: ["related_team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_related_invite_id_fkey";
+            columns: ["related_invite_id"];
+            referencedRelation: "team_invites";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_related_merge_request_id_fkey";
+            columns: ["related_merge_request_id"];
+            referencedRelation: "record_merge_requests";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_related_match_id_fkey";
+            columns: ["related_match_id"];
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -707,6 +798,7 @@ export type Venue = Tables<"venues">;
 export type GuestTeam = Tables<"guest_teams">;
 export type OpponentPlayer = Tables<"opponent_players">;
 export type RecordMergeRequest = Tables<"record_merge_requests">;
+export type Notification = Tables<"notifications">;
 
 // 기록 병합 요청 with 관계 데이터
 export type RecordMergeRequestWithDetails = RecordMergeRequest & {
@@ -721,4 +813,9 @@ export type GuestMemberWithStats = TeamMember & {
   total_matches: number;
   total_goals: number;
   total_assists: number;
+};
+
+// 알림 with 관계 데이터
+export type NotificationWithDetails = Notification & {
+  team?: Pick<Team, "id" | "name" | "emblem_url"> | null;
 };

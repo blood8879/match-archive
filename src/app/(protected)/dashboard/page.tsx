@@ -2,12 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Users, Calendar, Zap } from "lucide-react";
 import type { Team, TeamMember, User, Venue } from "@/types/supabase";
-import { getMyInvites } from "@/services/invites";
-import { getMyMergeRequests } from "@/services/record-merge";
-import { TeamInvitesSection } from "./team-invites-section";
-import { MergeRequestsSection } from "./merge-requests-section";
 import { getRecentMatches, getNextMatch } from "@/services/team-stats";
 import { getTeamMembers } from "@/services/teams";
+import { getNotifications } from "@/services/notifications";
 import { LockerRoomTabs } from "./locker-room-tabs";
 import { TeamSwitcher } from "./team-switcher";
 import { NotificationDropdown } from "./notification-dropdown";
@@ -97,8 +94,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   }
 
   const typedProfile = userProfile as User | null;
-  const myInvites = await getMyInvites();
-  const myMergeRequests = await getMyMergeRequests();
+  const notifications = await getNotifications({ limit: 20 });
 
   const isManager =
     currentMembership?.role === "OWNER" || currentMembership?.role === "MANAGER";
@@ -141,10 +137,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             )}
           </div>
           <div className="flex items-center gap-3">
-            <NotificationDropdown
-              invites={myInvites}
-              mergeRequests={myMergeRequests}
-            />
+            <NotificationDropdown notifications={notifications} />
             <div className="h-8 w-[1px] bg-white/10 mx-1"></div>
             <Link href="/profile">
               {typedProfile?.avatar_url ? (
@@ -195,12 +188,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             )}
           </div>
         </div>
-
-        {/* 팀 초대 섹션 */}
-        <TeamInvitesSection invites={myInvites} />
-
-        {/* 기록 병합 요청 섹션 */}
-        <MergeRequestsSection requests={myMergeRequests} />
 
         {/* 탭 컴포넌트 */}
         <LockerRoomTabs

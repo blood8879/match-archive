@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
 
 const POSITIONS = [
   { value: "FW", label: "FW (공격수)" },
@@ -43,13 +44,37 @@ export default function OnboardingPage() {
   const [region, setRegion] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [nicknameError, setNicknameError] = useState<string | null>(null);
+
+  // 닉네임 유효성 검사
+  useEffect(() => {
+    if (nickname.trim().length > 0 && nickname.trim().length < 2) {
+      setNicknameError("닉네임은 2자 이상이어야 합니다.");
+    } else if (nickname.length > 20) {
+      setNicknameError("닉네임은 20자 이하여야 합니다.");
+    } else {
+      setNicknameError(null);
+    }
+  }, [nickname]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!nickname.trim()) {
+    const trimmedNickname = nickname.trim();
+
+    if (!trimmedNickname) {
       setError("닉네임을 입력해주세요.");
+      return;
+    }
+
+    if (trimmedNickname.length < 2) {
+      setError("닉네임은 2자 이상이어야 합니다.");
+      return;
+    }
+
+    if (trimmedNickname.length > 20) {
+      setError("닉네임은 20자 이하여야 합니다.");
       return;
     }
 
@@ -69,7 +94,7 @@ export default function OnboardingPage() {
     const { error: updateError } = await supabase
       .from("users")
       .update({
-        nickname: nickname.trim(),
+        nickname: trimmedNickname,
         position: (position || null) as "FW" | "MF" | "DF" | "GK" | null,
       })
       .eq("id", user.id);
@@ -84,35 +109,55 @@ export default function OnboardingPage() {
     router.refresh();
   };
 
+  const isFormValid = nickname.trim().length >= 2 && nickname.length <= 20;
+
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card variant="glass" className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-center text-2xl">프로필 설정</CardTitle>
           <p className="mt-2 text-center text-text-400">
-            축구 라이프를 시작해볼까요?
+            서비스를 이용하기 전에 프로필을 설정해주세요.
           </p>
         </CardHeader>
         <CardContent>
+          {/* 필수 안내 */}
+          <div className="mb-6 flex items-start gap-2 rounded-lg bg-primary-500/10 p-3 text-sm">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary-500" />
+            <p className="text-primary-400">
+              <span className="font-semibold">닉네임</span>은 필수 입력 항목입니다.
+              프로필 설정을 완료해야 서비스를 이용할 수 있습니다.
+            </p>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="닉네임"
-              placeholder="팀원들에게 보여질 이름"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              required
-            />
+            <div>
+              <Input
+                label="닉네임 *"
+                placeholder="팀원들에게 보여질 이름 (2~20자)"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                required
+                maxLength={20}
+              />
+              {nicknameError && (
+                <p className="mt-1 text-xs text-destructive">{nicknameError}</p>
+              )}
+              <p className="mt-1 text-xs text-text-muted">
+                {nickname.length}/20자
+              </p>
+            </div>
 
             <div>
               <label className="mb-2 block text-sm font-medium text-text-400">
-                주 포지션
+                주 포지션 (선택)
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {POSITIONS.map((pos) => (
                   <button
                     key={pos.value}
                     type="button"
-                    onClick={() => setPosition(pos.value)}
+                    onClick={() => setPosition(position === pos.value ? "" : pos.value)}
                     className={`rounded-lg border px-4 py-3 text-sm transition-all ${
                       position === pos.value
                         ? "border-primary-500 bg-primary-500/10 text-primary-500"
@@ -127,14 +172,14 @@ export default function OnboardingPage() {
 
             <div>
               <label className="mb-2 block text-sm font-medium text-text-400">
-                활동 지역
+                활동 지역 (선택)
               </label>
               <select
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
                 className="w-full rounded-lg bg-surface-700 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-primary-500"
               >
-                <option value="">선택하세요 (선택)</option>
+                <option value="">선택하세요</option>
                 {REGIONS.map((r) => (
                   <option key={r} value={r}>
                     {r}
@@ -145,8 +190,13 @@ export default function OnboardingPage() {
 
             {error && <p className="text-sm text-destructive">{error}</p>}
 
-            <Button type="submit" className="w-full" isLoading={isLoading}>
-              시작하기
+            <Button
+              type="submit"
+              className="w-full"
+              isLoading={isLoading}
+              disabled={!isFormValid || isLoading}
+            >
+              프로필 설정 완료
             </Button>
           </form>
         </CardContent>

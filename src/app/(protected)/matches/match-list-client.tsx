@@ -244,7 +244,7 @@ export function MatchListClient({ matches, teams }: MatchListClientProps) {
                 {scheduledMatches.length}
               </span>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {scheduledMatches.map((match) => (
                 <MatchCard key={match.id} match={match} />
               ))}
@@ -263,7 +263,7 @@ export function MatchListClient({ matches, teams }: MatchListClientProps) {
                 {finishedMatches.length}
               </span>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {finishedMatches.map((match) => (
                 <MatchCard key={match.id} match={match} />
               ))}

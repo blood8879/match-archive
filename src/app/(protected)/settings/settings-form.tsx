@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import imageCompression from "browser-image-compression";
 import type { User as UserType } from "@/types/supabase";
 import { countries, TCountryCode } from "countries-list";
+import { AlertModal, type AlertType } from "@/components/ui/alert-modal";
 
 // ISO 국가 코드를 국기 이모지로 변환
 function countryCodeToEmoji(code: string): string {
@@ -40,6 +41,20 @@ export function SettingsForm({ user }: SettingsFormProps) {
   const [playStyleTags, setPlayStyleTags] = useState<string[]>(user.play_style_tags || []);
   const [newTag, setNewTag] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 모달 상태
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    type: AlertType;
+    title?: string;
+    message: string;
+    navigateBack?: boolean;
+  }>({ type: "info", message: "" });
+
+  const showModal = (type: AlertType, message: string, title?: string, navigateBack = false) => {
+    setModalConfig({ type, title, message, navigateBack });
+    setModalOpen(true);
+  };
 
   // 선호 시간대 옵션
   const TIME_OPTIONS = [
@@ -102,10 +117,10 @@ export function SettingsForm({ user }: SettingsFormProps) {
         play_style_tags: playStyleTags.length > 0 ? playStyleTags : null,
       });
 
-      alert("프로필이 성공적으로 업데이트되었습니다!");
+      showModal("success", "프로필이 성공적으로 업데이트되었습니다!", "완료", true);
     } catch (error) {
       console.error("Failed to update profile:", error);
-      alert("프로필 업데이트에 실패했습니다.");
+      showModal("error", "프로필 업데이트에 실패했습니다.");
     } finally {
       setLoading(false);
     }
@@ -118,7 +133,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
   };
 
   const handleDeleteAccount = () => {
-    alert("회원 탈퇴 기능은 준비 중입니다.");
+    showModal("info", "회원 탈퇴 기능은 준비 중입니다.", "알림");
   };
 
   const handleAvatarClick = () => {
@@ -131,7 +146,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
 
     // 파일 형식 체크
     if (!file.type.startsWith("image/")) {
-      alert("이미지 파일만 업로드 가능합니다.");
+      showModal("error", "이미지 파일만 업로드 가능합니다.");
       return;
     }
 
@@ -202,11 +217,11 @@ export function SettingsForm({ user }: SettingsFormProps) {
         throw updateError;
       }
 
-      alert("프로필 사진이 업데이트되었습니다!");
-      window.location.reload();
+      showModal("success", "프로필 사진이 업데이트되었습니다!", "완료");
+      setTimeout(() => window.location.reload(), 500);
     } catch (error) {
       console.error("Failed to upload avatar:", error);
-      alert("프로필 사진 업로드에 실패했습니다.");
+      showModal("error", "프로필 사진 업로드에 실패했습니다.");
       setAvatarPreview(user.avatar_url);
     } finally {
       setUploadingAvatar(false);
@@ -246,11 +261,11 @@ export function SettingsForm({ user }: SettingsFormProps) {
       }
 
       setAvatarPreview(null);
-      alert("프로필 사진이 삭제되었습니다!");
-      window.location.reload();
+      showModal("success", "프로필 사진이 삭제되었습니다!", "완료");
+      setTimeout(() => window.location.reload(), 500);
     } catch (error) {
       console.error("Failed to delete avatar:", error);
-      alert("프로필 사진 삭제에 실패했습니다.");
+      showModal("error", "프로필 사진 삭제에 실패했습니다.");
     } finally {
       setUploadingAvatar(false);
     }
@@ -705,6 +720,16 @@ export function SettingsForm({ user }: SettingsFormProps) {
           </button>
         </div>
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        navigateBack={modalConfig.navigateBack}
+      />
     </>
   );
 }

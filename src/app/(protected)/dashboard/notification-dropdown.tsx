@@ -13,6 +13,7 @@ import {
 } from "@/services/notifications";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import { AlertModal, type AlertType } from "@/components/ui/alert-modal";
 
 interface NotificationDropdownProps {
   notifications: NotificationWithDetails[];
@@ -40,6 +41,19 @@ export function NotificationDropdown({
   const [isPending, startTransition] = useTransition();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // 모달 상태
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    type: AlertType;
+    title?: string;
+    message: string;
+  }>({ type: "info", message: "" });
+
+  const showModal = (type: AlertType, message: string, title?: string) => {
+    setModalConfig({ type, title, message });
+    setModalOpen(true);
+  };
+
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   // 외부 클릭 감지
@@ -65,7 +79,7 @@ export function NotificationDropdown({
       await markNotificationAsRead(notification.id);
       router.refresh();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "수락에 실패했습니다");
+      showModal("error", error instanceof Error ? error.message : "수락에 실패했습니다");
     } finally {
       setLoadingId(null);
       setActionType(null);
@@ -83,7 +97,7 @@ export function NotificationDropdown({
       await markNotificationAsRead(notification.id);
       router.refresh();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "거절에 실패했습니다");
+      showModal("error", error instanceof Error ? error.message : "거절에 실패했습니다");
     } finally {
       setLoadingId(null);
       setActionType(null);
@@ -99,13 +113,14 @@ export function NotificationDropdown({
     try {
       const response = await acceptMergeRequest(notification.related_merge_request_id);
       await markNotificationAsRead(notification.id);
-      alert(
-        `기록 병합이 완료되었습니다!\n` +
-        `- ${response.recordsUpdated || 0}개의 경기 기록이 통합되었습니다.`
+      showModal(
+        "success",
+        `기록 병합이 완료되었습니다!\n- ${response.recordsUpdated || 0}개의 경기 기록이 통합되었습니다.`,
+        "완료"
       );
       router.refresh();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "병합에 실패했습니다");
+      showModal("error", error instanceof Error ? error.message : "병합에 실패했습니다");
     } finally {
       setLoadingId(null);
       setActionType(null);
@@ -123,7 +138,7 @@ export function NotificationDropdown({
       await markNotificationAsRead(notification.id);
       router.refresh();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "거절에 실패했습니다");
+      showModal("error", error instanceof Error ? error.message : "거절에 실패했습니다");
     } finally {
       setLoadingId(null);
       setActionType(null);
@@ -307,56 +322,67 @@ export function NotificationDropdown({
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors"
-      >
-        <Bell className="w-5 h-5" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center ring-2 ring-[#0f2319]">
-            {unreadCount > 9 ? "9+" : unreadCount}
-          </span>
-        )}
-      </button>
+    <>
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="relative p-2 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+        >
+          <Bell className="w-5 h-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center ring-2 ring-[#0f2319]">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </button>
 
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-surface-800 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
-          <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
-            <h3 className="font-semibold text-white">알림</h3>
-            <div className="flex items-center gap-2">
-              {unreadCount > 0 && (
-                <>
-                  <span className="text-xs text-text-muted">{unreadCount}개의 새 알림</span>
-                  <button
-                    onClick={handleMarkAllAsRead}
-                    disabled={isPending}
-                    className="p-1.5 rounded-lg text-text-muted hover:text-white hover:bg-white/10 transition-colors"
-                    title="모두 읽음 처리"
-                  >
-                    {isPending ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <CheckCheck className="w-4 h-4" />
-                    )}
-                  </button>
-                </>
+        {isOpen && (
+          <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-surface-800 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
+            <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
+              <h3 className="font-semibold text-white">알림</h3>
+              <div className="flex items-center gap-2">
+                {unreadCount > 0 && (
+                  <>
+                    <span className="text-xs text-text-muted">{unreadCount}개의 새 알림</span>
+                    <button
+                      onClick={handleMarkAllAsRead}
+                      disabled={isPending}
+                      className="p-1.5 rounded-lg text-text-muted hover:text-white hover:bg-white/10 transition-colors"
+                      title="모두 읽음 처리"
+                    >
+                      {isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <CheckCheck className="w-4 h-4" />
+                      )}
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="max-h-[400px] overflow-y-auto">
+              {notifications.length === 0 ? (
+                <div className="py-12 text-center">
+                  <Bell className="w-10 h-10 text-text-muted mx-auto mb-3" />
+                  <p className="text-text-muted text-sm">새로운 알림이 없습니다</p>
+                </div>
+              ) : (
+                notifications.map(renderNotificationContent)
               )}
             </div>
           </div>
+        )}
+      </div>
 
-          <div className="max-h-[400px] overflow-y-auto">
-            {notifications.length === 0 ? (
-              <div className="py-12 text-center">
-                <Bell className="w-10 h-10 text-text-muted mx-auto mb-3" />
-                <p className="text-text-muted text-sm">새로운 알림이 없습니다</p>
-              </div>
-            ) : (
-              notifications.map(renderNotificationContent)
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        message={modalConfig.message}
+      />
+    </>
   );
 }

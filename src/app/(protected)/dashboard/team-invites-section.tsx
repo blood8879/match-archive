@@ -8,6 +8,7 @@ import {
   type TeamInviteWithUsers,
 } from "@/services/invites";
 import { Mail, Check, X, Loader2 } from "lucide-react";
+import { AlertModal, type AlertType } from "@/components/ui/alert-modal";
 
 interface TeamInvitesSectionProps {
   invites: TeamInviteWithUsers[];
@@ -19,6 +20,18 @@ export function TeamInvitesSection({ invites }: TeamInvitesSectionProps) {
   const [actionType, setActionType] = useState<"accept" | "reject" | null>(
     null
   );
+
+  // 모달 상태
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    type: AlertType;
+    message: string;
+  }>({ type: "error", message: "" });
+
+  const showModal = (type: AlertType, message: string) => {
+    setModalConfig({ type, message });
+    setModalOpen(true);
+  };
 
   if (invites.length === 0) {
     return null;
@@ -33,7 +46,8 @@ export function TeamInvitesSection({ invites }: TeamInvitesSectionProps) {
       router.refresh();
     } catch (error) {
       console.error("Failed to accept invite:", error);
-      alert(
+      showModal(
+        "error",
         error instanceof Error
           ? error.message
           : "초대 수락에 실패했습니다"
@@ -53,7 +67,8 @@ export function TeamInvitesSection({ invites }: TeamInvitesSectionProps) {
       router.refresh();
     } catch (error) {
       console.error("Failed to reject invite:", error);
-      alert(
+      showModal(
+        "error",
         error instanceof Error
           ? error.message
           : "초대 거절에 실패했습니다"
@@ -65,79 +80,89 @@ export function TeamInvitesSection({ invites }: TeamInvitesSectionProps) {
   };
 
   return (
-    <section className="mb-6">
-      <div className="glass-card rounded-2xl p-6 border-2 border-[#FFC400]/30 bg-[#3d2800]/40 backdrop-blur-xl">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-[#FFC400]/20 rounded-lg">
-            <Mail className="w-6 h-6 text-[#FFC400]" />
+    <>
+      <section className="mb-6">
+        <div className="glass-card rounded-2xl p-6 border-2 border-[#FFC400]/30 bg-[#3d2800]/40 backdrop-blur-xl">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-[#FFC400]/20 rounded-lg">
+              <Mail className="w-6 h-6 text-[#FFC400]" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white">
+                팀 초대 ({invites.length})
+              </h2>
+              <p className="text-sm text-text-400 mt-0.5">
+                새로운 팀 초대가 도착했습니다
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-bold text-white">
-              팀 초대 ({invites.length})
-            </h2>
-            <p className="text-sm text-text-400 mt-0.5">
-              새로운 팀 초대가 도착했습니다
-            </p>
-          </div>
-        </div>
 
-        <div className="space-y-3">
-          {invites.map((invite) => {
-            const teamName = invite.team?.name || "알 수 없는 팀";
-            const inviterName =
-              invite.inviter?.nickname || "알 수 없는 사용자";
+          <div className="space-y-3">
+            {invites.map((invite) => {
+              const teamName = invite.team?.name || "알 수 없는 팀";
+              const inviterName =
+                invite.inviter?.nickname || "알 수 없는 사용자";
 
-            return (
-              <div
-                key={invite.id}
-                className="flex items-center justify-between p-4 rounded-lg bg-surface-700/50 border border-white/10 hover:border-white/20 transition-colors"
-              >
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-base font-bold text-primary">
-                    {teamName.charAt(0).toUpperCase()}
+              return (
+                <div
+                  key={invite.id}
+                  className="flex items-center justify-between p-4 rounded-lg bg-surface-700/50 border border-white/10 hover:border-white/20 transition-colors"
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-base font-bold text-primary">
+                      {teamName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-white truncate">
+                        {teamName}
+                      </p>
+                      <p className="text-sm text-text-400 mt-1">
+                        {inviterName}님이 초대했습니다
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-white truncate">
-                      {teamName}
-                    </p>
-                    <p className="text-sm text-text-400 mt-1">
-                      {inviterName}님이 초대했습니다
-                    </p>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleAccept(invite.id)}
+                      disabled={loadingId === invite.id}
+                      className="px-4 py-2 rounded-lg bg-constructive/20 text-constructive hover:bg-constructive/30 disabled:opacity-50 transition-colors font-medium text-sm flex items-center gap-1"
+                      title="수락"
+                    >
+                      {loadingId === invite.id && actionType === "accept" ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Check className="w-4 h-4" />
+                      )}
+                      수락
+                    </button>
+                    <button
+                      onClick={() => handleReject(invite.id)}
+                      disabled={loadingId === invite.id}
+                      className="p-2 rounded-lg bg-destructive/20 text-destructive hover:bg-destructive/30 disabled:opacity-50 transition-colors"
+                      title="거절"
+                    >
+                      {loadingId === invite.id && actionType === "reject" ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <X className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleAccept(invite.id)}
-                    disabled={loadingId === invite.id}
-                    className="px-4 py-2 rounded-lg bg-constructive/20 text-constructive hover:bg-constructive/30 disabled:opacity-50 transition-colors font-medium text-sm flex items-center gap-1"
-                    title="수락"
-                  >
-                    {loadingId === invite.id && actionType === "accept" ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Check className="w-4 h-4" />
-                    )}
-                    수락
-                  </button>
-                  <button
-                    onClick={() => handleReject(invite.id)}
-                    disabled={loadingId === invite.id}
-                    className="p-2 rounded-lg bg-destructive/20 text-destructive hover:bg-destructive/30 disabled:opacity-50 transition-colors"
-                    title="거절"
-                  >
-                    {loadingId === invite.id && actionType === "reject" ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <X className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        type={modalConfig.type}
+        message={modalConfig.message}
+      />
+    </>
   );
 }

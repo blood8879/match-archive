@@ -8,6 +8,7 @@ import { getTeamById } from "@/services/teams";
 import { getTeamVenues, createVenue, deleteVenue, setPrimaryVenue } from "@/services/venues";
 import { DaumPostcode, type DaumPostcodeData } from "@/components/daum-postcode";
 import type { Team, Venue } from "@/types/supabase";
+import { AlertModal, type AlertType } from "@/components/ui/alert-modal";
 
 export default function VenuesPage() {
   const params = useParams();
@@ -30,6 +31,18 @@ export default function VenuesPage() {
   const [showPostcode, setShowPostcode] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // AlertModal 상태
+  const [alertModalOpen, setAlertModalOpen] = useState(false);
+  const [alertConfig, setAlertConfig] = useState<{
+    type: AlertType;
+    message: string;
+  }>({ type: "error", message: "" });
+
+  const showAlertModal = (type: AlertType, message: string) => {
+    setAlertConfig({ type, message });
+    setAlertModalOpen(true);
+  };
 
   useEffect(() => {
     loadData();
@@ -114,7 +127,7 @@ export default function VenuesPage() {
       setShowDeleteConfirm(null);
     } catch (err) {
       console.error("Failed to delete venue:", err);
-      alert("경기장 삭제에 실패했습니다");
+      showAlertModal("error", "경기장 삭제에 실패했습니다");
     }
   }
 
@@ -124,7 +137,7 @@ export default function VenuesPage() {
       await loadData();
     } catch (err) {
       console.error("Failed to set primary venue:", err);
-      alert("기본 경기장 설정에 실패했습니다");
+      showAlertModal("error", "기본 경기장 설정에 실패했습니다");
     }
   }
 
@@ -421,6 +434,14 @@ export default function VenuesPage() {
           </div>
         </div>
       )}
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModalOpen}
+        onClose={() => setAlertModalOpen(false)}
+        type={alertConfig.type}
+        message={alertConfig.message}
+      />
     </>
   );
 }

@@ -6,6 +6,7 @@ import { updateTeam } from "@/services/teams";
 import imageCompression from "browser-image-compression";
 import type { Team } from "@/types/supabase";
 import { useRouter } from "next/navigation";
+import { AlertModal, type AlertType } from "@/components/ui/alert-modal";
 
 interface TeamSettingsFormProps {
   team: Team;
@@ -40,6 +41,20 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
   const [level, setLevel] = useState(team.level || 1);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // 모달 상태
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    type: AlertType;
+    title?: string;
+    message: string;
+    navigateBack?: boolean;
+  }>({ type: "info", message: "" });
+
+  const showModal = (type: AlertType, message: string, title?: string, navigateBack = false) => {
+    setModalConfig({ type, title, message, navigateBack });
+    setModalOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -59,11 +74,11 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
     startTransition(async () => {
       try {
         await updateTeam(team.id, formData);
-        alert("팀 정보가 성공적으로 업데이트되었습니다!");
+        showModal("success", "팀 정보가 성공적으로 업데이트되었습니다!", "완료", true);
         router.refresh();
       } catch (error: any) {
         console.error("Failed to update team:", error);
-        alert(error.message || "팀 정보 업데이트에 실패했습니다.");
+        showModal("error", error.message || "팀 정보 업데이트에 실패했습니다.");
       }
     });
   };
@@ -78,13 +93,13 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
 
     // 파일 형식 체크
     if (!file.type.startsWith("image/")) {
-      alert("이미지 파일만 업로드 가능합니다.");
+      showModal("error", "이미지 파일만 업로드 가능합니다.");
       return;
     }
 
     // 파일 크기 체크 (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert("파일 크기는 5MB를 초과할 수 없습니다.");
+      showModal("error", "파일 크기는 5MB를 초과할 수 없습니다.");
       return;
     }
 
@@ -111,7 +126,7 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
       setEmblemFile(compressedFile);
     } catch (error) {
       console.error("Failed to compress image:", error);
-      alert("이미지 처리에 실패했습니다.");
+      showModal("error", "이미지 처리에 실패했습니다.");
       setEmblemPreview(team.emblem_url);
     } finally {
       setUploadingEmblem(false);
@@ -131,13 +146,13 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
     if (!cleaned) return;
 
     if (hashtags.length >= 5) {
-      alert("해시태그는 최대 5개까지 입력 가능합니다.");
+      showModal("warning", "해시태그는 최대 5개까지 입력 가능합니다.");
       return;
     }
 
     const newTag = `#${cleaned}`;
     if (hashtags.includes(newTag)) {
-      alert("이미 추가된 해시태그입니다.");
+      showModal("warning", "이미 추가된 해시태그입니다.");
       return;
     }
 
@@ -528,7 +543,7 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
         </p>
         <div className="flex gap-4">
           <button
-            onClick={() => alert("팀 삭제 기능은 준비 중입니다.")}
+            onClick={() => showModal("info", "팀 삭제 기능은 준비 중입니다.", "알림")}
             className="flex items-center gap-2 rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-colors"
           >
             <Trash2 className="w-4 h-4" />
@@ -536,6 +551,16 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
           </button>
         </div>
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        navigateBack={modalConfig.navigateBack}
+      />
     </>
   );
 }

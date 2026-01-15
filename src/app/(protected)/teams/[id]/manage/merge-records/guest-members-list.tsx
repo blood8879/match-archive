@@ -6,6 +6,7 @@ import { Target, Trophy, Calendar, Hash, Search, Send, X, Loader2 } from "lucide
 import type { GuestMemberWithStats } from "@/types/supabase";
 import { createRecordMergeRequest, getGuestMemberStats } from "@/services/record-merge";
 import { getUserByCode } from "@/services/invites";
+import { AlertModal, type AlertType } from "@/components/ui/alert-modal";
 
 interface GuestMembersListProps {
   guests: GuestMemberWithStats[];
@@ -32,6 +33,19 @@ export function GuestMembersList({ guests, teamId }: GuestMembersListProps) {
     }>;
   } | null>(null);
 
+  // AlertModal 상태
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    type: AlertType;
+    message: string;
+    navigateBack?: boolean;
+  }>({ type: "info", message: "" });
+
+  const showModal = (type: AlertType, message: string, navigateBack = false) => {
+    setModalConfig({ type, message, navigateBack });
+    setModalOpen(true);
+  };
+
   const handleSelectGuest = async (guest: GuestMemberWithStats) => {
     setSelectedGuest(guest);
     setUserCode("");
@@ -48,7 +62,7 @@ export function GuestMembersList({ guests, teamId }: GuestMembersListProps) {
 
   const handleSearchUser = async () => {
     if (userCode.length !== 6) {
-      alert("유저 코드는 6자리입니다");
+      showModal("warning", "유저 코드는 6자리입니다");
       return;
     }
 
@@ -60,10 +74,10 @@ export function GuestMembersList({ guests, teamId }: GuestMembersListProps) {
       if (user) {
         setFoundUser({ id: user.id, nickname: user.nickname });
       } else {
-        alert("존재하지 않는 유저 코드입니다");
+        showModal("error", "존재하지 않는 유저 코드입니다");
       }
     } catch (error) {
-      alert("검색에 실패했습니다");
+      showModal("error", "검색에 실패했습니다");
     } finally {
       setSearching(false);
     }
@@ -76,14 +90,14 @@ export function GuestMembersList({ guests, teamId }: GuestMembersListProps) {
 
     try {
       await createRecordMergeRequest(teamId, selectedGuest.id, userCode);
-      alert(`${foundUser.nickname || "사용자"}님에게 기록 병합 요청을 전송했습니다.`);
+      showModal("success", `${foundUser.nickname || "사용자"}님에게 기록 병합 요청을 전송했습니다.`);
       setSelectedGuest(null);
       setUserCode("");
       setFoundUser(null);
       setGuestStats(null);
       router.refresh();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "요청 전송에 실패했습니다");
+      showModal("error", error instanceof Error ? error.message : "요청 전송에 실패했습니다");
     } finally {
       setSubmitting(false);
     }
@@ -282,6 +296,15 @@ export function GuestMembersList({ guests, teamId }: GuestMembersListProps) {
           </div>
         </div>
       )}
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        type={modalConfig.type}
+        message={modalConfig.message}
+        navigateBack={modalConfig.navigateBack}
+      />
     </>
   );
 }

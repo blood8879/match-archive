@@ -38,7 +38,7 @@ export type RecentMatch = {
 };
 
 /**
- * 플레이어의 전체 통계를 가져옵니다
+ * 플레이어의 전체 통계를 가져옵니다 (완료된 경기만 포함)
  * @param userId - 사용자 ID
  * @param teamId - 팀 ID
  * @returns 플레이어 통계
@@ -69,10 +69,16 @@ export async function getPlayerStats(
     };
   }
 
-  // 경기 기록 가져오기
+  // 경기 기록과 매치 정보 가져오기 (상태 확인용)
   const { data: records, error: recordsError } = await supabase
     .from("match_records")
-    .select("*")
+    .select(`
+      *,
+      match:matches!match_records_match_id_fkey(
+        id,
+        status
+      )
+    `)
     .eq("team_member_id", teamMember.id);
 
   if (recordsError || !records) {
@@ -86,13 +92,18 @@ export async function getPlayerStats(
     };
   }
 
-  const totalMatches = records.length;
-  const totalGoals = records.reduce((sum, r) => sum + (r.goals || 0), 0);
-  const totalAssists = records.reduce((sum, r) => sum + (r.assists || 0), 0);
-  const totalMOM = records.filter((r) => r.is_mom).length;
-  const totalCleanSheets = records.filter((r) => r.clean_sheet).length;
-  const totalQuarters = records.reduce(
-    (sum, r) => sum + (r.quarters_played || 0),
+  // 완료된 경기만 필터링
+  const finishedRecords = records.filter(
+    (r: any) => r.match?.status === "FINISHED"
+  );
+
+  const totalMatches = finishedRecords.length;
+  const totalGoals = finishedRecords.reduce((sum: number, r: any) => sum + (r.goals || 0), 0);
+  const totalAssists = finishedRecords.reduce((sum: number, r: any) => sum + (r.assists || 0), 0);
+  const totalMOM = finishedRecords.filter((r: any) => r.is_mom).length;
+  const totalCleanSheets = finishedRecords.filter((r: any) => r.clean_sheet).length;
+  const totalQuarters = finishedRecords.reduce(
+    (sum: number, r: any) => sum + (r.quarters_played || 0),
     0
   );
   const averageQuarters =
@@ -590,21 +601,33 @@ export async function getPlayerByTeamMemberId(
     return null;
   }
 
-  // userId가 없으면 (용병인 경우) 기본 통계 반환
+  // userId가 없으면 (용병인 경우) 기본 통계 반환 (완료된 경기만)
   if (!teamMember.user_id) {
     const { data: records } = await supabase
       .from("match_records")
-      .select("*")
+      .select(`
+        *,
+        match:matches!match_records_match_id_fkey(
+          id,
+          status
+        )
+      `)
       .eq("team_member_id", teamMemberId);
 
-    const totalMatches = records?.length || 0;
-    const totalGoals = records?.reduce((sum, r) => sum + (r.goals || 0), 0) || 0;
-    const totalAssists =
-      records?.reduce((sum, r) => sum + (r.assists || 0), 0) || 0;
-    const totalMOM = records?.filter((r) => r.is_mom).length || 0;
-    const totalCleanSheets = records?.filter((r) => r.clean_sheet).length || 0;
-    const totalQuarters =
-      records?.reduce((sum, r) => sum + (r.quarters_played || 0), 0) || 0;
+    // 완료된 경기만 필터링
+    const finishedRecords = records?.filter(
+      (r: any) => r.match?.status === "FINISHED"
+    ) || [];
+
+    const totalMatches = finishedRecords.length;
+    const totalGoals = finishedRecords.reduce((sum: number, r: any) => sum + (r.goals || 0), 0);
+    const totalAssists = finishedRecords.reduce((sum: number, r: any) => sum + (r.assists || 0), 0);
+    const totalMOM = finishedRecords.filter((r: any) => r.is_mom).length;
+    const totalCleanSheets = finishedRecords.filter((r: any) => r.clean_sheet).length;
+    const totalQuarters = finishedRecords.reduce(
+      (sum: number, r: any) => sum + (r.quarters_played || 0),
+      0
+    );
     const averageQuarters =
       totalMatches > 0 ? Math.round((totalQuarters / totalMatches) * 10) / 10 : 0;
 

@@ -244,7 +244,7 @@ export function MatchListClient({ matches, teams }: MatchListClientProps) {
                 {scheduledMatches.length}
               </span>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {scheduledMatches.map((match) => (
                 <MatchCard key={match.id} match={match} />
               ))}
@@ -263,7 +263,7 @@ export function MatchListClient({ matches, teams }: MatchListClientProps) {
                 {finishedMatches.length}
               </span>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {finishedMatches.map((match) => (
                 <MatchCard key={match.id} match={match} />
               ))}
@@ -320,8 +320,8 @@ function MatchCard({ match }: { match: MatchWithTeam }) {
   };
 
   return (
-    <Link href={`/matches/${match.id}`}>
-      <div className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-xl p-4 md:p-5 hover:bg-[#214a36]/60 hover:border-[#00e677]/30 transition-all group cursor-pointer">
+    <Link href={`/matches/${match.id}`} className="block">
+      <div className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6 md:p-7 hover:bg-[#214a36]/60 hover:border-[#00e677]/30 transition-all group cursor-pointer">
         <div className="flex items-center justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 text-sm text-[#8eccae] mb-2">

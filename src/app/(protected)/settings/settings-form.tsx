@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useMemo } from "react";
-import { User, Mail, Phone, Zap, Edit, Trash2, LogOut, Upload, Hash, Copy, Check, Globe, Calendar, Footprints } from "lucide-react";
+import { User, Mail, Phone, Zap, Edit, Trash2, LogOut, Upload, Hash, Copy, Check, Globe, Calendar, Footprints, Clock, Tag, Briefcase, X, Plus } from "lucide-react";
 import { updateUserProfile, signOut } from "@/services/auth";
 import { createClient } from "@/lib/supabase/client";
 import imageCompression from "browser-image-compression";
@@ -35,7 +35,35 @@ export function SettingsForm({ user }: SettingsFormProps) {
   const [nationality, setNationality] = useState(user.nationality || "KR");
   const [birthDate, setBirthDate] = useState(user.birth_date || "");
   const [preferredFoot, setPreferredFoot] = useState<"left" | "right" | "both" | "">(user.preferred_foot || "");
+  const [preferredTimes, setPreferredTimes] = useState<string[]>(user.preferred_times || []);
+  const [soccerExperience, setSoccerExperience] = useState(user.soccer_experience || "");
+  const [playStyleTags, setPlayStyleTags] = useState<string[]>(user.play_style_tags || []);
+  const [newTag, setNewTag] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 선호 시간대 옵션
+  const TIME_OPTIONS = [
+    "평일 오전",
+    "평일 오후",
+    "평일 저녁",
+    "주말 오전",
+    "주말 오후",
+    "주말 저녁",
+  ];
+
+  // 플레이 스타일 태그 추천
+  const SUGGESTED_TAGS = [
+    "빌드업형",
+    "투쟁형",
+    "테크니션",
+    "스피드스타",
+    "골게터",
+    "플레이메이커",
+    "수비전문가",
+    "멀티플레이어",
+    "체력왕",
+    "패스마스터",
+  ];
 
   // 국가 목록 정렬 (한국어 이름 기준, 대한민국을 맨 위로)
   const sortedCountries = useMemo(() => {
@@ -69,6 +97,9 @@ export function SettingsForm({ user }: SettingsFormProps) {
         nationality,
         birth_date: birthDate || null,
         preferred_foot: preferredFoot || null,
+        preferred_times: preferredTimes.length > 0 ? preferredTimes : null,
+        soccer_experience: soccerExperience || null,
+        play_style_tags: playStyleTags.length > 0 ? playStyleTags : null,
       });
 
       alert("프로필이 성공적으로 업데이트되었습니다!");
@@ -473,6 +504,128 @@ export function SettingsForm({ user }: SettingsFormProps) {
               placeholder="자신의 플레이 스타일이나 소개를 입력해주세요."
             />
           </label>
+
+          {/* Soccer Experience */}
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-white/80">축구 경력</span>
+            <div className="relative">
+              <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+              <input
+                type="text"
+                value={soccerExperience}
+                onChange={(e) => setSoccerExperience(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-white placeholder-white/30 focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
+                placeholder="예: 대학 축구부 3년, 동호회 활동 5년"
+              />
+            </div>
+          </label>
+
+          {/* Preferred Times */}
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-white/80 flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              선호 시간대
+            </span>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {TIME_OPTIONS.map((time) => (
+                <button
+                  key={time}
+                  type="button"
+                  onClick={() => {
+                    if (preferredTimes.includes(time)) {
+                      setPreferredTimes(preferredTimes.filter((t) => t !== time));
+                    } else {
+                      setPreferredTimes([...preferredTimes, time]);
+                    }
+                  }}
+                  className={`py-2.5 px-4 rounded-xl text-sm font-medium transition-all ${
+                    preferredTimes.includes(time)
+                      ? "bg-[#00e677]/20 border-[#00e677] text-[#00e677] border"
+                      : "bg-black/20 border border-white/10 text-white/70 hover:border-white/30"
+                  }`}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Play Style Tags */}
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-white/80 flex items-center gap-2">
+              <Tag className="w-4 h-4" />
+              플레이 스타일 태그
+            </span>
+
+            {/* 현재 태그들 */}
+            {playStyleTags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {playStyleTags.map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#00e677]/20 text-[#00e677] text-sm font-medium border border-[#00e677]/30"
+                  >
+                    #{tag}
+                    <button
+                      type="button"
+                      onClick={() => setPlayStyleTags(playStyleTags.filter((_, i) => i !== idx))}
+                      className="hover:bg-[#00e677]/30 rounded-full p-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* 태그 추가 입력 */}
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newTag.trim()) {
+                      e.preventDefault();
+                      if (!playStyleTags.includes(newTag.trim())) {
+                        setPlayStyleTags([...playStyleTags, newTag.trim()]);
+                      }
+                      setNewTag("");
+                    }
+                  }}
+                  className="w-full rounded-xl border border-white/10 bg-black/20 py-2.5 pl-4 pr-4 text-white placeholder-white/30 focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all text-sm"
+                  placeholder="직접 입력 (Enter로 추가)"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (newTag.trim() && !playStyleTags.includes(newTag.trim())) {
+                    setPlayStyleTags([...playStyleTags, newTag.trim()]);
+                    setNewTag("");
+                  }
+                }}
+                className="px-4 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* 추천 태그 */}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {SUGGESTED_TAGS.filter((tag) => !playStyleTags.includes(tag)).map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => setPlayStyleTags([...playStyleTags, tag])}
+                  className="py-1.5 px-3 rounded-lg bg-white/5 border border-white/10 text-white/50 text-xs hover:border-white/30 hover:text-white/70 transition-all"
+                >
+                  + {tag}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="h-px bg-white/10 my-2"></div>
 

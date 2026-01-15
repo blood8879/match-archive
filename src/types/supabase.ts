@@ -18,6 +18,26 @@ export type NotificationType =
   | "match_created"
   | "match_reminder";
 
+// 뱃지 타입
+export type BadgeType =
+  | "first_goal"
+  | "first_assist"
+  | "first_mom"
+  | "streak_5"
+  | "streak_10"
+  | "streak_20"
+  | "team_founder"
+  | "multi_team_5"
+  | "veteran_1year"
+  | "veteran_2year"
+  | "matches_10"
+  | "matches_50"
+  | "matches_100"
+  | "goals_10"
+  | "goals_50"
+  | "assists_10"
+  | "assists_50";
+
 export interface Database {
   public: {
     Tables: {
@@ -38,6 +58,9 @@ export interface Database {
           birth_date: string | null;
           nationality: string | null;
           preferred_foot: "left" | "right" | "both" | null;
+          preferred_times: string[] | null;
+          soccer_experience: string | null;
+          play_style_tags: string[] | null;
           created_at: string;
           updated_at: string;
         };
@@ -57,6 +80,9 @@ export interface Database {
           birth_date?: string | null;
           nationality?: string | null;
           preferred_foot?: "left" | "right" | "both" | null;
+          preferred_times?: string[] | null;
+          soccer_experience?: string | null;
+          play_style_tags?: string[] | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -76,6 +102,9 @@ export interface Database {
           birth_date?: string | null;
           nationality?: string | null;
           preferred_foot?: "left" | "right" | "both" | null;
+          preferred_times?: string[] | null;
+          soccer_experience?: string | null;
+          play_style_tags?: string[] | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -741,6 +770,37 @@ export interface Database {
           }
         ];
       };
+      user_badges: {
+        Row: {
+          id: string;
+          user_id: string;
+          badge_type: BadgeType;
+          earned_at: string;
+          metadata: Record<string, unknown>;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          badge_type: BadgeType;
+          earned_at?: string;
+          metadata?: Record<string, unknown>;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          badge_type?: BadgeType;
+          earned_at?: string;
+          metadata?: Record<string, unknown>;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -799,6 +859,7 @@ export type GuestTeam = Tables<"guest_teams">;
 export type OpponentPlayer = Tables<"opponent_players">;
 export type RecordMergeRequest = Tables<"record_merge_requests">;
 export type Notification = Tables<"notifications">;
+export type UserBadge = Tables<"user_badges">;
 
 // 기록 병합 요청 with 관계 데이터
 export type RecordMergeRequestWithDetails = RecordMergeRequest & {

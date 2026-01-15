@@ -14,6 +14,9 @@ export async function updateUserProfile(data: {
   nationality?: string | null;
   birth_date?: string | null;
   preferred_foot?: "left" | "right" | "both" | null;
+  preferred_times?: string[] | null;
+  soccer_experience?: string | null;
+  play_style_tags?: string[] | null;
 }) {
   const supabase = await createClient();
 
@@ -37,6 +40,9 @@ export async function updateUserProfile(data: {
       nationality: data.nationality || null,
       birth_date: data.birth_date || null,
       preferred_foot: data.preferred_foot || null,
+      preferred_times: data.preferred_times || null,
+      soccer_experience: data.soccer_experience || null,
+      play_style_tags: data.play_style_tags || null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", user.id);

@@ -1,30 +1,25 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import {
-  Trophy,
   Target,
   Users,
   Shield,
-  Zap,
   Star,
   TrendingUp,
   Calendar,
   ChevronRight,
-  Settings
+  Settings,
+  Clock,
+  Award,
+  Briefcase,
+  MapPin,
 } from "lucide-react";
-import type { User, TeamMember, Team, Match, MatchRecord } from "@/types/supabase";
+import type { User, TeamMember, Team, Match, MatchRecord, UserBadge } from "@/types/supabase";
 import { PlayerCodeBadge } from "./player-code-badge";
+import { BADGE_DEFINITIONS } from "@/lib/badge-definitions";
 
 type TeamMemberWithTeam = TeamMember & { team: Team | null };
 type MatchRecordWithMatch = MatchRecord & { match: Match & { team: Team | null } | null };
-
-function getTier(matches: number) {
-  if (matches >= 100) return { name: "프로", color: "text-yellow-400", bg: "bg-yellow-500/20" };
-  if (matches >= 50) return { name: "세미 프로", color: "text-purple-400", bg: "bg-purple-500/20" };
-  if (matches >= 20) return { name: "아마추어 1", color: "text-blue-400", bg: "bg-blue-500/20" };
-  if (matches >= 10) return { name: "아마추어 2", color: "text-green-400", bg: "bg-green-500/20" };
-  return { name: "루키", color: "text-gray-400", bg: "bg-gray-500/20" };
-}
 
 function getPositionLabel(pos: string | null) {
   const positions: Record<string, string> = {
@@ -58,15 +53,27 @@ export default async function ProfilePage() {
     .from("team_members")
     .select("*, team:teams(*)")
     .eq("user_id", user.id)
-    .eq("status", "active");
+    .eq("status", "active")
+    .order("joined_at", { ascending: false });
 
   const myTeams = myTeamsRaw as TeamMemberWithTeam[] | null;
   const firstTeam = myTeams?.[0]?.team;
+
+  // 뱃지 조회
+  const { data: badgesRaw } = await supabase
+    .from("user_badges")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("earned_at", { ascending: false });
+
+  const badges = (badgesRaw || []) as UserBadge[];
 
   const memberIds = myTeams?.map((t) => t.id) ?? [];
   let totalGoals = 0;
   let totalAssists = 0;
   let matchesPlayed = 0;
+  let totalMom = 0;
+  let totalCleanSheets = 0;
   let recentMatches: MatchRecordWithMatch[] = [];
 
   if (memberIds.length > 0) {
@@ -75,7 +82,7 @@ export default async function ProfilePage() {
       .select("*, match:matches(*, team:teams!matches_team_id_fkey(*))")
       .in("team_member_id", memberIds)
       .order("created_at", { ascending: false })
-      .limit(10);
+      .limit(20);
 
     if (myRecords) {
       const typedRecords = myRecords as MatchRecordWithMatch[];
@@ -84,13 +91,29 @@ export default async function ProfilePage() {
 
       totalGoals = finishedRecords.reduce((sum, r) => sum + r.goals, 0);
       totalAssists = finishedRecords.reduce((sum, r) => sum + r.assists, 0);
+      totalMom = finishedRecords.filter((r) => r.is_mom).length;
+      totalCleanSheets = finishedRecords.filter((r) => r.clean_sheet).length;
       matchesPlayed = finishedRecords.length;
       recentMatches = finishedRecords.slice(0, 5);
     }
   }
 
-  const tier = getTier(matchesPlayed);
-  const xpProgress = Math.min((matchesPlayed % 10) * 10, 100);
+  // 포지션별 출전 횟수 계산
+  const positionCounts: Record<string, number> = {};
+  if (memberIds.length > 0) {
+    const { data: allRecords } = await supabase
+      .from("match_records")
+      .select("position_played, match:matches!inner(status)")
+      .in("team_member_id", memberIds);
+
+    if (allRecords) {
+      allRecords.forEach((record: any) => {
+        if (record.match?.status === "FINISHED" && record.position_played) {
+          positionCounts[record.position_played] = (positionCounts[record.position_played] || 0) + 1;
+        }
+      });
+    }
+  }
 
   return (
     <div className="relative min-h-screen">
@@ -98,6 +121,7 @@ export default async function ProfilePage() {
       <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#214a36]/20 rounded-full blur-[80px] pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* 프로필 헤더 */}
         <section className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6 md:p-8">
           <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
             <div className="relative">
@@ -116,9 +140,11 @@ export default async function ProfilePage() {
                   </div>
                 )}
               </div>
-              <div className={`absolute -bottom-1 -right-1 ${tier.bg} ${tier.color} text-xs font-bold px-2.5 py-1 rounded-full border-2 border-[#10231a]`}>
-                {tier.name}
-              </div>
+              {badges.length > 0 && (
+                <div className="absolute -bottom-1 -right-1 bg-[#00e677]/20 text-[#00e677] text-xs font-bold px-2.5 py-1 rounded-full border-2 border-[#10231a]">
+                  {badges.length}개 뱃지
+                </div>
+              )}
             </div>
 
             <div className="flex-1 text-center md:text-left">
@@ -137,12 +163,15 @@ export default async function ProfilePage() {
                   </span>
                 )}
               </div>
-              
+
               <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-[#8eccae] text-sm md:text-base mb-4">
                 {firstTeam ? (
                   <span className="flex items-center gap-1.5">
                     <Users className="w-4 h-4" />
                     {firstTeam.name}
+                    {myTeams && myTeams.length > 1 && (
+                      <span className="text-white/50">외 {myTeams.length - 1}팀</span>
+                    )}
                   </span>
                 ) : (
                   <span>소속 팀 없음</span>
@@ -152,11 +181,12 @@ export default async function ProfilePage() {
                 )}
               </div>
 
-              <p className="text-gray-400 text-sm max-w-md mx-auto md:mx-0">
-                축구를 사랑하는 플레이어. 팀과 함께 성장하며 즐거운 경기를 추구합니다.
+              {/* 자기소개 */}
+              <p className="text-gray-400 text-sm max-w-md mx-auto md:mx-0 mb-4">
+                {typedProfile?.bio || "자기소개가 없습니다. 프로필을 편집하여 자기소개를 추가해보세요."}
               </p>
 
-              <div className="mt-4 flex gap-3 justify-center md:justify-start">
+              <div className="flex gap-3 justify-center md:justify-start">
                 <Link
                   href="/settings"
                   className="flex items-center gap-2 h-10 px-5 rounded-xl bg-[#00e677] hover:bg-[#00e677]/90 text-[#0f2319] font-bold text-sm transition-all shadow-[0_0_15px_rgba(6,224,118,0.2)]"
@@ -169,99 +199,180 @@ export default async function ProfilePage() {
           </div>
         </section>
 
+        {/* 통계 카드 */}
         <section className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
           <StatCard icon={<Calendar className="w-5 h-5" />} label="경기 수" value={matchesPlayed} />
           <StatCard icon={<Target className="w-5 h-5" />} label="골" value={totalGoals} highlight />
           <StatCard icon={<TrendingUp className="w-5 h-5" />} label="어시스트" value={totalAssists} />
-          <StatCard icon={<Star className="w-5 h-5" />} label="MOM" value={0} />
-          <StatCard icon={<Shield className="w-5 h-5" />} label="클린시트" value={0} className="col-span-2 md:col-span-1" />
+          <StatCard icon={<Star className="w-5 h-5" />} label="MOM" value={totalMom} />
+          <StatCard icon={<Shield className="w-5 h-5" />} label="클린시트" value={totalCleanSheets} className="col-span-2 md:col-span-1" />
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <section className="lg:col-span-2 bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6">
-            <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-              <Zap className="w-5 h-5 text-[#00e677]" />
-              플레이 스타일 분석
-            </h3>
+          {/* 왼쪽 영역 - 자기소개 & 뱃지 */}
+          <section className="lg:col-span-2 space-y-6">
+            {/* 프로필 상세 정보 */}
+            <div className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-[#00e677]" />
+                프로필 정보
+              </h3>
 
-            <div className="flex flex-col md:flex-row gap-8">
-              <div className="flex flex-col items-center justify-center">
-                <div className="relative size-28 md:size-32">
-                  <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8" />
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="#00e677" strokeWidth="8" strokeLinecap="round" strokeDasharray={`${78 * 2.83} ${100 * 2.83}`} />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-3xl md:text-4xl font-black text-white">7.8</span>
-                    <span className="text-xs text-[#8eccae]">종합 평점</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 축구 경력 */}
+                {typedProfile?.soccer_experience && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-[#8eccae]">축구 경력</p>
+                    <p className="text-white">{typedProfile.soccer_experience}</p>
                   </div>
-                </div>
-              </div>
+                )}
 
-              <div className="flex-1 space-y-4">
-                <SkillBar label="결정력" value={matchesPlayed > 0 ? 75 : 50} />
-                <SkillBar label="패스" value={matchesPlayed > 0 ? 68 : 50} />
-                <SkillBar label="드리블" value={matchesPlayed > 0 ? 82 : 50} />
-                <SkillBar label="수비 가담" value={matchesPlayed > 0 ? 45 : 50} />
-                <SkillBar label="체력" value={matchesPlayed > 0 ? 70 : 50} />
-              </div>
-            </div>
+                {/* 선호 시간대 */}
+                {typedProfile?.preferred_times && typedProfile.preferred_times.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-[#8eccae] flex items-center gap-1.5">
+                      <Clock className="w-4 h-4" />
+                      선호 시간대
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {typedProfile.preferred_times.map((time, idx) => (
+                        <span key={idx} className="px-3 py-1.5 rounded-lg bg-white/5 text-white text-sm border border-white/10">
+                          {time}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            <div className="mt-6 pt-6 border-t border-white/5">
-              <p className="text-sm text-[#8eccae] mb-3">플레이 스타일</p>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1.5 rounded-lg bg-[#00e677]/10 text-[#00e677] text-sm font-medium border border-[#00e677]/20">
-                  스피드 스타
-                </span>
-                <span className="px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 text-sm font-medium border border-blue-500/20">
-                  플레이 메이커
-                </span>
-                {totalGoals > 5 && (
-                  <span className="px-3 py-1.5 rounded-lg bg-yellow-500/10 text-yellow-400 text-sm font-medium border border-yellow-500/20">
-                    골 게터
-                  </span>
+                {/* 포지션별 출전 현황 */}
+                {Object.keys(positionCounts).length > 0 && (
+                  <div className="space-y-2 md:col-span-2">
+                    <p className="text-sm text-[#8eccae] flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4" />
+                      포지션별 출전
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(positionCounts)
+                        .sort(([, a], [, b]) => b - a)
+                        .map(([pos, count]) => (
+                          <span
+                            key={pos}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${
+                              pos === "FW" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
+                              pos === "MF" ? "bg-green-500/10 text-green-400 border-green-500/20" :
+                              pos === "DF" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
+                              "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+                            }`}
+                          >
+                            {pos} · {count}경기
+                          </span>
+                        ))}
+                    </div>
+                  </div>
                 )}
               </div>
+
+              {/* 플레이 스타일 태그 */}
+              {typedProfile?.play_style_tags && typedProfile.play_style_tags.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-white/5">
+                  <p className="text-sm text-[#8eccae] mb-3">플레이 스타일</p>
+                  <div className="flex flex-wrap gap-2">
+                    {typedProfile.play_style_tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1.5 rounded-lg bg-[#00e677]/10 text-[#00e677] text-sm font-medium border border-[#00e677]/20"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 뱃지 섹션 */}
+            <div className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                <Award className="w-5 h-5 text-[#00e677]" />
+                획득한 뱃지
+                <span className="text-sm font-normal text-white/50">({badges.length}개)</span>
+              </h3>
+
+              {badges.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {badges.map((badge) => {
+                    const info = BADGE_DEFINITIONS[badge.badge_type];
+                    return (
+                      <div
+                        key={badge.id}
+                        className={`flex items-center gap-3 p-3 rounded-xl border ${info.color}`}
+                      >
+                        <span className="text-2xl">{info.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-sm truncate">{info.name}</p>
+                          <p className="text-xs opacity-70 truncate">{info.description}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="py-8 text-center">
+                  <p className="text-gray-500 text-sm">아직 획득한 뱃지가 없습니다</p>
+                  <p className="text-gray-600 text-xs mt-1">경기에 참여하고 기록을 쌓아 뱃지를 획득하세요!</p>
+                </div>
+              )}
             </div>
           </section>
 
+          {/* 오른쪽 영역 - 팀 활동 & 최근 경기 */}
           <div className="space-y-6">
+            {/* 팀 활동 이력 */}
             <section className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6">
               <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-[#00e677]" />
-                티어 & 경험치
+                <Users className="w-5 h-5 text-[#00e677]" />
+                팀 활동
               </h3>
 
-              <div className="flex items-center gap-4 mb-4">
-                <div className={`size-14 rounded-xl ${tier.bg} flex items-center justify-center`}>
-                  <Trophy className={`w-7 h-7 ${tier.color}`} />
-                </div>
-                <div>
-                  <p className={`text-lg font-bold ${tier.color}`}>{tier.name}</p>
-                  <p className="text-xs text-gray-400">현재 티어</p>
-                </div>
-              </div>
+              {myTeams && myTeams.length > 0 ? (
+                <div className="space-y-3">
+                  {myTeams.slice(0, 5).map((membership) => {
+                    const team = membership.team;
+                    if (!team) return null;
 
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">경험치</span>
-                  <span className="text-white font-medium">{matchesPlayed * 100} XP</span>
+                    return (
+                      <Link
+                        key={membership.id}
+                        href={`/teams/${team.id}`}
+                        className="flex items-center gap-3 p-3 rounded-xl bg-black/20 hover:bg-black/30 transition-colors group"
+                      >
+                        <div className="size-10 rounded-lg bg-[#1a4031] flex items-center justify-center overflow-hidden">
+                          {team.emblem_url ? (
+                            <img src={team.emblem_url} alt={team.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-lg font-bold text-[#00e677]">{team.name.charAt(0)}</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-sm font-medium truncate">{team.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {membership.role === "OWNER" ? "팀장" : membership.role === "MANAGER" ? "매니저" : "멤버"}
+                            {membership.back_number && ` · #${membership.back_number}`}
+                          </p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-[#00e677] transition-colors" />
+                      </Link>
+                    );
+                  })}
                 </div>
-                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-[#00e677] to-teal-400 rounded-full transition-all" style={{ width: `${xpProgress}%` }} />
+              ) : (
+                <div className="py-8 text-center">
+                  <p className="text-gray-500 text-sm">소속 팀이 없습니다</p>
                 </div>
-                <p className="text-xs text-gray-500 text-right">
-                  다음 티어까지 {10 - (matchesPlayed % 10)}경기
-                </p>
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-white/5">
-                <p className="text-sm text-[#8eccae]">
-                  상위 <span className="text-[#00e677] font-bold">15%</span>의 실력입니다
-                </p>
-              </div>
+              )}
             </section>
 
+            {/* 최근 경기 */}
             <section className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
@@ -278,10 +389,10 @@ export default async function ProfilePage() {
                   {recentMatches.map((record) => {
                     const match = record.match;
                     if (!match) return null;
-                    
+
                     const isWin = (match.home_score ?? 0) > (match.away_score ?? 0);
                     const isDraw = match.home_score === match.away_score;
-                    const result = match.status === "FINISHED" 
+                    const result = match.status === "FINISHED"
                       ? (isWin ? "WIN" : isDraw ? "DRAW" : "LOSE")
                       : "SCHEDULED";
 
@@ -343,20 +454,6 @@ function StatCard({ icon, label, value, highlight = false, className = "" }: { i
         <span className="text-xs text-gray-400 font-medium">{label}</span>
       </div>
       <p className={`text-2xl md:text-3xl font-black ${highlight ? "text-[#00e677]" : "text-white"}`}>{value}</p>
-    </div>
-  );
-}
-
-function SkillBar({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="space-y-1.5">
-      <div className="flex justify-between text-sm">
-        <span className="text-gray-400">{label}</span>
-        <span className="text-white font-medium">{value}</span>
-      </div>
-      <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-        <div className="h-full bg-gradient-to-r from-[#00e677] to-teal-400 rounded-full transition-all" style={{ width: `${value}%` }} />
-      </div>
     </div>
   );
 }

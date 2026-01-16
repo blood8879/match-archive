@@ -62,11 +62,6 @@ export default async function ResultPage({ params }: ResultPageProps) {
 
   const isFinished = match.status === "FINISHED";
 
-  // 이미 완료된 경기면 경기 상세 페이지로 리다이렉트
-  if (isFinished) {
-    notFound();
-  }
-
   const lineupMemberIds = records.map((r) => r.team_member_id);
   const opponentDisplayName = (match as any).opponent_team?.name || match.opponent_name;
 
@@ -88,10 +83,11 @@ export default async function ResultPage({ params }: ResultPageProps) {
 
           <div>
             <h1 className="text-2xl font-black text-white tracking-tight">
-              경기 결과 입력
+              {isFinished ? "경기 결과 수정" : "경기 결과 입력"}
             </h1>
             <p className="text-[#8eccae] text-sm mt-1">
               {formatDateTime(match.match_date)} | {team?.name} vs {opponentDisplayName}
+              {isFinished && <span className="ml-2 text-[#00e677]">(완료된 경기)</span>}
             </p>
           </div>
         </div>
@@ -180,11 +176,12 @@ export default async function ResultPage({ params }: ResultPageProps) {
         <div className="flex items-center gap-3">
           <Link
             href={`/matches/${match.id}`}
-            className="flex-1 h-12 flex items-center justify-center rounded-xl bg-[#214a36] hover:bg-[#2b5d45] text-white font-medium transition-colors"
+            className={`h-12 flex items-center justify-center rounded-xl bg-[#214a36] hover:bg-[#2b5d45] text-white font-medium transition-colors ${isFinished ? "flex-1" : ""}`}
+            style={{ flex: isFinished ? 1 : undefined, minWidth: isFinished ? undefined : "120px", paddingLeft: isFinished ? undefined : "24px", paddingRight: isFinished ? undefined : "24px" }}
           >
             돌아가기
           </Link>
-          {records.length > 0 && (
+          {!isFinished && records.length > 0 && (
             <div className="flex-1">
               <FinishMatchButton matchId={match.id} />
             </div>

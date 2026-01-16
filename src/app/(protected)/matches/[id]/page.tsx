@@ -250,7 +250,7 @@ export default async function MatchDetailPage({
           />
         )}
 
-        {/* 결과 입력 버튼 - 운영진만 표시 */}
+        {/* 결과 입력/수정 버튼 - 운영진만 표시 */}
         {isManager && !isFinished && (
           <Link
             href={`/matches/${match.id}/result`}
@@ -258,6 +258,15 @@ export default async function MatchDetailPage({
           >
             <Target className="h-5 w-5" />
             경기 결과 입력
+          </Link>
+        )}
+        {isManager && isFinished && (
+          <Link
+            href={`/matches/${match.id}/result`}
+            className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-[#214a36] hover:bg-[#2b5d45] text-white font-bold transition-colors border border-[#2f6a4d]"
+          >
+            <Edit className="h-5 w-5" />
+            경기 결과 수정
           </Link>
         )}
 

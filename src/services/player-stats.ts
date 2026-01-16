@@ -34,7 +34,7 @@ export type RecentMatch = {
   goals: number;
   assists: number;
   quartersPlayed: number;
-  rating: number;
+  isMOM: boolean;
 };
 
 /**
@@ -281,17 +281,6 @@ export async function getRecentMatches(
       else if (homeScore < awayScore) result = "패";
       else result = "무";
 
-      // 간단한 평점 계산 (골 + 도움 + 출전 쿼터 기반)
-      const goalsWeight = (record.goals || 0) * 1.5;
-      const assistsWeight = (record.assists || 0) * 1.0;
-      const quartersWeight = (record.quarters_played || 0) * 0.3;
-      const baseRating = 6.0;
-      const rating = Math.min(
-        10,
-        Math.round((baseRating + goalsWeight + assistsWeight + quartersWeight) * 10) /
-          10
-      );
-
       return {
         matchId: record.match.id,
         matchDate: record.match.match_date,
@@ -302,7 +291,7 @@ export async function getRecentMatches(
         goals: record.goals || 0,
         assists: record.assists || 0,
         quartersPlayed: record.quarters_played || 0,
-        rating,
+        isMOM: record.is_mom || false,
       };
     });
 }
@@ -559,17 +548,6 @@ export async function getRecentMatchesByYear(
       else if (homeScore < awayScore) result = "패";
       else result = "무";
 
-      // 간단한 평점 계산 (골 + 도움 + 출전 쿼터 기반)
-      const goalsWeight = (record.goals || 0) * 1.5;
-      const assistsWeight = (record.assists || 0) * 1.0;
-      const quartersWeight = (record.quarters_played || 0) * 0.3;
-      const baseRating = 6.0;
-      const rating = Math.min(
-        10,
-        Math.round((baseRating + goalsWeight + assistsWeight + quartersWeight) * 10) /
-          10
-      );
-
       return {
         matchId: record.match.id,
         matchDate: record.match.match_date,
@@ -580,7 +558,7 @@ export async function getRecentMatchesByYear(
         goals: record.goals || 0,
         assists: record.assists || 0,
         quartersPlayed: record.quarters_played || 0,
-        rating,
+        isMOM: record.is_mom || false,
       };
     });
 }

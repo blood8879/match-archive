@@ -134,14 +134,14 @@ export function AlertModal({
           {showCancel && (
             <button
               onClick={onClose}
-              className="flex-1 py-3 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-colors"
+              className="flex-1 min-w-[80px] py-3 px-4 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-colors whitespace-nowrap"
             >
               {cancelText}
             </button>
           )}
           <button
             onClick={handleConfirm}
-            className={`flex-1 py-3 rounded-xl font-bold transition-colors ${
+            className={`flex-1 min-w-[80px] py-3 px-4 rounded-xl font-bold transition-colors whitespace-nowrap ${
               type === "error"
                 ? "bg-red-500 text-white hover:bg-red-600"
                 : type === "warning"

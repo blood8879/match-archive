@@ -426,7 +426,7 @@ export function PlayerStatsTabs({
                       <th className="pb-3 pl-2 font-medium">날짜</th>
                       <th className="pb-3 font-medium">상대팀</th>
                       <th className="pb-3 font-medium text-center">결과</th>
-                      <th className="pb-3 font-medium text-center">평점</th>
+                      <th className="pb-3 font-medium text-center">공격P</th>
                       <th className="pb-3 pr-2 font-medium text-right">스탯</th>
                     </tr>
                   </thead>
@@ -469,12 +469,19 @@ export function PlayerStatsTabs({
                             </span>
                           </td>
                           <td className="py-4 text-center">
-                            <span className="font-bold text-white">
-                              {match.rating}
+                            <span className={`font-bold ${match.goals + match.assists > 0 ? "text-primary" : "text-white/50"}`}>
+                              {match.goals + match.assists}
                             </span>
                           </td>
-                          <td className="py-4 pr-2 text-right text-text-secondary">
-                            {statsText}
+                          <td className="py-4 pr-2 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              {match.isMOM && (
+                                <span className="px-1.5 py-0.5 bg-yellow-500/20 text-yellow-500 text-xs font-bold rounded">
+                                  MOM
+                                </span>
+                              )}
+                              <span className="text-text-secondary">{statsText}</span>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -512,7 +519,7 @@ export function PlayerStatsTabs({
                     <th className="pb-3 pl-2 font-medium">날짜</th>
                     <th className="pb-3 font-medium">상대팀</th>
                     <th className="pb-3 font-medium text-center">결과</th>
-                    <th className="pb-3 font-medium text-center">평점</th>
+                    <th className="pb-3 font-medium text-center">공격P</th>
                     <th className="pb-3 pr-2 font-medium text-right">스탯</th>
                   </tr>
                 </thead>
@@ -555,12 +562,19 @@ export function PlayerStatsTabs({
                           </span>
                         </td>
                         <td className="py-4 text-center">
-                          <span className="font-bold text-white">
-                            {match.rating}
+                          <span className={`font-bold ${match.goals + match.assists > 0 ? "text-primary" : "text-white/50"}`}>
+                            {match.goals + match.assists}
                           </span>
                         </td>
-                        <td className="py-4 pr-2 text-right text-text-secondary">
-                          {statsText}
+                        <td className="py-4 pr-2 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {match.isMOM && (
+                              <span className="px-1.5 py-0.5 bg-yellow-500/20 text-yellow-500 text-xs font-bold rounded">
+                                MOM
+                              </span>
+                            )}
+                            <span className="text-text-secondary">{statsText}</span>
+                          </div>
                         </td>
                       </tr>
                     );

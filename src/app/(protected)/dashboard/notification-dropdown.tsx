@@ -10,6 +10,7 @@ import {
   markNotificationAsRead,
   markAllNotificationsAsRead,
   deleteNotification,
+  deleteNotificationByRelation,
 } from "@/services/notifications";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
@@ -79,7 +80,8 @@ export function NotificationDropdown({
 
     try {
       await acceptTeamInvite(notification.related_invite_id);
-      await markNotificationAsRead(notification.id);
+      // 수락 후 관련 알림 삭제
+      await deleteNotificationByRelation({ inviteId: notification.related_invite_id });
       router.refresh();
     } catch (error) {
       showModal("error", error instanceof Error ? error.message : "수락에 실패했습니다");
@@ -97,7 +99,8 @@ export function NotificationDropdown({
 
     try {
       await rejectTeamInvite(notification.related_invite_id);
-      await markNotificationAsRead(notification.id);
+      // 거절 후 관련 알림 삭제
+      await deleteNotificationByRelation({ inviteId: notification.related_invite_id });
       router.refresh();
     } catch (error) {
       showModal("error", error instanceof Error ? error.message : "거절에 실패했습니다");
@@ -115,7 +118,8 @@ export function NotificationDropdown({
 
     try {
       const response = await acceptMergeRequest(notification.related_merge_request_id);
-      await markNotificationAsRead(notification.id);
+      // 병합 완료 후 관련 알림 삭제
+      await deleteNotificationByRelation({ mergeRequestId: notification.related_merge_request_id });
       showModal(
         "success",
         `기록 병합이 완료되었습니다!\n- ${response.recordsUpdated || 0}개의 경기 기록이 통합되었습니다.`,
@@ -138,7 +142,8 @@ export function NotificationDropdown({
 
     try {
       await rejectMergeRequest(notification.related_merge_request_id);
-      await markNotificationAsRead(notification.id);
+      // 거절 후 관련 알림 삭제
+      await deleteNotificationByRelation({ mergeRequestId: notification.related_merge_request_id });
       router.refresh();
     } catch (error) {
       showModal("error", error instanceof Error ? error.message : "거절에 실패했습니다");

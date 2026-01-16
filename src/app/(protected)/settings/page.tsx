@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SettingsForm } from "./settings-form";
-import type { User } from "@/types/supabase";
+import type { User, Team, TeamMember } from "@/types/supabase";
+
+type TeamMemberWithTeam = TeamMember & { team: Team | null };
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -13,13 +15,27 @@ export default async function SettingsPage() {
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from("users")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile }, { data: myTeamsRaw }] = await Promise.all([
+    supabase.from("users").select("*").eq("id", user.id).single(),
+    supabase
+      .from("team_members")
+      .select("*, team:teams(*)")
+      .eq("user_id", user.id)
+      .eq("status", "active"),
+  ]);
 
   const typedProfile = profile as User | null;
+  const myTeams = myTeamsRaw as TeamMemberWithTeam[] | null;
+
+  // 팀 목록 추출
+  const teamList =
+    myTeams
+      ?.map((m) => ({
+        id: m.team?.id || "",
+        name: m.team?.name || "",
+        emblem_url: m.team?.emblem_url || null,
+      }))
+      .filter((t) => t.id) || [];
 
   if (!typedProfile) {
     redirect("/login");
@@ -36,7 +52,7 @@ export default async function SettingsPage() {
           <p className="text-white/60">계정 정보와 개인 설정을 관리하세요.</p>
         </div>
 
-        <SettingsForm user={typedProfile} />
+        <SettingsForm user={typedProfile} teams={teamList} />
       </div>
     </div>
   );

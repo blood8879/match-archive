@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useMemo } from "react";
-import { User, Mail, Phone, Zap, Edit, Trash2, LogOut, Upload, Hash, Copy, Check, Globe, Calendar, Footprints, Clock, Tag, Briefcase, X, Plus } from "lucide-react";
+import { User, Mail, Phone, Zap, Edit, Trash2, LogOut, Upload, Hash, Copy, Check, Globe, Calendar, Footprints, Clock, Tag, Briefcase, X, Plus, Shield } from "lucide-react";
 import { updateUserProfile, signOut } from "@/services/auth";
 import { createClient } from "@/lib/supabase/client";
 import imageCompression from "browser-image-compression";
@@ -18,13 +18,21 @@ function countryCodeToEmoji(code: string): string {
   return String.fromCodePoint(...codePoints);
 }
 
-interface SettingsFormProps {
-  user: UserType;
+interface TeamInfo {
+  id: string;
+  name: string;
+  emblem_url: string | null;
 }
 
-export function SettingsForm({ user }: SettingsFormProps) {
+interface SettingsFormProps {
+  user: UserType;
+  teams: TeamInfo[];
+}
+
+export function SettingsForm({ user, teams }: SettingsFormProps) {
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [primaryTeamId, setPrimaryTeamId] = useState<string>(user.primary_team_id || "");
   const [nickname, setNickname] = useState(user.nickname || "");
   const [phone, setPhone] = useState(user.phone || "");
   const [preferredPosition, setPreferredPosition] = useState(user.preferred_position || "");
@@ -115,6 +123,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
         preferred_times: preferredTimes.length > 0 ? preferredTimes : null,
         soccer_experience: soccerExperience || null,
         play_style_tags: playStyleTags.length > 0 ? playStyleTags : null,
+        primary_team_id: primaryTeamId || null,
       });
 
       showModal("success", "프로필이 성공적으로 업데이트되었습니다!", "완료", true);
@@ -507,6 +516,56 @@ export function SettingsForm({ user }: SettingsFormProps) {
               </div>
             </label>
           </div>
+
+          {/* Primary Team (대표클럽) */}
+          {teams.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-semibold text-white/80 flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                대표 클럽
+              </span>
+              <p className="text-xs text-white/50 mb-2">
+                대시보드에서 먼저 표시될 팀을 선택하세요.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {teams.map((team) => (
+                  <button
+                    key={team.id}
+                    type="button"
+                    onClick={() => setPrimaryTeamId(team.id === primaryTeamId ? "" : team.id)}
+                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
+                      primaryTeamId === team.id
+                        ? "bg-[#00e677]/20 border-[#00e677] text-white"
+                        : "bg-black/20 border-white/10 text-white/70 hover:border-white/30"
+                    }`}
+                  >
+                    <div className="size-10 rounded-lg bg-[#214a36] flex items-center justify-center overflow-hidden flex-shrink-0">
+                      {team.emblem_url ? (
+                        <img
+                          src={team.emblem_url}
+                          alt={team.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-[#00e677] font-bold">
+                          {team.name.charAt(0)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <p className="font-medium text-sm truncate">{team.name}</p>
+                      {primaryTeamId === team.id && (
+                        <p className="text-xs text-[#00e677]">대표 클럽</p>
+                      )}
+                    </div>
+                    {primaryTeamId === team.id && (
+                      <Check className="w-5 h-5 text-[#00e677] flex-shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Bio */}
           <label className="flex flex-col gap-2">

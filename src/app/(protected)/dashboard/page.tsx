@@ -43,10 +43,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const myTeams = myTeamsRaw as TeamMemberWithTeam[] | null;
 
-  // 선택된 팀 찾기 (쿼리 파라미터가 있으면 해당 팀, 없으면 첫 번째 팀)
+  // 대표클럽(primary_team_id)을 우선으로 팀 정렬
+  const sortedTeams = myTeams?.slice().sort((a, b) => {
+    const primaryTeamId = userProfile?.primary_team_id;
+    if (!primaryTeamId) return 0;
+    if (a.team?.id === primaryTeamId) return -1;
+    if (b.team?.id === primaryTeamId) return 1;
+    return 0;
+  });
+
+  // 선택된 팀 찾기 (쿼리 파라미터가 있으면 해당 팀, 없으면 대표클럽 또는 첫 번째 팀)
   const currentMembership = selectedTeamId
-    ? myTeams?.find((m) => m.team?.id === selectedTeamId) || myTeams?.[0]
-    : myTeams?.[0];
+    ? sortedTeams?.find((m) => m.team?.id === selectedTeamId) || sortedTeams?.[0]
+    : sortedTeams?.[0];
 
   const currentMembershipId = currentMembership?.id;
   const currentTeam = currentMembership?.team;
@@ -99,8 +108,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const isManager =
     currentMembership?.role === "OWNER" || currentMembership?.role === "MANAGER";
 
-  // 팀 목록 (팀 전환용)
-  const teamList = myTeams?.map((m) => ({
+  // 팀 목록 (팀 전환용) - 대표클럽이 우선 표시되도록 정렬된 목록 사용
+  const teamList = sortedTeams?.map((m) => ({
     id: m.team?.id || "",
     name: m.team?.name || "",
     emblem_url: m.team?.emblem_url || null,
@@ -192,7 +201,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         {/* 탭 컴포넌트 */}
         <LockerRoomTabs
           firstTeam={currentTeam || null}
-          myTeams={myTeams}
+          myTeams={sortedTeams || null}
           typedProfile={typedProfile}
           recentMatches={recentMatches}
           nextMatch={nextMatch}

@@ -17,6 +17,7 @@ export async function updateUserProfile(data: {
   preferred_times?: string[] | null;
   soccer_experience?: string | null;
   play_style_tags?: string[] | null;
+  primary_team_id?: string | null;
 }) {
   const supabase = await createClient();
 
@@ -43,6 +44,7 @@ export async function updateUserProfile(data: {
       preferred_times: data.preferred_times || null,
       soccer_experience: data.soccer_experience || null,
       play_style_tags: data.play_style_tags || null,
+      primary_team_id: data.primary_team_id || null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", user.id);

@@ -64,6 +64,7 @@ export interface Database {
           preferred_times: string[] | null;
           soccer_experience: string | null;
           play_style_tags: string[] | null;
+          primary_team_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -86,6 +87,7 @@ export interface Database {
           preferred_times?: string[] | null;
           soccer_experience?: string | null;
           play_style_tags?: string[] | null;
+          primary_team_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -108,6 +110,7 @@ export interface Database {
           preferred_times?: string[] | null;
           soccer_experience?: string | null;
           play_style_tags?: string[] | null;
+          primary_team_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

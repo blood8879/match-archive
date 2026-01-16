@@ -3,9 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, HelpCircle, X, Loader2, Users, ChevronDown, ChevronUp } from "lucide-react";
-import { updateMemberAttendance } from "@/services/matches";
+import { updateMemberAttendance, type MatchAttendanceWithMember } from "@/services/matches";
 import type { TeamMemberWithUser } from "@/services/teams";
-import type { MatchAttendanceWithMember } from "@/types/supabase";
 
 interface AttendanceManagerProps {
   matchId: string;

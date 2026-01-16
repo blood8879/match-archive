@@ -36,7 +36,7 @@ export default function LoginPage() {
     router.refresh();
   };
 
-  const handleSocialLogin = async (provider: "google" | "github") => {
+  const handleSocialLogin = async (provider: "google" | "kakao") => {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider,
@@ -182,13 +182,13 @@ export default function LoginPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleSocialLogin("github")}
-                  className="flex items-center justify-center gap-2 rounded-xl h-12 border border-[#2e6b4e] bg-[#173627] hover:bg-[#1e4532] text-white transition-all font-medium text-sm"
+                  onClick={() => handleSocialLogin("kakao")}
+                  className="flex items-center justify-center gap-2 rounded-xl h-12 border border-[#2e6b4e] bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] transition-all font-medium text-sm"
                 >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.84 9.49.5.09.68-.22.68-.48 0-.24-.01-.88-.01-1.73-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02.8-.22 1.65-.33 2.5-.33.85 0 1.7.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.65.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85 0 1.34-.01 2.42-.01 2.75 0 .26.18.58.69.48A10.01 10.01 0 0 0 22 12c0-5.523-4.477-10-10-10z"></path>
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3C6.477 3 2 6.463 2 10.742c0 2.748 1.826 5.165 4.586 6.546-.152.537-.978 3.453-.999 3.669 0 0-.02.166.088.23.108.063.235.013.235.013.31-.043 3.586-2.355 4.153-2.761.614.089 1.251.135 1.906.135 5.523 0 10-3.463 10-7.832C22 6.463 17.523 3 12 3z"/>
                   </svg>
-                  GitHub
+                  카카오
                 </button>
               </div>
             </div>

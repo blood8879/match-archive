@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, GitMerge, Mail, Check, X, Loader2, CheckCheck, Trash2 } from "lucide-react";
+import { Bell, GitMerge, Mail, Check, X, Loader2, CheckCheck, Trash2, UserPlus } from "lucide-react";
 import type { NotificationWithDetails, NotificationType } from "@/types/supabase";
 import { acceptTeamInvite, rejectTeamInvite } from "@/services/invites";
 import { acceptMergeRequest, rejectMergeRequest } from "@/services/record-merge";
@@ -29,6 +29,9 @@ const notificationIcons: Record<NotificationType, { icon: typeof Bell; color: st
   team_joined: { icon: Bell, color: "text-green-400", bg: "bg-green-500/20" },
   match_created: { icon: Bell, color: "text-blue-400", bg: "bg-blue-500/20" },
   match_reminder: { icon: Bell, color: "text-orange-400", bg: "bg-orange-500/20" },
+  join_request: { icon: UserPlus, color: "text-cyan-400", bg: "bg-cyan-500/20" },
+  join_accepted: { icon: Check, color: "text-green-400", bg: "bg-green-500/20" },
+  join_rejected: { icon: X, color: "text-red-400", bg: "bg-red-500/20" },
 };
 
 export function NotificationDropdown({

@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ArrowLeft, Calendar, Users, Target, Edit, MapPin } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
 import { AttendanceButton } from "./attendance-button";
+import { AttendanceManager } from "./attendance-manager";
 import { GoalList } from "./goal-list";
 import { OpponentLineup } from "./opponent-lineup";
 import { DeleteMatchButton } from "./delete-match-button";
@@ -228,7 +229,7 @@ export default async function MatchDetailPage({
           )}
         </section>
 
-        {/* Attendance Buttons */}
+        {/* Attendance Buttons - 일반 사용자용 */}
         {!isFinished && currentUserMembership && (
           <section>
             <AttendanceButton
@@ -237,6 +238,16 @@ export default async function MatchDetailPage({
               isFinished={isFinished}
             />
           </section>
+        )}
+
+        {/* Attendance Manager - 운영진용 */}
+        {isManager && (
+          <AttendanceManager
+            matchId={match.id}
+            teamMembers={teamMembers}
+            attendance={attendance}
+            isFinished={isFinished}
+          />
         )}
 
         {/* 결과 입력 버튼 - 운영진만 표시 */}

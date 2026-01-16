@@ -502,7 +502,7 @@ export async function updateAttendance(
 
     // 없으면 추가
     if (!existingRecord) {
-      await supabase.from("match_records").insert({
+      const { error: insertError } = await supabase.from("match_records").insert({
         match_id: matchId,
         team_member_id: typedTeamMember.id,
         quarters_played: 0,
@@ -511,6 +511,11 @@ export async function updateAttendance(
         is_mom: false,
         clean_sheet: false,
       });
+
+      if (insertError) {
+        console.error("Failed to add to lineup:", insertError);
+        // 라인업 추가 실패는 참석 상태 변경에 영향을 주지 않음
+      }
     }
   } else {
     // 참석 취소 시 라인업에서 제거 (득점/도움이 없는 경우만)
@@ -531,6 +536,137 @@ export async function updateAttendance(
   }
 
   // Revalidate relevant paths
+  revalidatePath(`/matches/${matchId}`);
+  revalidatePath(`/teams/${typedMatch.team_id}`);
+}
+
+/**
+ * Update attendance status for a specific team member (manager only)
+ * @param matchId - The ID of the match
+ * @param teamMemberId - The team member ID to update
+ * @param status - The attendance status ('attending' | 'maybe' | 'absent')
+ */
+export async function updateMemberAttendance(
+  matchId: string,
+  teamMemberId: string,
+  status: "attending" | "maybe" | "absent"
+): Promise<void> {
+  const supabase = await createClient();
+
+  // Get current user
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    throw new Error("로그인이 필요합니다");
+  }
+
+  // Get the match to find the team_id
+  const { data: match, error: matchError } = await supabase
+    .from("matches")
+    .select("team_id")
+    .eq("id", matchId)
+    .single();
+
+  if (matchError || !match) {
+    throw new Error("경기를 찾을 수 없습니다");
+  }
+
+  const typedMatch = match as Match;
+
+  // Check if current user is a manager
+  const { data: currentUserMembership, error: membershipError } = await supabase
+    .from("team_members")
+    .select("role")
+    .eq("team_id", typedMatch.team_id)
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .single();
+
+  if (membershipError || !currentUserMembership) {
+    throw new Error("이 팀의 멤버가 아닙니다");
+  }
+
+  if (currentUserMembership.role !== "OWNER" && currentUserMembership.role !== "MANAGER") {
+    throw new Error("매니저 권한이 필요합니다");
+  }
+
+  // Verify the target team member belongs to this team
+  const { data: targetMember, error: targetError } = await supabase
+    .from("team_members")
+    .select("id")
+    .eq("id", teamMemberId)
+    .eq("team_id", typedMatch.team_id)
+    .single();
+
+  if (targetError || !targetMember) {
+    throw new Error("팀 멤버를 찾을 수 없습니다");
+  }
+
+  // Upsert attendance record
+  const { error: upsertError } = await supabase
+    .from("match_attendance")
+    .upsert(
+      {
+        match_id: matchId,
+        team_member_id: teamMemberId,
+        status,
+        updated_at: new Date().toISOString(),
+      },
+      {
+        onConflict: "match_id,team_member_id",
+      }
+    );
+
+  if (upsertError) {
+    console.error("Failed to update member attendance:", upsertError);
+    throw new Error("참석 상태 변경에 실패했습니다");
+  }
+
+  // 참석으로 변경 시 자동으로 라인업에 추가
+  if (status === "attending") {
+    const { data: existingRecord } = await supabase
+      .from("match_records")
+      .select("id")
+      .eq("match_id", matchId)
+      .eq("team_member_id", teamMemberId)
+      .maybeSingle();
+
+    if (!existingRecord) {
+      const { error: insertError } = await supabase.from("match_records").insert({
+        match_id: matchId,
+        team_member_id: teamMemberId,
+        quarters_played: 0,
+        goals: 0,
+        assists: 0,
+        is_mom: false,
+        clean_sheet: false,
+      });
+
+      if (insertError) {
+        console.error("Failed to add to lineup:", insertError);
+      }
+    }
+  } else {
+    // 참석 취소 시 라인업에서 제거 (득점/도움이 없는 경우만)
+    const { data: record } = await supabase
+      .from("match_records")
+      .select("goals, assists")
+      .eq("match_id", matchId)
+      .eq("team_member_id", teamMemberId)
+      .maybeSingle();
+
+    if (record && record.goals === 0 && record.assists === 0) {
+      await supabase
+        .from("match_records")
+        .delete()
+        .eq("match_id", matchId)
+        .eq("team_member_id", teamMemberId);
+    }
+  }
+
   revalidatePath(`/matches/${matchId}`);
   revalidatePath(`/teams/${typedMatch.team_id}`);
 }

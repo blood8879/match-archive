@@ -16,7 +16,10 @@ export type NotificationType =
   | "merge_rejected"
   | "team_joined"
   | "match_created"
-  | "match_reminder";
+  | "match_reminder"
+  | "join_request"
+  | "join_accepted"
+  | "join_rejected";
 
 // 뱃지 타입
 export type BadgeType =

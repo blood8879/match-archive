@@ -340,15 +340,34 @@ export async function requestJoinTeam(teamId: string): Promise<void> {
 
   if (!user) throw new Error("로그인이 필요합니다");
 
+  // 기존 멤버십 확인 (탈퇴한 상태 포함)
   const { data: existing } = await supabase
     .from("team_members")
-    .select("id")
+    .select("id, status")
     .eq("team_id", teamId)
     .eq("user_id", user.id)
     .single();
 
-  if (existing) throw new Error("이미 가입 신청하셨습니다");
+  if (existing) {
+    // 이전에 탈퇴한 멤버인 경우 재가입 처리
+    if (existing.status === "left") {
+      const { error } = await supabase
+        .from("team_members")
+        .update({
+          status: "pending" as const,
+          left_at: null,
+        })
+        .eq("id", existing.id);
 
+      if (error) throw error;
+      revalidatePath(`/teams/${teamId}`);
+      return;
+    }
+    // 이미 활성 상태거나 대기 중인 경우
+    throw new Error("이미 가입 신청하셨습니다");
+  }
+
+  // 새로운 멤버 생성
   const { error } = await supabase.from("team_members").insert({
     team_id: teamId,
     user_id: user.id,
@@ -377,12 +396,35 @@ export async function approveMember(memberId: string): Promise<void> {
 export async function rejectMember(memberId: string): Promise<void> {
   const supabase = await createClient();
 
-  const { error } = await supabase
+  // pending 상태의 가입 신청만 삭제 (기록이 없는 경우)
+  // 이미 active였다가 재가입 신청한 경우는 소프트 딜리트 유지
+  const { data: member } = await supabase
     .from("team_members")
-    .delete()
-    .eq("id", memberId);
+    .select("status, left_at")
+    .eq("id", memberId)
+    .single();
 
-  if (error) throw error;
+  if (member?.left_at) {
+    // 이전 기록이 있는 경우 (재가입 신청 거절) - 다시 left 상태로 복원
+    const { error } = await supabase
+      .from("team_members")
+      .update({
+        status: "left" as const,
+        left_at: member.left_at, // 기존 탈퇴 시간 유지
+      })
+      .eq("id", memberId);
+
+    if (error) throw error;
+  } else {
+    // 새로운 가입 신청 거절 - 하드 딜리트
+    const { error } = await supabase
+      .from("team_members")
+      .delete()
+      .eq("id", memberId)
+      .eq("status", "pending");
+
+    if (error) throw error;
+  }
 
   revalidatePath("/teams");
 }
@@ -427,14 +469,20 @@ export async function updateMemberRole(
 export async function removeMember(memberId: string): Promise<void> {
   const supabase = await createClient();
 
+  // 소프트 딜리트: status를 'left'로 변경하고 left_at에 현재 시간 기록
+  // 이렇게 하면 match_records와의 FK 관계가 유지되어 기록이 보존됨
   const { error } = await supabase
     .from("team_members")
-    .delete()
+    .update({
+      status: "left" as const,
+      left_at: new Date().toISOString(),
+    })
     .eq("id", memberId);
 
   if (error) throw error;
 
   revalidatePath("/teams");
+  revalidatePath("/dashboard");
 }
 
 export async function updateMemberInfo(

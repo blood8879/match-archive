@@ -183,7 +183,7 @@ export interface Database {
           team_id: string;
           user_id: string | null;
           role: "OWNER" | "MANAGER" | "MEMBER";
-          status: "active" | "pending" | "merged";
+          status: "active" | "pending" | "merged" | "left";
           is_guest: boolean;
           guest_name: string | null;
           back_number: number | null;
@@ -191,13 +191,14 @@ export interface Database {
           joined_at: string;
           merged_to: string | null;
           merged_at: string | null;
+          left_at: string | null;
         };
         Insert: {
           id?: string;
           team_id: string;
           user_id?: string | null;
           role?: "OWNER" | "MANAGER" | "MEMBER";
-          status?: "active" | "pending" | "merged";
+          status?: "active" | "pending" | "merged" | "left";
           is_guest?: boolean;
           guest_name?: string | null;
           back_number?: number | null;
@@ -205,13 +206,14 @@ export interface Database {
           joined_at?: string;
           merged_to?: string | null;
           merged_at?: string | null;
+          left_at?: string | null;
         };
         Update: {
           id?: string;
           team_id?: string;
           user_id?: string | null;
           role?: "OWNER" | "MANAGER" | "MEMBER";
-          status?: "active" | "pending" | "merged";
+          status?: "active" | "pending" | "merged" | "left";
           is_guest?: boolean;
           guest_name?: string | null;
           back_number?: number | null;
@@ -219,6 +221,7 @@ export interface Database {
           joined_at?: string;
           merged_to?: string | null;
           merged_at?: string | null;
+          left_at?: string | null;
         };
         Relationships: [
           {

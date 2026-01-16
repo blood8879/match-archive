@@ -157,21 +157,23 @@ export default async function TeamMembersManagePage({
         />
       </section>
 
-      {guestMembers.length > 0 && (
-        <section className="glass-card rounded-2xl p-6 md:p-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-accent-500/20 rounded-lg">
-                <Zap className="w-6 h-6 text-accent-500" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">용병</h2>
-                <p className="text-sm text-text-400 mt-0.5">
-                  {guestMembers.length}명의 용병이 등록되어 있습니다
-                </p>
-              </div>
+      <section className="glass-card rounded-2xl p-6 md:p-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-accent-500/20 rounded-lg">
+              <Zap className="w-6 h-6 text-accent-500" />
             </div>
-            <div className="flex gap-2">
+            <div>
+              <h2 className="text-xl font-bold text-white">용병</h2>
+              <p className="text-sm text-text-400 mt-0.5">
+                {guestMembers.length > 0
+                  ? `${guestMembers.length}명의 용병이 등록되어 있습니다`
+                  : "등록된 용병이 없습니다"}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {guestMembers.length > 0 && (
               <Link
                 href={`/teams/${id}/manage/merge-records`}
                 className="h-10 px-4 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 font-semibold text-sm transition-all border border-purple-500/30 flex items-center gap-2"
@@ -179,22 +181,30 @@ export default async function TeamMembersManagePage({
                 <GitMerge className="w-4 h-4" />
                 기록 병합
               </Link>
-              <Link
-                href={`/teams/${id}/guests/new`}
-                className="h-10 px-4 rounded-xl bg-surface-700 hover:bg-surface-dark-hover text-white font-semibold text-sm transition-all border border-white/5 flex items-center gap-2"
-              >
-                <UserPlus className="w-4 h-4" />
-                용병 추가
-              </Link>
-            </div>
+            )}
+            <Link
+              href={`/teams/${id}/guests/new`}
+              className="h-10 px-4 rounded-xl bg-accent-500 hover:bg-accent-600 text-black font-semibold text-sm transition-all flex items-center gap-2"
+            >
+              <UserPlus className="w-4 h-4" />
+              용병 추가
+            </Link>
           </div>
+        </div>
+        {guestMembers.length > 0 ? (
           <MemberManagementList
             members={guestMembers}
             teamId={id}
             isOwner={currentUserMembership?.role === "OWNER"}
           />
-        </section>
-      )}
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-text-400 text-sm">
+              용병을 추가하면 경기 기록에 포함시킬 수 있습니다
+            </p>
+          </div>
+        )}
+      </section>
     </main>
   );
 }

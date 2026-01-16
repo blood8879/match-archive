@@ -26,9 +26,9 @@ export function AttendanceManager({
   const [loadingMemberId, setLoadingMemberId] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // 활성 멤버만 필터링 (게스트 제외)
+  // 활성 멤버 필터링 (일반 멤버 + 용병 모두 포함)
   const activeMembers = teamMembers.filter(
-    (m) => m.status === "active" && !m.is_guest && m.user_id
+    (m) => m.status === "active" && (m.user_id || m.is_guest)
   );
 
   // 참석 상태별로 분류
@@ -72,8 +72,12 @@ export function AttendanceManager({
   };
 
   const renderMemberRow = (member: TeamMemberWithUser, currentStatus: AttendanceStatus | null) => {
-    const displayName = member.user?.nickname || "알 수 없음";
+    // 용병이면 guest_name 사용, 일반 멤버면 nickname 사용
+    const displayName = member.is_guest && member.guest_name
+      ? member.guest_name
+      : member.user?.nickname || "알 수 없음";
     const isLoading = loadingMemberId === member.id && isPending;
+    const isGuest = member.is_guest;
 
     return (
       <div
@@ -93,6 +97,11 @@ export function AttendanceManager({
             </div>
           )}
           <span className="text-white text-sm font-medium">{displayName}</span>
+          {isGuest && (
+            <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+              용병
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-1">

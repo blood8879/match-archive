@@ -4,7 +4,7 @@ import { getTeamVenues } from "@/services/venues";
 import { getMatchesByTeam } from "@/services/matches";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { MapPin, Users, Calendar, Settings } from "lucide-react";
+import { MapPin, Users, Calendar, Settings, Zap } from "lucide-react";
 
 interface ManagePageProps {
   params: Promise<{ id: string }>;
@@ -246,16 +246,16 @@ export default async function ManagePage({ params }: ManagePageProps) {
           </Link>
 
           <Link
-            href={`/teams/${id}/settings`}
+            href={`/teams/${id}/guests/new`}
             className="p-4 rounded-xl bg-black/20 border border-white/5 hover:border-white/10 hover:bg-black/30 transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20 transition-colors">
-                <Settings className="w-5 h-5" />
+              <div className="p-2 rounded-lg bg-yellow-500/10 text-yellow-400 group-hover:bg-yellow-500/20 transition-colors">
+                <Zap className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-white font-medium text-sm">팀 설정</p>
-                <p className="text-gray-400 text-xs">팀 정보 수정</p>
+                <p className="text-white font-medium text-sm">용병 추가</p>
+                <p className="text-gray-400 text-xs">새로운 용병 등록</p>
               </div>
             </div>
           </Link>

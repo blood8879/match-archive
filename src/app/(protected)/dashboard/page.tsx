@@ -189,7 +189,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 팀 찾기
               </Link>
             )}
-            {currentTeam && (
+            {currentTeam && isManager && (
               <Link href={`/teams/${currentTeam.id}/matches/new`} className="bg-[#00e677] hover:bg-green-400 text-[#0f2319] h-10 px-5 rounded-lg flex items-center gap-2 text-sm font-bold transition-all shadow-lg shadow-[#00e677]/20">
                 <Calendar className="w-5 h-5" />
                 경기 생성

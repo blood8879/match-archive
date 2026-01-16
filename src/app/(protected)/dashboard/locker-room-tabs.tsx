@@ -215,13 +215,11 @@ function LockerContent({
             icon={<Trophy className="w-12 h-12" />}
             label="총 득점"
             value={totalGoals}
-            trend={totalGoals > 0 ? "+12%" : undefined}
           />
           <StatCard
             icon={<TrendingUp className="w-12 h-12" />}
             label="총 어시스트"
             value={totalAssists}
-            trend={totalAssists > 0 ? "+8%" : undefined}
           />
           <StatCard
             icon={<Shield className="w-12 h-12" />}

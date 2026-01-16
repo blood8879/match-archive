@@ -440,10 +440,10 @@ export async function updateAttendance(
     throw new Error("로그인이 필요합니다");
   }
 
-  // First, get the match to find the team_id
+  // First, get the match to find the team_id and opponent_team_id
   const { data: match, error: matchError } = await supabase
     .from("matches")
-    .select("team_id")
+    .select("team_id, opponent_team_id")
     .eq("id", matchId)
     .single();
 
@@ -454,21 +454,56 @@ export async function updateAttendance(
 
   const typedMatch = match as Match;
 
-  // Find the user's team_member_id for this team
-  const { data: teamMember, error: teamMemberError } = await supabase
-    .from("team_members")
-    .select("id")
-    .eq("team_id", typedMatch.team_id)
-    .eq("user_id", user.id)
-    .eq("status", "active")
+  // 사용자의 대표클럽 가져오기
+  const { data: userProfile } = await supabase
+    .from("users")
+    .select("primary_team_id")
+    .eq("id", user.id)
     .single();
 
-  if (teamMemberError) {
-    console.error("Failed to find team member:", teamMemberError);
+  const primaryTeamId = userProfile?.primary_team_id;
+
+  // 사용자가 속한 팀 목록 중 이 경기에 관련된 팀 찾기
+  const relatedTeamIds = [typedMatch.team_id];
+  if (typedMatch.opponent_team_id) {
+    relatedTeamIds.push(typedMatch.opponent_team_id);
+  }
+
+  // 사용자가 이 경기의 관련 팀들 중 어디에 속해있는지 확인
+  const { data: teamMembers, error: teamMembersError } = await supabase
+    .from("team_members")
+    .select("id, team_id")
+    .in("team_id", relatedTeamIds)
+    .eq("user_id", user.id)
+    .eq("status", "active");
+
+  if (teamMembersError || !teamMembers || teamMembers.length === 0) {
+    console.error("Failed to find team member:", teamMembersError);
     throw new Error("이 팀의 멤버가 아닙니다");
   }
 
-  const typedTeamMember = teamMember as TeamMember;
+  // 대표클럽이 설정되어 있고 해당 팀이 경기에 관련되어 있으면 대표클럽 우선
+  // 그렇지 않으면 홈팀(team_id) 우선
+  let selectedMember = teamMembers[0];
+
+  if (teamMembers.length > 1) {
+    // 두 팀 모두에 속해있는 경우
+    if (primaryTeamId) {
+      // 대표클럽이 설정되어 있으면 대표클럽 소속으로 참석
+      const primaryMember = teamMembers.find(m => m.team_id === primaryTeamId);
+      if (primaryMember) {
+        selectedMember = primaryMember;
+      }
+    } else {
+      // 대표클럽이 없으면 홈팀(경기 생성팀) 우선
+      const homeMember = teamMembers.find(m => m.team_id === typedMatch.team_id);
+      if (homeMember) {
+        selectedMember = homeMember;
+      }
+    }
+  }
+
+  const typedTeamMember = selectedMember as TeamMember;
 
   // Upsert attendance record
   const { error: upsertError } = await supabase

@@ -454,6 +454,7 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
                 onValueChange={(val) => setPreferredPosition(val)}
                 icon={<Zap className="w-5 h-5" />}
                 placeholder="선택하세요"
+                fullWidth
               >
                 <SelectItem value="FW">공격수 (FW)</SelectItem>
                 <SelectItem value="MF">미드필더 (MF)</SelectItem>
@@ -469,6 +470,7 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
                 value={nationality}
                 onValueChange={(val) => setNationality(val)}
                 icon={<Globe className="w-5 h-5" />}
+                fullWidth
               >
                 {sortedCountries.map((country) => (
                   <SelectItem key={country.code} value={country.code}>
@@ -501,6 +503,7 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
                 onValueChange={(val) => setPreferredFoot(val as "left" | "right" | "both" | "")}
                 icon={<Footprints className="w-5 h-5" />}
                 placeholder="선택하세요"
+                fullWidth
               >
                 <SelectItem value="right">오른발</SelectItem>
                 <SelectItem value="left">왼발</SelectItem>

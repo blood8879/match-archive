@@ -8,6 +8,7 @@ import type { Team } from "@/types/supabase";
 import { useRouter } from "next/navigation";
 import { AlertModal, type AlertType } from "@/components/ui/alert-modal";
 import { Select, SelectItem } from "@/components/ui/select";
+import { area } from "@/constants/area";
 
 interface TeamSettingsFormProps {
   team: Team;
@@ -15,12 +16,21 @@ interface TeamSettingsFormProps {
   members: TeamMemberWithUser[];
 }
 
+function parseRegion(region: string | null): { city: string; district: string } {
+  if (!region) return { city: "", district: "" };
+  const parts = region.split(" ");
+  return { city: parts[0] || "", district: parts[1] || "" };
+}
+
 export function TeamSettingsForm({ team, isOwner, members }: TeamSettingsFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [uploadingEmblem, setUploadingEmblem] = useState(false);
   const [name, setName] = useState(team.name || "");
-  const [region, setRegion] = useState(team.region || "");
+  const initialRegion = parseRegion(team.region);
+  const [selectedCity, setSelectedCity] = useState(initialRegion.city);
+  const [selectedDistrict, setSelectedDistrict] = useState(initialRegion.district);
+  const districts = area.find((a) => a.name === selectedCity)?.subArea || [];
   const [emblemPreview, setEmblemPreview] = useState<string | null>(
     team.emblem_url
   );
@@ -73,7 +83,7 @@ export function TeamSettingsForm({ team, isOwner, members }: TeamSettingsFormPro
 
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("region", region);
+    formData.append("region", selectedCity && selectedDistrict ? `${selectedCity} ${selectedDistrict}` : selectedCity);
     formData.append("hashtags", JSON.stringify(hashtags));
     formData.append("description", description);
     formData.append("activity_days", JSON.stringify(activityDays));
@@ -268,7 +278,7 @@ export function TeamSettingsForm({ team, isOwner, members }: TeamSettingsFormPro
                 {team.name || "팀"}
               </h3>
               <p className="text-[#00e677] font-medium">
-                {region || "지역 미지정"}
+                {selectedCity ? (selectedDistrict ? `${selectedCity} ${selectedDistrict}` : selectedCity) : "지역 미지정"}
               </p>
               <p className="text-sm text-white/50">
                 생성일: {new Date(team.created_at).toLocaleDateString("ko-KR")}
@@ -317,32 +327,40 @@ export function TeamSettingsForm({ team, isOwner, members }: TeamSettingsFormPro
             </label>
 
             {/* Region */}
-            <Select
-              label="지역"
-              value={region}
-              onValueChange={setRegion}
-              placeholder="선택하세요"
-              icon={<MapPin className="w-5 h-5" />}
-              className="rounded-xl border-white/10 bg-black/20 text-white hover:bg-black/30"
-            >
-              <SelectItem value="서울">서울</SelectItem>
-              <SelectItem value="경기">경기</SelectItem>
-              <SelectItem value="인천">인천</SelectItem>
-              <SelectItem value="부산">부산</SelectItem>
-              <SelectItem value="대구">대구</SelectItem>
-              <SelectItem value="광주">광주</SelectItem>
-              <SelectItem value="대전">대전</SelectItem>
-              <SelectItem value="울산">울산</SelectItem>
-              <SelectItem value="세종">세종</SelectItem>
-              <SelectItem value="강원">강원</SelectItem>
-              <SelectItem value="충북">충북</SelectItem>
-              <SelectItem value="충남">충남</SelectItem>
-              <SelectItem value="전북">전북</SelectItem>
-              <SelectItem value="전남">전남</SelectItem>
-              <SelectItem value="경북">경북</SelectItem>
-              <SelectItem value="경남">경남</SelectItem>
-              <SelectItem value="제주">제주</SelectItem>
-            </Select>
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-semibold text-white/80">지역</span>
+              <div className="grid grid-cols-2 gap-3">
+                <Select
+                  value={selectedCity}
+                  onValueChange={(val) => {
+                    setSelectedCity(val);
+                    setSelectedDistrict("");
+                  }}
+                  placeholder="시/도 선택"
+                  icon={<MapPin className="w-5 h-5" />}
+                  className="rounded-xl border-white/10 bg-black/20 text-white hover:bg-black/30"
+                >
+                  {area.map((a) => (
+                    <SelectItem key={a.name} value={a.name}>
+                      {a.name}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Select
+                  value={selectedDistrict}
+                  onValueChange={setSelectedDistrict}
+                  placeholder="구/군 선택"
+                  disabled={!selectedCity}
+                  className="rounded-xl border-white/10 bg-black/20 text-white hover:bg-black/30"
+                >
+                  {districts.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+            </div>
 
             {/* Team Level */}
             <div className="space-y-2">

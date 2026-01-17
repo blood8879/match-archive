@@ -51,7 +51,6 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
   const isManager =
     currentUserMembership?.role === "OWNER" ||
     currentUserMembership?.role === "MANAGER";
-  const isMember = currentUserMembership?.status === "active";
   const isPending = currentUserMembership?.status === "pending";
 
   const activeMembers = members.filter(

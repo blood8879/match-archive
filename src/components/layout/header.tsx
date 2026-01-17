@@ -26,9 +26,9 @@ export function Header() {
   };
 
   return (
-    <header className="fixed left-0 right-0 top-0 z-50 hidden border-b border-white/5 bg-surface-800/95 backdrop-blur-lg md:block">
+    <header className="fixed left-0 right-0 top-0 z-50 hidden border-b border-white/5 bg-[var(--surface-800)]/95 backdrop-blur-sm md:block">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        <Link href="/dashboard" className="text-xl font-bold text-primary-500">
+        <Link href="/dashboard" className="text-xl font-bold text-[var(--primary)]">
           Match Archive
         </Link>
         <nav>
@@ -43,8 +43,8 @@ export function Header() {
                     className={cn(
                       "flex items-center gap-2 rounded-lg px-4 py-2 transition-colors",
                       isActive
-                        ? "bg-primary-500/10 text-primary-500"
-                        : "text-text-400 hover:bg-surface-700 hover:text-white"
+                        ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                        : "text-[var(--text-400)] hover:bg-[var(--surface-700)] hover:text-white"
                     )}
                   >
                     <item.icon className="h-5 w-5" />

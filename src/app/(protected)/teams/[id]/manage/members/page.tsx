@@ -3,8 +3,9 @@ import { getTeamById, getTeamMembers } from "@/services/teams";
 import { createClient } from "@/lib/supabase/server";
 import { MemberManagementList } from "./member-management-list";
 import { CopyCodeButton } from "./copy-code-button";
+import { InviteButton } from "./invite-button";
 import Link from "next/link";
-import { ArrowLeft, UserPlus, Users, Clock, Zap, GitMerge } from "lucide-react";
+import { ArrowLeft, Users, Clock, Zap, GitMerge, UserPlus } from "lucide-react";
 
 interface TeamMembersManagePageProps {
   params: Promise<{ id: string }>;
@@ -147,13 +148,7 @@ export default async function TeamMembersManagePage({
               </p>
             </div>
           </div>
-          <Link
-            href={`/teams/${id}/members/invite`}
-            className="h-10 px-4 rounded-xl bg-primary hover:bg-primary-dark text-black font-semibold text-sm transition-all flex items-center gap-2"
-          >
-            <UserPlus className="w-4 h-4" />
-            팀원 초대
-          </Link>
+          <InviteButton teamId={id} />
         </div>
         <MemberManagementList
           members={activeMembers}

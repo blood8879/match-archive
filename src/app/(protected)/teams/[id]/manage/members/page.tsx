@@ -49,8 +49,13 @@ export default async function TeamMembersManagePage({
   const activeMembers = members.filter(
     (m) => m.status === "active" && !m.is_guest
   );
-  const pendingMembers = members.filter((m) => m.status === "pending");
-  const guestMembers = members.filter((m) => m.is_guest);
+  
+  const activeUserIds = new Set(activeMembers.map((m) => m.user_id));
+  const pendingMembers = members.filter(
+    (m) => m.status === "pending" && !activeUserIds.has(m.user_id)
+  );
+  
+  const guestMembers = members.filter((m) => m.is_guest && m.status !== "merged");
 
   return (
     <main className="relative z-10 flex-1 max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">

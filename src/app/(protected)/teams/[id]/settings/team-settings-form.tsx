@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useTransition } from "react";
-import { Shield, MapPin, Upload, Edit, Trash2, Hash, X, Plus, UserPlus, FileText, Star } from "lucide-react";
-import { updateTeam } from "@/services/teams";
+import { Shield, MapPin, Upload, Edit, Trash2, Hash, X, Plus, UserPlus, FileText, Star, Crown, ArrowRightLeft } from "lucide-react";
+import { updateTeam, transferOwnership, type TeamMemberWithUser } from "@/services/teams";
 import imageCompression from "browser-image-compression";
 import type { Team } from "@/types/supabase";
 import { useRouter } from "next/navigation";
@@ -11,9 +11,11 @@ import { Select, SelectItem } from "@/components/ui/select";
 
 interface TeamSettingsFormProps {
   team: Team;
+  isOwner: boolean;
+  members: TeamMemberWithUser[];
 }
 
-export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
+export function TeamSettingsForm({ team, isOwner, members }: TeamSettingsFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [uploadingEmblem, setUploadingEmblem] = useState(false);
@@ -50,6 +52,12 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
     message: string;
     navigateBack?: boolean;
   }>({ type: "info", message: "" });
+
+  // 소유권 양도 상태
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [selectedNewOwner, setSelectedNewOwner] = useState<string>("");
+  const [confirmTransferModalOpen, setConfirmTransferModalOpen] = useState(false);
+  const [isTransferring, setIsTransferring] = useState(false);
 
   const showModal = (type: AlertType, message: string, title?: string, navigateBack = false) => {
     setModalConfig({ type, title, message, navigateBack });
@@ -178,6 +186,26 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
       [position]: Math.max(0, Math.min(10, value)),
     }));
   };
+
+  const handleTransferOwnership = async () => {
+    if (!selectedNewOwner) return;
+
+    setIsTransferring(true);
+    try {
+      await transferOwnership(team.id, selectedNewOwner);
+      setConfirmTransferModalOpen(false);
+      setTransferModalOpen(false);
+      showModal("success", "소유권이 성공적으로 양도되었습니다.", "완료", true);
+      router.refresh();
+    } catch (error: any) {
+      console.error("Failed to transfer ownership:", error);
+      showModal("error", error.message || "소유권 양도에 실패했습니다.");
+    } finally {
+      setIsTransferring(false);
+    }
+  };
+
+  const selectedMemberForTransfer = members.find((m) => m.id === selectedNewOwner);
 
   return (
     <>
@@ -534,18 +562,174 @@ export function TeamSettingsForm({ team }: TeamSettingsFormProps) {
       <div className="mt-10 rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
         <h3 className="text-lg font-bold text-red-400 mb-2">위험 구역</h3>
         <p className="text-sm text-white/60 mb-6">
-          팀을 영구적으로 삭제합니다. 이 작업은 되돌릴 수 없습니다.
+          아래 작업들은 되돌릴 수 없습니다. 신중하게 진행해 주세요.
         </p>
-        <div className="flex gap-4">
-          <button
-            onClick={() => showModal("info", "팀 삭제 기능은 준비 중입니다.", "알림")}
-            className="flex items-center gap-2 rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-            팀 삭제
-          </button>
+        <div className="flex flex-col gap-4">
+          {isOwner && members.length > 0 && (
+            <div className="flex items-center justify-between p-4 rounded-xl bg-black/20 border border-white/10">
+              <div>
+                <div className="flex items-center gap-2 text-amber-400 font-medium mb-1">
+                  <Crown className="w-4 h-4" />
+                  소유권 양도
+                </div>
+                <p className="text-xs text-white/50">
+                  다른 팀원에게 팀 소유권을 양도합니다. 양도 후 매니저로 역할이 변경됩니다.
+                </p>
+              </div>
+              <button
+                onClick={() => setTransferModalOpen(true)}
+                className="flex items-center gap-2 rounded-lg bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-400 hover:bg-amber-500/20 transition-colors whitespace-nowrap"
+              >
+                <ArrowRightLeft className="w-4 h-4" />
+                양도하기
+              </button>
+            </div>
+          )}
+          <div className="flex items-center justify-between p-4 rounded-xl bg-black/20 border border-white/10">
+            <div>
+              <div className="flex items-center gap-2 text-red-400 font-medium mb-1">
+                <Trash2 className="w-4 h-4" />
+                팀 삭제
+              </div>
+              <p className="text-xs text-white/50">
+                팀을 영구적으로 삭제합니다. 모든 경기 기록과 멤버 정보가 삭제됩니다.
+              </p>
+            </div>
+            <button
+              onClick={() => showModal("info", "팀 삭제 기능은 준비 중입니다.", "알림")}
+              className="flex items-center gap-2 rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-colors whitespace-nowrap"
+            >
+              팀 삭제
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Transfer Ownership Modal */}
+      {transferModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setTransferModalOpen(false)}
+          />
+          <div className="relative z-10 w-full max-w-md mx-4 rounded-2xl bg-[#1a3429] border border-[#8eccae]/20 shadow-2xl p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <Crown className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">소유권 양도</h3>
+                <p className="text-sm text-white/50">새로운 팀장을 선택하세요</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 max-h-60 overflow-y-auto mb-6">
+              {members.map((member) => (
+                <button
+                  key={member.id}
+                  onClick={() => setSelectedNewOwner(member.id)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+                    selectedNewOwner === member.id
+                      ? "bg-amber-500/20 border border-amber-500/50"
+                      : "bg-black/20 border border-white/10 hover:border-white/30"
+                  }`}
+                >
+                  {member.user?.avatar_url ? (
+                    <img
+                      src={member.user.avatar_url}
+                      alt={member.user.nickname || ""}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-[#214a36] flex items-center justify-center">
+                      <span className="text-[#00e677] font-bold">
+                        {(member.user?.nickname || "?")[0].toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex-1 text-left">
+                    <p className="font-medium text-white">{member.user?.nickname || "알 수 없음"}</p>
+                    <p className="text-xs text-white/50">
+                      {member.role === "MANAGER" ? "매니저" : "멤버"}
+                      {member.user?.position && ` · ${member.user.position}`}
+                    </p>
+                  </div>
+                  {selectedNewOwner === member.id && (
+                    <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setTransferModalOpen(false);
+                  setSelectedNewOwner("");
+                }}
+                className="flex-1 rounded-xl px-4 py-3 text-sm font-bold text-white hover:bg-white/5 transition-all border border-white/10"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => setConfirmTransferModalOpen(true)}
+                disabled={!selectedNewOwner}
+                className="flex-1 rounded-xl bg-amber-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-amber-500/20 hover:bg-amber-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                다음
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Transfer Modal */}
+      {confirmTransferModalOpen && selectedMemberForTransfer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setConfirmTransferModalOpen(false)}
+          />
+          <div className="relative z-10 w-full max-w-md mx-4 rounded-2xl bg-[#1a3429] border border-[#8eccae]/20 shadow-2xl p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
+                <Crown className="w-8 h-8 text-amber-400" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">소유권을 양도하시겠습니까?</h3>
+              <p className="text-sm text-white/60">
+                <span className="text-amber-400 font-medium">
+                  {selectedMemberForTransfer.user?.nickname}
+                </span>
+                님에게 팀 소유권을 양도합니다.
+              </p>
+              <p className="text-xs text-white/40 mt-2">
+                양도 후 회원님은 매니저로 역할이 변경됩니다.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmTransferModalOpen(false)}
+                disabled={isTransferring}
+                className="flex-1 rounded-xl px-4 py-3 text-sm font-bold text-white hover:bg-white/5 transition-all border border-white/10 disabled:opacity-50"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleTransferOwnership}
+                disabled={isTransferring}
+                className="flex-1 rounded-xl bg-amber-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-amber-500/20 hover:bg-amber-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isTransferring ? "양도 중..." : "양도하기"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Alert Modal */}
       <AlertModal

@@ -581,3 +581,75 @@ export async function updateMemberInfo(
 
   revalidatePath("/teams");
 }
+
+export async function transferOwnership(
+  teamId: string,
+  newOwnerId: string
+): Promise<void> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("로그인이 필요합니다");
+
+  const { data: currentOwner } = await supabase
+    .from("team_members")
+    .select("id, role")
+    .eq("team_id", teamId)
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .single();
+
+  if (!currentOwner || currentOwner.role !== "OWNER") {
+    throw new Error("팀 소유자만 소유권을 양도할 수 있습니다");
+  }
+
+  const { data: newOwner } = await supabase
+    .from("team_members")
+    .select("id, role, status")
+    .eq("id", newOwnerId)
+    .eq("team_id", teamId)
+    .single();
+
+  if (!newOwner) {
+    throw new Error("선택한 멤버를 찾을 수 없습니다");
+  }
+
+  if (newOwner.status !== "active") {
+    throw new Error("활성 상태의 멤버에게만 양도할 수 있습니다");
+  }
+
+  if (newOwner.role === "OWNER") {
+    throw new Error("이미 소유자입니다");
+  }
+
+  const { error: demoteError } = await supabase
+    .from("team_members")
+    .update({ role: "MANAGER" as const })
+    .eq("id", currentOwner.id);
+
+  if (demoteError) {
+    console.error("Failed to demote current owner:", demoteError);
+    throw new Error("소유권 양도에 실패했습니다");
+  }
+
+  const { error: promoteError } = await supabase
+    .from("team_members")
+    .update({ role: "OWNER" as const })
+    .eq("id", newOwnerId);
+
+  if (promoteError) {
+    await supabase
+      .from("team_members")
+      .update({ role: "OWNER" as const })
+      .eq("id", currentOwner.id);
+
+    console.error("Failed to promote new owner:", promoteError);
+    throw new Error("소유권 양도에 실패했습니다");
+  }
+
+  revalidatePath(`/teams/${teamId}`);
+  revalidatePath(`/teams/${teamId}/settings`);
+}

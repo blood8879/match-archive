@@ -39,13 +39,16 @@ export default async function TeamSettingsPage({
   const teamMembers = await getTeamMembers(id);
   const currentUserMembership = teamMembers.find((m) => m.user_id === user.id);
 
-  const isAuthorized =
-    currentUserMembership?.role === "OWNER" ||
-    currentUserMembership?.role === "MANAGER";
+  const isOwner = currentUserMembership?.role === "OWNER";
+  const isAuthorized = isOwner || currentUserMembership?.role === "MANAGER";
 
   if (!isAuthorized) {
     redirect(`/teams/${id}`);
   }
+
+  const activeMembers = teamMembers.filter(
+    (m) => m.status === "active" && m.user_id !== user.id && !m.is_guest
+  );
 
   return (
     <div className="relative min-h-screen">
@@ -65,7 +68,11 @@ export default async function TeamSettingsPage({
           <p className="text-white/60">팀 정보와 설정을 관리하세요.</p>
         </div>
 
-        <TeamSettingsForm team={team} />
+        <TeamSettingsForm 
+          team={team} 
+          isOwner={isOwner}
+          members={activeMembers}
+        />
       </div>
     </div>
   );

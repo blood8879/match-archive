@@ -338,6 +338,7 @@ export function TeamSettingsForm({ team, isOwner, members }: TeamSettingsFormPro
                   }}
                   placeholder="시/도 선택"
                   icon={<MapPin className="w-5 h-5" />}
+                  fullWidth
                   className="rounded-xl border-white/10 bg-black/20 text-white hover:bg-black/30"
                 >
                   {area.map((a) => (
@@ -351,6 +352,7 @@ export function TeamSettingsForm({ team, isOwner, members }: TeamSettingsFormPro
                   onValueChange={setSelectedDistrict}
                   placeholder="구/군 선택"
                   disabled={!selectedCity}
+                  fullWidth
                   className="rounded-xl border-white/10 bg-black/20 text-white hover:bg-black/30"
                 >
                   {districts.map((d) => (

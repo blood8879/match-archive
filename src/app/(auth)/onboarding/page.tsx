@@ -94,6 +94,21 @@ export default function OnboardingPage() {
       return;
     }
 
+    if (!nationality) {
+      setError("국적을 선택해주세요.");
+      return;
+    }
+
+    if (!birthDate) {
+      setError("생년월일을 입력해주세요.");
+      return;
+    }
+
+    if (!preferredFoot) {
+      setError("주발을 선택해주세요.");
+      return;
+    }
+
     setIsLoading(true);
 
     const supabase = createClient();
@@ -128,7 +143,12 @@ export default function OnboardingPage() {
     router.refresh();
   };
 
-  const isFormValid = nickname.trim().length >= 2 && nickname.length <= 20;
+  const isFormValid =
+    nickname.trim().length >= 2 &&
+    nickname.length <= 20 &&
+    nationality &&
+    birthDate &&
+    preferredFoot;
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -144,7 +164,7 @@ export default function OnboardingPage() {
           <div className="mb-6 flex items-start gap-2 rounded-lg bg-primary-500/10 p-3 text-sm">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary-500" />
             <p className="text-primary-400">
-              <span className="font-semibold">닉네임</span>은 필수 입력 항목입니다.
+              <span className="font-semibold">닉네임, 국적, 생년월일, 주발</span>은 필수 입력 항목입니다.
               프로필 설정을 완료해야 서비스를 이용할 수 있습니다.
             </p>
           </div>
@@ -228,7 +248,7 @@ export default function OnboardingPage() {
             {/* 국적 */}
             <div>
               <label className="mb-2 block text-sm font-medium text-text-400">
-                국적 (선택)
+                국적 *
               </label>
               <Select
                 value={nationality}
@@ -248,7 +268,7 @@ export default function OnboardingPage() {
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="mb-2 block text-sm font-medium text-text-400">
-                  생년월일 (선택)
+                  생년월일 *
                 </label>
                 <div className="relative">
                   <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 pointer-events-none z-10" />
@@ -263,13 +283,13 @@ export default function OnboardingPage() {
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-text-400">
-                  주발 (선택)
+                  주발 *
                 </label>
                 <Select
                   value={preferredFoot}
                   onValueChange={(val) => setPreferredFoot(val as "left" | "right" | "both" | "")}
                   icon={<Footprints className="w-5 h-5" />}
-                  placeholder="선택"
+                  placeholder="선택 *"
                   fullWidth
                 >
                   <SelectItem value="right">오른발</SelectItem>

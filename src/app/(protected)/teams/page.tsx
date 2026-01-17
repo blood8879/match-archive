@@ -6,17 +6,29 @@ import { TeamCard } from "@/components/features/team-card";
 import { TeamSearchForm } from "./team-search-form";
 
 interface TeamsPageProps {
-  searchParams: Promise<{ region?: string; q?: string }>;
+  searchParams: Promise<{ 
+    region?: string; 
+    q?: string;
+    day?: string;
+    level?: string;
+    recruiting?: string;
+  }>;
 }
 
 async function TeamsList({
   region,
   query,
+  day,
+  level,
+  recruiting,
 }: {
   region?: string;
   query?: string;
+  day?: string;
+  level?: string;
+  recruiting?: string;
 }) {
-  const teams = await getTeams(region, query);
+  const teams = await getTeams({ region, query, day, level, recruiting });
 
   if (teams.length === 0) {
     return (
@@ -48,6 +60,9 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
   const params = await searchParams;
   const region = params.region;
   const query = params.q;
+  const day = params.day;
+  const level = params.level;
+  const recruiting = params.recruiting;
 
   return (
     <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8">
@@ -70,7 +85,13 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
           </Link>
         </div>
 
-        <TeamSearchForm initialRegion={region} initialQuery={query} />
+        <TeamSearchForm 
+          initialRegion={region} 
+          initialQuery={query}
+          initialDay={day}
+          initialLevel={level}
+          initialRecruiting={recruiting}
+        />
       </div>
 
       <Suspense
@@ -82,7 +103,7 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
           </div>
         }
       >
-        <TeamsList region={region} query={query} />
+        <TeamsList region={region} query={query} day={day} level={level} recruiting={recruiting} />
       </Suspense>
 
       <div className="flex justify-center mt-12 gap-2">

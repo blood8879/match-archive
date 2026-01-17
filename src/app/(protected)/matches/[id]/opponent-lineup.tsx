@@ -6,6 +6,7 @@ import {
   deleteOpponentPlayer,
 } from "@/services/opponent-players";
 import { Plus, Trash2, X, UserPlus } from "lucide-react";
+import { Select, SelectItem } from "@/components/ui/select";
 import type { OpponentPlayer } from "@/types/supabase";
 
 interface OpponentLineupProps {
@@ -164,21 +165,16 @@ export function OpponentLineup({
                 <label className="block text-[#8eccae] text-xs font-medium mb-2">
                   포지션
                 </label>
-                <select
+                <Select
                   value={newPlayerPosition}
-                  onChange={(e) =>
-                    setNewPlayerPosition(
-                      e.target.value as "FW" | "MF" | "DF" | "GK" | ""
-                    )
-                  }
-                  className="w-full px-3 py-2 bg-[#0f2319] border border-[#214a36] rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#00e677]/50"
+                  onValueChange={(val) => setNewPlayerPosition(val as "FW" | "MF" | "DF" | "GK" | "")}
+                  placeholder="선택"
                 >
-                  <option value="">선택</option>
-                  <option value="FW">FW</option>
-                  <option value="MF">MF</option>
-                  <option value="DF">DF</option>
-                  <option value="GK">GK</option>
-                </select>
+                  <SelectItem value="FW">FW</SelectItem>
+                  <SelectItem value="MF">MF</SelectItem>
+                  <SelectItem value="DF">DF</SelectItem>
+                  <SelectItem value="GK">GK</SelectItem>
+                </Select>
               </div>
               <div className="flex gap-2">
                 <button

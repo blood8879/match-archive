@@ -8,6 +8,7 @@ import imageCompression from "browser-image-compression";
 import type { User as UserType } from "@/types/supabase";
 import { countries, TCountryCode } from "countries-list";
 import { AlertModal, type AlertType } from "@/components/ui/alert-modal";
+import { Select, SelectItem } from "@/components/ui/select";
 
 // ISO 국가 코드를 국기 이모지로 변환
 function countryCodeToEmoji(code: string): string {
@@ -448,39 +449,33 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
             {/* Position */}
             <label className="flex flex-col gap-2">
               <span className="text-sm font-semibold text-white/80">주 포지션</span>
-              <div className="relative">
-                <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                <select
-                  value={preferredPosition}
-                  onChange={(e) => setPreferredPosition(e.target.value)}
-                  className="w-full appearance-none rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-10 text-white focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
-                >
-                  <option value="">선택하세요</option>
-                  <option value="FW">공격수 (FW)</option>
-                  <option value="MF">미드필더 (MF)</option>
-                  <option value="DF">수비수 (DF)</option>
-                  <option value="GK">골키퍼 (GK)</option>
-                </select>
-              </div>
+              <Select
+                value={preferredPosition}
+                onValueChange={(val) => setPreferredPosition(val)}
+                icon={<Zap className="w-5 h-5" />}
+                placeholder="선택하세요"
+              >
+                <SelectItem value="FW">공격수 (FW)</SelectItem>
+                <SelectItem value="MF">미드필더 (MF)</SelectItem>
+                <SelectItem value="DF">수비수 (DF)</SelectItem>
+                <SelectItem value="GK">골키퍼 (GK)</SelectItem>
+              </Select>
             </label>
 
             {/* Nationality */}
             <label className="flex flex-col gap-2">
               <span className="text-sm font-semibold text-white/80">국적</span>
-              <div className="relative">
-                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                <select
-                  value={nationality}
-                  onChange={(e) => setNationality(e.target.value)}
-                  className="w-full appearance-none rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-10 text-white focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
-                >
-                  {sortedCountries.map((country) => (
-                    <option key={country.code} value={country.code}>
-                      {country.emoji} {country.name} ({country.englishName})
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <Select
+                value={nationality}
+                onValueChange={(val) => setNationality(val)}
+                icon={<Globe className="w-5 h-5" />}
+              >
+                {sortedCountries.map((country) => (
+                  <SelectItem key={country.code} value={country.code}>
+                    {country.emoji} {country.name} ({country.englishName})
+                  </SelectItem>
+                ))}
+              </Select>
             </label>
 
             {/* Birth Date */}
@@ -501,19 +496,16 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
             {/* Preferred Foot */}
             <label className="flex flex-col gap-2">
               <span className="text-sm font-semibold text-white/80">주발</span>
-              <div className="relative">
-                <Footprints className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                <select
-                  value={preferredFoot}
-                  onChange={(e) => setPreferredFoot(e.target.value as "left" | "right" | "both" | "")}
-                  className="w-full appearance-none rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-10 text-white focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
-                >
-                  <option value="">선택하세요</option>
-                  <option value="right">오른발</option>
-                  <option value="left">왼발</option>
-                  <option value="both">양발</option>
-                </select>
-              </div>
+              <Select
+                value={preferredFoot}
+                onValueChange={(val) => setPreferredFoot(val as "left" | "right" | "both" | "")}
+                icon={<Footprints className="w-5 h-5" />}
+                placeholder="선택하세요"
+              >
+                <SelectItem value="right">오른발</SelectItem>
+                <SelectItem value="left">왼발</SelectItem>
+                <SelectItem value="both">양발</SelectItem>
+              </Select>
             </label>
           </div>
 

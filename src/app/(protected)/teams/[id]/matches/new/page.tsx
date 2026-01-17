@@ -8,6 +8,7 @@ import { getTeamVenues } from "@/services/venues";
 import { getTeams } from "@/services/teams";
 import { getGuestTeams, createGuestTeam, type GuestTeam } from "@/services/guest-teams";
 import { Calendar, MapPin, Users, FileText, PlusCircle, Search, Building2, X } from "lucide-react";
+import { Select, SelectItem } from "@/components/ui/select";
 import type { Venue, Team } from "@/types/supabase";
 
 export default function NewMatchPage() {
@@ -75,7 +76,7 @@ export default function NewMatchPage() {
     const timeoutId = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const results = await getTeams(undefined, searchQuery);
+        const results = await getTeams({ query: searchQuery });
         // 자기 팀은 제외
         setSearchResults(results.filter((team) => team.id !== teamId));
       } catch (err) {
@@ -543,15 +544,14 @@ export default function NewMatchPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
-                <span className="text-gray-300 text-sm font-medium">쿼터 수</span>
-                <select
+                <Select
+                  label="쿼터 수"
                   name="quarters"
                   defaultValue="4"
-                  className="w-full bg-[#183527] border border-[#2f6a4d] rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all appearance-none"
                 >
-                  <option value="2">2쿼터</option>
-                  <option value="4">4쿼터</option>
-                </select>
+                  <SelectItem value="2">2쿼터</SelectItem>
+                  <SelectItem value="4">4쿼터</SelectItem>
+                </Select>
               </div>
             </div>
             <label className="flex flex-col gap-2">

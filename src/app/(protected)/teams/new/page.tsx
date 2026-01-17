@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createTeam } from "@/services/teams";
 import { ArrowLeft, Users, MapPin, PlusCircle, Camera, Pencil } from "lucide-react";
+import { Select, SelectItem } from "@/components/ui/select";
 import { area } from "@/constants/area";
 
 export default function NewTeamPage() {
@@ -121,55 +122,35 @@ export default function NewTeamPage() {
               <label className="text-white text-sm font-bold uppercase tracking-wide">활동 지역</label>
               <div className="grid grid-cols-2 gap-3">
                 {/* 시/도 선택 */}
-                <div className="relative group">
-                  <select
-                    className="w-full appearance-none rounded-lg bg-[#0f2319] border border-[#2e6b4e] text-white focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] focus:outline-none h-14 px-4 pl-12 pr-10 transition-all cursor-pointer"
-                    id="activity-city"
-                    value={selectedCity}
-                    onChange={(e) => {
-                      setSelectedCity(e.target.value);
-                      setSelectedDistrict("");
-                    }}
-                  >
-                    <option value="">시/도 선택</option>
-                    {area.map((a) => (
-                      <option key={a.name} value={a.name}>
-                        {a.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8dceae] group-focus-within:text-[#00e677] transition-colors">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8dceae] pointer-events-none">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
+                <Select
+                  value={selectedCity}
+                  onValueChange={(val) => {
+                    setSelectedCity(val);
+                    setSelectedDistrict("");
+                  }}
+                  placeholder="시/도 선택"
+                  icon={<MapPin className="w-5 h-5" />}
+                >
+                  {area.map((a) => (
+                    <SelectItem key={a.name} value={a.name}>
+                      {a.name}
+                    </SelectItem>
+                  ))}
+                </Select>
 
                 {/* 구/군 선택 */}
-                <div className="relative group">
-                  <select
-                    className="w-full appearance-none rounded-lg bg-[#0f2319] border border-[#2e6b4e] text-white focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] focus:outline-none h-14 px-4 pr-10 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    id="activity-district"
-                    value={selectedDistrict}
-                    onChange={(e) => setSelectedDistrict(e.target.value)}
-                    disabled={!selectedCity}
-                  >
-                    <option value="">구/군 선택</option>
-                    {districts.map((d) => (
-                      <option key={d} value={d}>
-                        {d}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8dceae] pointer-events-none">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
+                <Select
+                  value={selectedDistrict}
+                  onValueChange={setSelectedDistrict}
+                  placeholder="구/군 선택"
+                  disabled={!selectedCity}
+                >
+                  {districts.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </Select>
               </div>
               {/* 실제 form에 전달할 hidden input */}
               <input type="hidden" name="region" value={selectedCity && selectedDistrict ? `${selectedCity} ${selectedDistrict}` : selectedCity} />

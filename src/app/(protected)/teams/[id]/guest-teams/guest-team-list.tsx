@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Plus, Trash2, Shield, MapPin, Search } from "lucide-react";
+import { Select, SelectItem } from "@/components/ui/select";
 import { createGuestTeam, deleteGuestTeam } from "@/services/guest-teams";
 import { useRouter } from "next/navigation";
 import type { GuestTeam } from "@/services/guest-teams";
@@ -137,35 +138,29 @@ export function GuestTeamList({ teamId, initialGuestTeams }: GuestTeamListProps)
                 </div>
               </label>
 
-              <label className="flex flex-col gap-2">
-                <span className="text-sm font-semibold text-white/80">지역</span>
-                <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                  <select
-                    name="region"
-                    className="w-full appearance-none rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-10 text-white focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
-                  >
-                    <option value="">선택하세요</option>
-                    <option value="서울">서울</option>
-                    <option value="경기">경기</option>
-                    <option value="인천">인천</option>
-                    <option value="부산">부산</option>
-                    <option value="대구">대구</option>
-                    <option value="광주">광주</option>
-                    <option value="대전">대전</option>
-                    <option value="울산">울산</option>
-                    <option value="세종">세종</option>
-                    <option value="강원">강원</option>
-                    <option value="충북">충북</option>
-                    <option value="충남">충남</option>
-                    <option value="전북">전북</option>
-                    <option value="전남">전남</option>
-                    <option value="경북">경북</option>
-                    <option value="경남">경남</option>
-                    <option value="제주">제주</option>
-                  </select>
-                </div>
-              </label>
+              <Select
+                label="지역"
+                placeholder="선택하세요"
+                icon={<MapPin className="w-5 h-5" />}
+              >
+                <SelectItem value="서울">서울</SelectItem>
+                <SelectItem value="경기">경기</SelectItem>
+                <SelectItem value="인천">인천</SelectItem>
+                <SelectItem value="부산">부산</SelectItem>
+                <SelectItem value="대구">대구</SelectItem>
+                <SelectItem value="광주">광주</SelectItem>
+                <SelectItem value="대전">대전</SelectItem>
+                <SelectItem value="울산">울산</SelectItem>
+                <SelectItem value="세종">세종</SelectItem>
+                <SelectItem value="강원">강원</SelectItem>
+                <SelectItem value="충북">충북</SelectItem>
+                <SelectItem value="충남">충남</SelectItem>
+                <SelectItem value="전북">전북</SelectItem>
+                <SelectItem value="전남">전남</SelectItem>
+                <SelectItem value="경북">경북</SelectItem>
+                <SelectItem value="경남">경남</SelectItem>
+                <SelectItem value="제주">제주</SelectItem>
+              </Select>
 
               <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold text-white/80">메모</span>

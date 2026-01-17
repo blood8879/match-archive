@@ -9,7 +9,16 @@ export type TeamMemberWithUser = TeamMember & {
   user: Pick<User, "id" | "nickname" | "avatar_url" | "position"> | null;
 };
 
-export async function getTeams(region?: string, query?: string): Promise<Team[]> {
+interface GetTeamsOptions {
+  region?: string;
+  query?: string;
+  day?: string;
+  level?: string;
+  recruiting?: string;
+}
+
+export async function getTeams(options: GetTeamsOptions = {}): Promise<Team[]> {
+  const { region, query, day, level, recruiting } = options;
   const supabase = await createClient();
 
   let q = supabase
@@ -18,11 +27,34 @@ export async function getTeams(region?: string, query?: string): Promise<Team[]>
     .order("created_at", { ascending: false });
 
   if (region) {
-    q = q.eq("region", region);
+    q = q.ilike("region", `%${region}%`);
   }
 
   if (query) {
     q = q.ilike("name", `%${query}%`);
+  }
+
+  if (day) {
+    if (day === "평일") {
+      q = q.overlaps("activity_days", ["월", "화", "수", "목", "금"]);
+    } else if (day === "주말") {
+      q = q.overlaps("activity_days", ["토", "일"]);
+    } else {
+      q = q.contains("activity_days", [day]);
+    }
+  }
+
+  if (level) {
+    const [minStr, maxStr] = level.split("-");
+    const min = parseInt(minStr, 10);
+    const max = maxStr ? parseInt(maxStr, 10) : min;
+    q = q.gte("level", min).lte("level", max);
+  }
+
+  if (recruiting === "recruiting") {
+    q = q.eq("is_recruiting", true);
+  } else if (recruiting === "not-recruiting") {
+    q = q.eq("is_recruiting", false);
   }
 
   const { data, error } = await q;

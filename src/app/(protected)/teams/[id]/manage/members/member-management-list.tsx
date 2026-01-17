@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Check, X, MoreVertical, Search, Filter, Crown, Shield, User as UserIcon, Pencil } from "lucide-react";
+import { Select, SelectItem } from "@/components/ui/select";
 import {
   approveMember,
   rejectMember,
@@ -157,36 +158,28 @@ export function MemberManagementList({
         </div>
 
         <div className="flex gap-2">
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-400 pointer-events-none" />
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value as RoleFilter)}
-              className="pl-9 pr-8 py-2.5 rounded-lg bg-surface-700 text-white border border-white/5 focus:border-primary/50 focus:outline-none transition-colors appearance-none cursor-pointer"
-            >
-              <option value="ALL">모든 역할</option>
-              <option value="OWNER">팀장</option>
-              <option value="MANAGER">운영진</option>
-              <option value="MEMBER">팀원</option>
-            </select>
-          </div>
+          <Select
+            value={roleFilter}
+            onValueChange={(val) => setRoleFilter(val as RoleFilter)}
+            icon={<Filter className="w-4 h-4" />}
+          >
+            <SelectItem value="ALL">모든 역할</SelectItem>
+            <SelectItem value="OWNER">팀장</SelectItem>
+            <SelectItem value="MANAGER">운영진</SelectItem>
+            <SelectItem value="MEMBER">팀원</SelectItem>
+          </Select>
 
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-400 pointer-events-none" />
-            <select
-              value={positionFilter}
-              onChange={(e) =>
-                setPositionFilter(e.target.value as PositionFilter)
-              }
-              className="pl-9 pr-8 py-2.5 rounded-lg bg-surface-700 text-white border border-white/5 focus:border-primary/50 focus:outline-none transition-colors appearance-none cursor-pointer"
-            >
-              <option value="ALL">모든 포지션</option>
-              <option value="FW">FW</option>
-              <option value="MF">MF</option>
-              <option value="DF">DF</option>
-              <option value="GK">GK</option>
-            </select>
-          </div>
+          <Select
+            value={positionFilter}
+            onValueChange={(val) => setPositionFilter(val as PositionFilter)}
+            icon={<Filter className="w-4 h-4" />}
+          >
+            <SelectItem value="ALL">모든 포지션</SelectItem>
+            <SelectItem value="FW">FW</SelectItem>
+            <SelectItem value="MF">MF</SelectItem>
+            <SelectItem value="DF">DF</SelectItem>
+            <SelectItem value="GK">GK</SelectItem>
+          </Select>
         </div>
       </div>
 

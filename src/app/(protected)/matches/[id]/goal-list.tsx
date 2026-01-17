@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { addGoal, deleteGoal } from "@/services/matches";
 import { Button } from "@/components/ui/button";
+import { Select, SelectItem } from "@/components/ui/select";
 import type { Goal, OpponentPlayer } from "@/types/supabase";
 import type { TeamMemberWithUser } from "@/services/teams";
 
@@ -233,57 +234,55 @@ export function GoalList({
                   <label className="mb-2 block text-xs font-medium text-[#8eccae]">
                     득점자
                   </label>
-                  <select
+                  <Select
                     value={scorerId}
-                    onChange={(e) => setScorerId(e.target.value)}
-                    className="w-full rounded-xl bg-[#0f2319] border border-[#214a36] px-4 py-3 text-sm text-white outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677]"
+                    onValueChange={setScorerId}
+                    placeholder="선택"
                   >
-                    <option value="">선택</option>
                     {scoringTeam === "HOME"
                       ? lineupMembers.map((member) => (
-                          <option key={member.id} value={member.id}>
+                          <SelectItem key={member.id} value={member.id}>
                             {member.is_guest && member.guest_name
                               ? member.guest_name
                               : member.user?.nickname}
-                          </option>
+                          </SelectItem>
                         ))
                       : playingOpponents.map((player) => (
-                          <option key={player.id} value={player.id}>
+                          <SelectItem key={player.id} value={player.id}>
                             {player.name}
                             {player.number && ` (#${player.number})`}
-                          </option>
+                          </SelectItem>
                         ))}
-                  </select>
+                  </Select>
                 </div>
                 <div>
                   <label className="mb-2 block text-xs font-medium text-[#8eccae]">
                     도움
                   </label>
-                  <select
+                  <Select
                     value={assistId}
-                    onChange={(e) => setAssistId(e.target.value)}
-                    className="w-full rounded-xl bg-[#0f2319] border border-[#214a36] px-4 py-3 text-sm text-white outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677]"
+                    onValueChange={setAssistId}
+                    placeholder="없음"
                   >
-                    <option value="">없음</option>
                     {scoringTeam === "HOME"
                       ? lineupMembers
                           .filter((m) => m.id !== scorerId)
                           .map((member) => (
-                            <option key={member.id} value={member.id}>
+                            <SelectItem key={member.id} value={member.id}>
                               {member.is_guest && member.guest_name
                                 ? member.guest_name
                                 : member.user?.nickname}
-                            </option>
+                            </SelectItem>
                           ))
                       : playingOpponents
                           .filter((p) => p.id !== scorerId)
                           .map((player) => (
-                            <option key={player.id} value={player.id}>
+                            <SelectItem key={player.id} value={player.id}>
                               {player.name}
                               {player.number && ` (#${player.number})`}
-                            </option>
+                            </SelectItem>
                           ))}
-                  </select>
+                  </Select>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -313,24 +312,17 @@ export function GoalList({
                   <label className="mb-2 block text-xs font-medium text-[#8eccae]">
                     유형
                   </label>
-                  <select
+                  <Select
                     value={goalType}
-                    onChange={(e) =>
-                      setGoalType(
-                        e.target.value as
-                          | "NORMAL"
-                          | "PK"
-                          | "FREEKICK"
-                          | "OWN_GOAL"
-                      )
+                    onValueChange={(val) =>
+                      setGoalType(val as "NORMAL" | "PK" | "FREEKICK" | "OWN_GOAL")
                     }
-                    className="w-full rounded-xl bg-[#0f2319] border border-[#214a36] px-4 py-3 text-sm text-white outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677]"
                   >
-                    <option value="NORMAL">일반</option>
-                    <option value="PK">PK</option>
-                    <option value="FREEKICK">프리킥</option>
-                    <option value="OWN_GOAL">자책골</option>
-                  </select>
+                    <SelectItem value="NORMAL">일반</SelectItem>
+                    <SelectItem value="PK">PK</SelectItem>
+                    <SelectItem value="FREEKICK">프리킥</SelectItem>
+                    <SelectItem value="OWN_GOAL">자책골</SelectItem>
+                  </Select>
                 </div>
               </div>
               <div className="flex gap-3 pt-2">

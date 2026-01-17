@@ -181,7 +181,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
           >
             돌아가기
           </Link>
-          {!isFinished && records.length > 0 && (
+          {!isFinished && (match.home_score !== null || match.away_score !== null) && (
             <div className="flex-1">
               <FinishMatchButton matchId={match.id} />
             </div>

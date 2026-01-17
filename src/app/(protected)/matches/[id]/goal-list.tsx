@@ -232,12 +232,12 @@ export function GoalList({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="mb-2 block text-xs font-medium text-[#8eccae]">
-                    득점자
+                    득점자 {goalType === "OWN_GOAL" && "(선택사항)"}
                   </label>
                   <Select
                     value={scorerId}
                     onValueChange={setScorerId}
-                    placeholder="선택"
+                    placeholder={goalType === "OWN_GOAL" ? "미지정 가능" : "선택"}
                     className="w-full"
                   >
                     {scoringTeam === "HOME"
@@ -248,13 +248,24 @@ export function GoalList({
                               : member.user?.nickname}
                           </SelectItem>
                         ))
-                      : playingOpponents.map((player) => (
-                          <SelectItem key={player.id} value={player.id}>
-                            {player.name}
-                            {player.number && ` (#${player.number})`}
-                          </SelectItem>
-                        ))}
+                      : playingOpponents.length > 0
+                        ? playingOpponents.map((player) => (
+                            <SelectItem key={player.id} value={player.id}>
+                              {player.name}
+                              {player.number && ` (#${player.number})`}
+                            </SelectItem>
+                          ))
+                        : goalType === "OWN_GOAL"
+                          ? null
+                          : null}
                   </Select>
+                  {scoringTeam === "AWAY" && playingOpponents.length === 0 && (
+                    <p className="text-xs text-[#8eccae]/70 mt-1">
+                      {goalType === "OWN_GOAL" 
+                        ? "상대팀 선수 미등록 - 득점자 없이 저장됩니다" 
+                        : "상대팀 선수를 먼저 등록해주세요"}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="mb-2 block text-xs font-medium text-[#8eccae]">
@@ -339,7 +350,11 @@ export function GoalList({
                 <Button
                   onClick={handleAddGoal}
                   isLoading={isPending}
-                  className="flex-1 h-11 bg-[#00e677] hover:bg-green-400 text-[#0f2319] font-bold rounded-xl"
+                  disabled={
+                    (scoringTeam === "HOME" && !scorerId) ||
+                    (scoringTeam === "AWAY" && goalType !== "OWN_GOAL" && !scorerId && playingOpponents.length > 0)
+                  }
+                  className="flex-1 h-11 bg-[#00e677] hover:bg-green-400 text-[#0f2319] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   추가
                 </Button>

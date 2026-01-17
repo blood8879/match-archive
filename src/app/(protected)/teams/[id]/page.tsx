@@ -56,8 +56,10 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
   const activeMembers = members.filter(
     (m) => m.status === "active" && !m.is_guest
   );
-  const pendingMembers = members.filter((m) => m.status === "pending");
-  // 병합 완료된 용병은 제외 (status가 "merged"가 아닌 경우만 표시)
+  const activeUserIds = new Set(activeMembers.map((m) => m.user_id));
+  const pendingMembers = members.filter(
+    (m) => m.status === "pending" && !activeUserIds.has(m.user_id)
+  );
   const guestMembers = members.filter((m) => m.is_guest && m.status !== "merged");
 
   return (

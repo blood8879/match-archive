@@ -1,14 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectItem } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Globe, Calendar, Footprints } from "lucide-react";
 import { area } from "@/constants/area";
+import { countries, TCountryCode } from "countries-list";
+
+// ISO 국가 코드를 국기 이모지로 변환
+function countryCodeToEmoji(code: string): string {
+  const codePoints = code
+    .toUpperCase()
+    .split("")
+    .map((char) => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+}
 
 const POSITIONS = [
   { value: "FW", label: "FW (공격수)" },
@@ -25,12 +35,32 @@ export default function OnboardingPage() {
   const [position, setPosition] = useState<Position | "">("");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [nationality, setNationality] = useState("KR");
+  const [birthDate, setBirthDate] = useState("");
+  const [preferredFoot, setPreferredFoot] = useState<"left" | "right" | "both" | "">("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [nicknameError, setNicknameError] = useState<string | null>(null);
 
   // 선택된 시/도의 구/군 목록
   const districts = area.find((a) => a.name === selectedCity)?.subArea || [];
+
+  // 국가 목록 정렬 (한국어 이름 기준, 대한민국을 맨 위로)
+  const sortedCountries = useMemo(() => {
+    const countryList = Object.entries(countries).map(([code, data]) => ({
+      code: code as TCountryCode,
+      name: data.native,
+      englishName: data.name,
+      emoji: countryCodeToEmoji(code),
+    }));
+
+    // 한국을 맨 위로
+    return countryList.sort((a, b) => {
+      if (a.code === "KR") return -1;
+      if (b.code === "KR") return 1;
+      return a.name.localeCompare(b.name, "ko");
+    });
+  }, []);
 
   // 닉네임 유효성 검사
   useEffect(() => {
@@ -82,6 +112,9 @@ export default function OnboardingPage() {
       .update({
         nickname: trimmedNickname,
         position: (position || null) as "FW" | "MF" | "DF" | "GK" | null,
+        nationality: nationality || null,
+        birth_date: birthDate || null,
+        preferred_foot: (preferredFoot || null) as "left" | "right" | "both" | null,
       })
       .eq("id", user.id);
 
@@ -188,6 +221,60 @@ export default function OnboardingPage() {
                       {d}
                     </SelectItem>
                   ))}
+                </Select>
+              </div>
+            </div>
+
+            {/* 국적 */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-text-400">
+                국적 (선택)
+              </label>
+              <Select
+                value={nationality}
+                onValueChange={setNationality}
+                icon={<Globe className="w-5 h-5" />}
+                fullWidth
+              >
+                {sortedCountries.map((country) => (
+                  <SelectItem key={country.code} value={country.code}>
+                    {country.emoji} {country.name} ({country.englishName})
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
+
+            {/* 생년월일 & 주발 */}
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-text-400">
+                  생년월일 (선택)
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 pointer-events-none z-10" />
+                  <input
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    max={new Date().toISOString().split("T")[0]}
+                    className="w-full rounded-xl border border-white/10 bg-surface-700 py-3 pl-12 pr-4 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all [color-scheme:dark]"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-text-400">
+                  주발 (선택)
+                </label>
+                <Select
+                  value={preferredFoot}
+                  onValueChange={(val) => setPreferredFoot(val as "left" | "right" | "both" | "")}
+                  icon={<Footprints className="w-5 h-5" />}
+                  placeholder="선택"
+                  fullWidth
+                >
+                  <SelectItem value="right">오른발</SelectItem>
+                  <SelectItem value="left">왼발</SelectItem>
+                  <SelectItem value="both">양발</SelectItem>
                 </Select>
               </div>
             </div>

@@ -3,26 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Search, ChevronDown, SlidersHorizontal } from "lucide-react";
-
-const REGIONS = [
-  "서울",
-  "경기",
-  "인천",
-  "부산",
-  "대구",
-  "대전",
-  "광주",
-  "울산",
-  "세종",
-  "강원",
-  "충북",
-  "충남",
-  "전북",
-  "전남",
-  "경북",
-  "경남",
-  "제주",
-];
+import { area } from "@/constants/area";
 
 interface TeamSearchFormProps {
   initialRegion?: string;
@@ -36,7 +17,20 @@ export function TeamSearchForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(initialQuery || "");
-  const [region, setRegion] = useState(initialRegion || "");
+
+  // 초기 지역 파싱 (예: "서울 강남구" -> city: "서울", district: "강남구")
+  const parseInitialRegion = (region?: string) => {
+    if (!region) return { city: "", district: "" };
+    const parts = region.split(" ");
+    return { city: parts[0] || "", district: parts[1] || "" };
+  };
+
+  const initialParsed = parseInitialRegion(initialRegion);
+  const [selectedCity, setSelectedCity] = useState(initialParsed.city);
+  const [selectedDistrict, setSelectedDistrict] = useState(initialParsed.district);
+
+  // 선택된 시/도의 구/군 목록
+  const districts = area.find((a) => a.name === selectedCity)?.subArea || [];
 
   const handleSearch = (newQuery?: string, newRegion?: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -102,19 +96,46 @@ export function TeamSearchForm({
           <SlidersHorizontal className="w-4 h-4" />
           필터:
         </span>
+        {/* 시/도 선택 */}
         <div className="relative group">
           <select
-            value={region}
+            value={selectedCity}
             onChange={(e) => {
-              setRegion(e.target.value);
-              handleSearch(undefined, e.target.value);
+              const newCity = e.target.value;
+              setSelectedCity(newCity);
+              setSelectedDistrict("");
+              // 시/도만 선택하면 시/도로 검색
+              handleSearch(undefined, newCity);
             }}
             className="appearance-none flex items-center gap-2 px-4 py-2 pr-10 rounded-xl bg-[#162e24] border border-white/5 hover:border-[#00e677]/50 text-gray-300 hover:text-white transition-all text-sm cursor-pointer focus:outline-none focus:border-[#00e677]/50"
           >
-            <option value="">지역: 전체</option>
-            {REGIONS.map((r) => (
-              <option key={r} value={r}>
-                {r}
+            <option value="">시/도: 전체</option>
+            {area.map((a) => (
+              <option key={a.name} value={a.name}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+        </div>
+        {/* 구/군 선택 */}
+        <div className="relative group">
+          <select
+            value={selectedDistrict}
+            onChange={(e) => {
+              const newDistrict = e.target.value;
+              setSelectedDistrict(newDistrict);
+              // 시/도 + 구/군 조합으로 검색
+              const newRegion = newDistrict ? `${selectedCity} ${newDistrict}` : selectedCity;
+              handleSearch(undefined, newRegion);
+            }}
+            disabled={!selectedCity}
+            className="appearance-none flex items-center gap-2 px-4 py-2 pr-10 rounded-xl bg-[#162e24] border border-white/5 hover:border-[#00e677]/50 text-gray-300 hover:text-white transition-all text-sm cursor-pointer focus:outline-none focus:border-[#00e677]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <option value="">구/군: 전체</option>
+            {districts.map((d) => (
+              <option key={d} value={d}>
+                {d}
               </option>
             ))}
           </select>

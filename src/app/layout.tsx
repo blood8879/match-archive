@@ -15,9 +15,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Match Archive",
   description: "팀 경기 기록과 통계를 관리하는 서비스",
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 export default function RootLayout({

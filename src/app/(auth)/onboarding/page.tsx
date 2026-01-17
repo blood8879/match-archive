@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectItem } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
+import { area } from "@/constants/area";
 
 const POSITIONS = [
   { value: "FW", label: "FW (공격수)" },
@@ -15,36 +17,20 @@ const POSITIONS = [
   { value: "GK", label: "GK (골키퍼)" },
 ] as const;
 
-const REGIONS = [
-  "서울",
-  "경기",
-  "인천",
-  "부산",
-  "대구",
-  "대전",
-  "광주",
-  "울산",
-  "세종",
-  "강원",
-  "충북",
-  "충남",
-  "전북",
-  "전남",
-  "경북",
-  "경남",
-  "제주",
-];
-
 type Position = (typeof POSITIONS)[number]["value"];
 
 export default function OnboardingPage() {
   const router = useRouter();
   const [nickname, setNickname] = useState("");
   const [position, setPosition] = useState<Position | "">("");
-  const [region, setRegion] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [nicknameError, setNicknameError] = useState<string | null>(null);
+
+  // 선택된 시/도의 구/군 목록
+  const districts = area.find((a) => a.name === selectedCity)?.subArea || [];
 
   // 닉네임 유효성 검사
   useEffect(() => {
@@ -174,18 +160,34 @@ export default function OnboardingPage() {
               <label className="mb-2 block text-sm font-medium text-text-400">
                 활동 지역 (선택)
               </label>
-              <select
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                className="w-full rounded-lg bg-surface-700 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="">선택하세요</option>
-                {REGIONS.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </select>
+              <div className="grid grid-cols-2 gap-3">
+                <Select
+                  value={selectedCity}
+                  onValueChange={(value) => {
+                    setSelectedCity(value);
+                    setSelectedDistrict("");
+                  }}
+                  placeholder="시/도 선택"
+                >
+                  {area.map((a) => (
+                    <SelectItem key={a.name} value={a.name}>
+                      {a.name}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Select
+                  value={selectedDistrict}
+                  onValueChange={setSelectedDistrict}
+                  placeholder="구/군 선택"
+                  disabled={!selectedCity}
+                >
+                  {districts.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
             </div>
 
             {error && <p className="text-sm text-destructive">{error}</p>}

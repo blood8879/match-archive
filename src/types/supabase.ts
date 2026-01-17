@@ -133,6 +133,7 @@ export interface Database {
           recruiting_positions: { FW?: number; MF?: number; DF?: number; GK?: number } | null;
           level: number;
           created_at: string;
+          deleted_at: string | null;
         };
         Insert: {
           id?: string;
@@ -150,6 +151,7 @@ export interface Database {
           recruiting_positions?: { FW?: number; MF?: number; DF?: number; GK?: number } | null;
           level?: number;
           created_at?: string;
+          deleted_at?: string | null;
         };
         Update: {
           id?: string;
@@ -167,6 +169,7 @@ export interface Database {
           recruiting_positions?: { FW?: number; MF?: number; DF?: number; GK?: number } | null;
           level?: number;
           created_at?: string;
+          deleted_at?: string | null;
         };
         Relationships: [
           {

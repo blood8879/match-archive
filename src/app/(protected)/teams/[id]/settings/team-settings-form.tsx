@@ -2,7 +2,7 @@
 
 import { useState, useRef, useTransition } from "react";
 import { Shield, MapPin, Upload, Edit, Trash2, Hash, X, Plus, UserPlus, FileText, Star, Crown, ArrowRightLeft } from "lucide-react";
-import { updateTeam, transferOwnership, type TeamMemberWithUser } from "@/services/teams";
+import { updateTeam, transferOwnership, deleteTeam, type TeamMemberWithUser } from "@/services/teams";
 import imageCompression from "browser-image-compression";
 import type { Team } from "@/types/supabase";
 import { useRouter } from "next/navigation";
@@ -58,6 +58,10 @@ export function TeamSettingsForm({ team, isOwner, members }: TeamSettingsFormPro
   const [selectedNewOwner, setSelectedNewOwner] = useState<string>("");
   const [confirmTransferModalOpen, setConfirmTransferModalOpen] = useState(false);
   const [isTransferring, setIsTransferring] = useState(false);
+
+  // 팀 삭제 상태
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const showModal = (type: AlertType, message: string, title?: string, navigateBack = false) => {
     setModalConfig({ type, title, message, navigateBack });
@@ -206,6 +210,20 @@ export function TeamSettingsForm({ team, isOwner, members }: TeamSettingsFormPro
   };
 
   const selectedMemberForTransfer = members.find((m) => m.id === selectedNewOwner);
+
+  const handleDeleteTeam = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteTeam(team.id);
+      setDeleteModalOpen(false);
+      router.push("/teams");
+    } catch (error: any) {
+      console.error("Failed to delete team:", error);
+      showModal("error", error.message || "팀 삭제에 실패했습니다.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <>
@@ -585,23 +603,25 @@ export function TeamSettingsForm({ team, isOwner, members }: TeamSettingsFormPro
               </button>
             </div>
           )}
-          <div className="flex items-center justify-between p-4 rounded-xl bg-black/20 border border-white/10">
-            <div>
-              <div className="flex items-center gap-2 text-red-400 font-medium mb-1">
-                <Trash2 className="w-4 h-4" />
-                팀 삭제
+          {isOwner && (
+            <div className="flex items-center justify-between p-4 rounded-xl bg-black/20 border border-white/10">
+              <div>
+                <div className="flex items-center gap-2 text-red-400 font-medium mb-1">
+                  <Trash2 className="w-4 h-4" />
+                  팀 삭제
+                </div>
+                <p className="text-xs text-white/50">
+                  팀을 영구적으로 삭제합니다. 모든 경기 기록과 멤버 정보가 삭제됩니다.
+                </p>
               </div>
-              <p className="text-xs text-white/50">
-                팀을 영구적으로 삭제합니다. 모든 경기 기록과 멤버 정보가 삭제됩니다.
-              </p>
+              <button
+                onClick={() => setDeleteModalOpen(true)}
+                className="flex items-center gap-2 rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-colors whitespace-nowrap"
+              >
+                팀 삭제
+              </button>
             </div>
-            <button
-              onClick={() => showModal("info", "팀 삭제 기능은 준비 중입니다.", "알림")}
-              className="flex items-center gap-2 rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-colors whitespace-nowrap"
-            >
-              팀 삭제
-            </button>
-          </div>
+          )}
         </div>
       </div>
 
@@ -725,6 +745,47 @@ export function TeamSettingsForm({ team, isOwner, members }: TeamSettingsFormPro
                 className="flex-1 rounded-xl bg-amber-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-amber-500/20 hover:bg-amber-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isTransferring ? "양도 중..." : "양도하기"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Team Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => !isDeleting && setDeleteModalOpen(false)}
+          />
+          <div className="relative z-10 w-full max-w-md mx-4 rounded-2xl bg-[#1a3429] border border-red-500/20 shadow-2xl p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-8 h-8 text-red-400" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">정말 팀을 삭제하시겠습니까?</h3>
+              <p className="text-sm text-white/60">
+                <span className="text-red-400 font-medium">{team.name}</span> 팀이 삭제됩니다.
+              </p>
+              <p className="text-xs text-white/40 mt-2">
+                이 작업은 되돌릴 수 없습니다. 모든 경기 기록과 멤버 정보가 함께 삭제됩니다.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteModalOpen(false)}
+                disabled={isDeleting}
+                className="flex-1 rounded-xl px-4 py-3 text-sm font-bold text-white hover:bg-white/5 transition-all border border-white/10 disabled:opacity-50"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDeleteTeam}
+                disabled={isDeleting}
+                className="flex-1 rounded-xl bg-red-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/20 hover:bg-red-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? "삭제 중..." : "삭제하기"}
               </button>
             </div>
           </div>

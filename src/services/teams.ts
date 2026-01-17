@@ -653,3 +653,37 @@ export async function transferOwnership(
   revalidatePath(`/teams/${teamId}`);
   revalidatePath(`/teams/${teamId}/settings`);
 }
+
+export async function deleteTeam(teamId: string): Promise<void> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("로그인이 필요합니다");
+
+  const { data: membership } = await supabase
+    .from("team_members")
+    .select("role")
+    .eq("team_id", teamId)
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .single();
+
+  if (!membership || membership.role !== "OWNER") {
+    throw new Error("팀 소유자만 팀을 삭제할 수 있습니다");
+  }
+
+  const { error } = await supabase.rpc("soft_delete_team" as any, {
+    p_team_id: teamId,
+  });
+
+  if (error) {
+    console.error("Failed to delete team:", error);
+    throw new Error("팀 삭제에 실패했습니다");
+  }
+
+  revalidatePath("/teams");
+  revalidatePath("/dashboard");
+}

@@ -53,6 +53,10 @@ export default function SignupPage() {
 
   const handleSocialLogin = async (provider: "google" | "kakao") => {
     const supabase = createClient();
+
+    // 기존 세션이 있으면 먼저 로그아웃하여 세션 충돌 방지
+    await supabase.auth.signOut();
+
     await supabase.auth.signInWithOAuth({
       provider,
       options: {

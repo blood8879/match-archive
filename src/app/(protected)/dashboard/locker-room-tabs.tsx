@@ -108,6 +108,7 @@ export function LockerRoomTabs({
           totalAssists={totalAssists}
           matchesPlayed={matchesPlayed}
           consecutiveAppearances={consecutiveAppearances}
+          isManager={isManager}
         />
       )}
 
@@ -148,6 +149,7 @@ function LockerContent({
   totalAssists,
   matchesPlayed,
   consecutiveAppearances,
+  isManager,
 }: {
   firstTeam: Team | null;
   myTeams: TeamMemberWithTeam[] | null;
@@ -158,6 +160,7 @@ function LockerContent({
   totalAssists: number;
   matchesPlayed: number;
   consecutiveAppearances: number;
+  isManager: boolean;
 }) {
   return (
     <>
@@ -211,7 +214,7 @@ function LockerContent({
           </div>
         </div>
         <div className="col-span-1 lg:col-span-8">
-          <NextMatchCard firstTeam={firstTeam} nextMatch={nextMatch} />
+          <NextMatchCard firstTeam={firstTeam} nextMatch={nextMatch} isManager={isManager} />
         </div>
       </div>
 
@@ -734,7 +737,7 @@ function VenueContent({
 }
 
 // 공통 컴포넌트들
-function NextMatchCard({ firstTeam, nextMatch }: { firstTeam: Team | null; nextMatch: any }) {
+function NextMatchCard({ firstTeam, nextMatch, isManager }: { firstTeam: Team | null; nextMatch: any; isManager: boolean }) {
   return (
     <div className="relative w-full h-full min-h-[340px] rounded-2xl overflow-hidden group shadow-2xl shadow-black/50 border border-white/10">
       <div className="absolute inset-0 bg-gradient-to-br from-[#173627] to-[#0f2319]"></div>
@@ -832,7 +835,7 @@ function NextMatchCard({ firstTeam, nextMatch }: { firstTeam: Team | null; nextM
                     >
                       경기 보기
                     </Link>
-                  ) : (
+                  ) : isManager ? (
                     <Link
                       href={`/teams/${firstTeam.id}/matches/new`}
                       className="flex-1 md:flex-none h-11 px-6 bg-[#00e677] hover:bg-green-400 text-[#0f2319] text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(0,230,119,0.3)]"
@@ -840,7 +843,7 @@ function NextMatchCard({ firstTeam, nextMatch }: { firstTeam: Team | null; nextM
                       <Calendar className="w-5 h-5" />
                       경기 생성
                     </Link>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </>

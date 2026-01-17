@@ -160,7 +160,7 @@ export default function OnboardingPage() {
               <label className="mb-2 block text-sm font-medium text-text-400">
                 활동 지역 (선택)
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <Select
                   value={selectedCity}
                   onValueChange={(value) => {
@@ -168,6 +168,7 @@ export default function OnboardingPage() {
                     setSelectedDistrict("");
                   }}
                   placeholder="시/도 선택"
+                  fullWidth
                 >
                   {area.map((a) => (
                     <SelectItem key={a.name} value={a.name}>
@@ -180,6 +181,7 @@ export default function OnboardingPage() {
                   onValueChange={setSelectedDistrict}
                   placeholder="구/군 선택"
                   disabled={!selectedCity}
+                  fullWidth
                 >
                   {districts.map((d) => (
                     <SelectItem key={d} value={d}>

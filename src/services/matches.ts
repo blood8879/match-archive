@@ -76,9 +76,8 @@ export async function createMatch(formData: FormData): Promise<Match> {
   const location = formData.get("location") as string;
   const venueId = formData.get("venue_id") as string;
   const quarters = parseInt(formData.get("quarters") as string) || 4;
+  const isHome = formData.get("is_home") !== "false";
 
-  // opponent_team_id has FK to teams table, guest_team_id has FK to guest_teams table
-  // Use the appropriate field based on is_guest_opponent flag
   const { data, error } = await supabase
     .from("matches")
     .insert({
@@ -91,6 +90,7 @@ export async function createMatch(formData: FormData): Promise<Match> {
       location: location || null,
       venue_id: venueId || null,
       quarters,
+      is_home: isHome,
       status: "SCHEDULED" as const,
     })
     .select()
@@ -118,16 +118,24 @@ export async function updateMatch(
   const location = formData.get("location") as string;
   const venueId = formData.get("venue_id") as string;
   const quarters = parseInt(formData.get("quarters") as string) || 4;
+  const isHomeValue = formData.get("is_home");
+  const isHome = isHomeValue === null ? undefined : isHomeValue !== "false";
+
+  const updateData: Record<string, unknown> = {
+    opponent_name: opponentName,
+    match_date: matchDate,
+    location: location || null,
+    venue_id: venueId || null,
+    quarters,
+  };
+
+  if (isHome !== undefined) {
+    updateData.is_home = isHome;
+  }
 
   const { data, error } = await supabase
     .from("matches")
-    .update({
-      opponent_name: opponentName,
-      match_date: matchDate,
-      location: location || null,
-      venue_id: venueId || null,
-      quarters,
-    })
+    .update(updateData)
     .eq("id", matchId)
     .select()
     .single();
@@ -739,12 +747,17 @@ export type HeadToHeadStats = {
   draws: number;
   homeGoals: number;
   awayGoals: number;
+  homeWinsAtHome: number;
+  homeWinsAway: number;
+  awayWinsAtHome: number;
+  awayWinsAway: number;
   recentMatches: {
     id: string;
     date: string;
     homeScore: number;
     awayScore: number;
     result: "W" | "D" | "L";
+    isHome: boolean;
   }[];
 };
 
@@ -759,7 +772,7 @@ export async function getHeadToHeadStats(
   // 상대팀과의 모든 경기 조회 (완료된 경기만)
   let query = supabase
     .from("matches")
-    .select("id, match_date, home_score, away_score, status")
+    .select("id, match_date, home_score, away_score, status, is_home")
     .eq("team_id", teamId)
     .eq("status", "FINISHED")
     .order("match_date", { ascending: false });
@@ -782,6 +795,10 @@ export async function getHeadToHeadStats(
       draws: 0,
       homeGoals: 0,
       awayGoals: 0,
+      homeWinsAtHome: 0,
+      homeWinsAway: 0,
+      awayWinsAtHome: 0,
+      awayWinsAway: 0,
       recentMatches: [],
     };
   }
@@ -796,6 +813,10 @@ export async function getHeadToHeadStats(
   let draws = 0;
   let homeGoals = 0;
   let awayGoals = 0;
+  let homeWinsAtHome = 0;
+  let homeWinsAway = 0;
+  let awayWinsAtHome = 0;
+  let awayWinsAway = 0;
 
   const recentMatches = filteredMatches.slice(0, 5).map((match) => {
     const result: "W" | "D" | "L" =
@@ -810,17 +831,29 @@ export async function getHeadToHeadStats(
       homeScore: match.home_score,
       awayScore: match.away_score,
       result,
+      isHome: match.is_home ?? true,
     };
   });
 
   filteredMatches.forEach((match) => {
     homeGoals += match.home_score;
     awayGoals += match.away_score;
+    const isHome = match.is_home ?? true;
 
     if (match.home_score > match.away_score) {
       homeWins++;
+      if (isHome) {
+        homeWinsAtHome++;
+      } else {
+        homeWinsAway++;
+      }
     } else if (match.home_score < match.away_score) {
       awayWins++;
+      if (isHome) {
+        awayWinsAtHome++;
+      } else {
+        awayWinsAway++;
+      }
     } else {
       draws++;
     }
@@ -833,6 +866,10 @@ export async function getHeadToHeadStats(
     draws,
     homeGoals,
     awayGoals,
+    homeWinsAtHome,
+    homeWinsAway,
+    awayWinsAtHome,
+    awayWinsAway,
     recentMatches,
   };
 }

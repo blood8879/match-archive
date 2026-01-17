@@ -141,7 +141,7 @@ export function LockerRoomTabs({
 function LockerContent({
   firstTeam,
   myTeams,
-  typedProfile,
+  typedProfile: _typedProfile,
   recentMatches,
   nextMatch,
   totalGoals,

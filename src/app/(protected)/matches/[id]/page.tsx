@@ -405,6 +405,8 @@ export default async function MatchDetailPage({
           stats={headToHeadStats}
           teamName={team?.name || "우리팀"}
           opponentName={opponentDisplayName}
+          teamEmblemUrl={team?.emblem_url}
+          opponentEmblemUrl={(match as any).opponent_team?.emblem_url}
         />
       </div>
     </div>

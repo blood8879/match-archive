@@ -253,6 +253,7 @@ export interface Database {
           quarters: number;
           home_score: number;
           away_score: number;
+          is_home: boolean;
           created_at: string;
         };
         Insert: {
@@ -269,6 +270,7 @@ export interface Database {
           quarters?: number;
           home_score?: number;
           away_score?: number;
+          is_home?: boolean;
           created_at?: string;
         };
         Update: {
@@ -285,6 +287,7 @@ export interface Database {
           quarters?: number;
           home_score?: number;
           away_score?: number;
+          is_home?: boolean;
           created_at?: string;
         };
         Relationships: [

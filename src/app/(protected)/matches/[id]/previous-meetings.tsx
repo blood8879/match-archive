@@ -1,29 +1,58 @@
-import { History, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { History, Shield } from "lucide-react";
 import type { HeadToHeadStats } from "@/services/matches";
 import Link from "next/link";
+import Image from "next/image";
 
 interface PreviousMeetingsProps {
   stats: HeadToHeadStats;
   teamName: string;
   opponentName: string;
+  teamEmblemUrl?: string | null;
+  opponentEmblemUrl?: string | null;
+}
+
+function TeamEmblem({ url, name, size = 40 }: { url?: string | null; name: string; size?: number }) {
+  if (url) {
+    return (
+      <div 
+        className="relative rounded-full overflow-hidden flex-shrink-0"
+        style={{ width: size, height: size }}
+      >
+        <Image
+          src={url}
+          alt={name}
+          fill
+          className="object-cover"
+        />
+      </div>
+    );
+  }
+  return (
+    <div
+      className="rounded-full bg-[#214a36] flex items-center justify-center flex-shrink-0"
+      style={{ width: size, height: size }}
+    >
+      <Shield className="text-[#8eccae]" style={{ width: size * 0.5, height: size * 0.5 }} />
+    </div>
+  );
 }
 
 export function PreviousMeetings({
   stats,
   teamName,
   opponentName,
+  teamEmblemUrl,
+  opponentEmblemUrl,
 }: PreviousMeetingsProps) {
   if (stats.totalMatches === 0) {
     return (
       <section className="glass-panel rounded-2xl overflow-hidden">
-        <div className="px-5 py-3 border-b border-[#214a36] bg-[#162e23]/50 flex items-center gap-2">
-          <div className="p-1 bg-[#00e677]/20 rounded-md">
-            <History className="h-4 w-4 text-[#00e677]" />
+        <div className="px-6 py-5 text-center">
+          <div className="inline-flex items-center justify-center p-2 bg-[#00e677]/10 rounded-xl mb-3">
+            <History className="h-5 w-5 text-[#00e677]" />
           </div>
-          <h3 className="text-white text-sm font-bold">상대 전적</h3>
-        </div>
-        <div className="p-5">
-          <p className="text-center text-[#8eccae] text-sm py-4">
+          <h3 className="text-white text-lg font-bold mb-2">상대 전적</h3>
+          <p className="text-[#8eccae] text-sm">
             {opponentName}과의 이전 경기 기록이 없습니다
           </p>
         </div>
@@ -38,116 +67,112 @@ export function PreviousMeetings({
 
   return (
     <section className="glass-panel rounded-2xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-[#214a36] bg-[#162e23]/50 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="p-1 bg-[#00e677]/20 rounded-md">
-            <History className="h-4 w-4 text-[#00e677]" />
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <TeamEmblem url={teamEmblemUrl} name={teamName} size={44} />
+          <div className="text-center">
+            <h3 className="text-white text-lg font-bold">상대 전적</h3>
+            <p className="text-[#8eccae] text-xs mt-0.5">총 {stats.totalMatches}경기</p>
           </div>
-          <h3 className="text-white text-sm font-bold">상대 전적</h3>
+          <TeamEmblem url={opponentEmblemUrl} name={opponentName} size={44} />
         </div>
-        <span className="text-xs text-[#8eccae]">
-          총 {stats.totalMatches}경기
-        </span>
-      </div>
 
-      <div className="p-5 space-y-5">
-        {/* 승/무/패 통계 바 */}
-        <div>
-          <div className="flex items-center justify-between text-xs mb-2">
-            <span className="text-[#00e677] font-bold">{teamName}</span>
-            <span className="text-[#8eccae]">무</span>
-            <span className="text-red-400 font-bold">{opponentName}</span>
+        <div className="h-2 rounded-full overflow-hidden flex bg-[#162e23]">
+          {homeWinRate > 0 && (
+            <div
+              className="bg-[#00e677] transition-all duration-500"
+              style={{ width: `${homeWinRate}%` }}
+            />
+          )}
+          {drawRate > 0 && (
+            <div
+              className="bg-[#8eccae]/60 transition-all duration-500"
+              style={{ width: `${drawRate}%` }}
+            />
+          )}
+          {awayWinRate > 0 && (
+            <div
+              className="bg-red-500 transition-all duration-500"
+              style={{ width: `${awayWinRate}%` }}
+            />
+          )}
+        </div>
+
+        <div className="flex items-start justify-between">
+          <div className="text-center flex-1">
+            <p className="text-4xl font-black text-[#00e677]">{stats.homeWins}</p>
+            <p className="text-xs text-[#8eccae] mt-1">승리</p>
+            <p className="text-[10px] text-[#8eccae]/50 mt-0.5">
+              홈 {stats.homeWinsAtHome} · 원정 {stats.homeWinsAway}
+            </p>
           </div>
-
-          {/* 프로그레스 바 */}
-          <div className="h-3 rounded-full overflow-hidden flex bg-[#162e23]">
-            {homeWinRate > 0 && (
-              <div
-                className="bg-[#00e677] transition-all"
-                style={{ width: `${homeWinRate}%` }}
-              />
-            )}
-            {drawRate > 0 && (
-              <div
-                className="bg-[#8eccae]/50 transition-all"
-                style={{ width: `${drawRate}%` }}
-              />
-            )}
-            {awayWinRate > 0 && (
-              <div
-                className="bg-red-500 transition-all"
-                style={{ width: `${awayWinRate}%` }}
-              />
-            )}
+          
+          <div className="text-center flex-1">
+            <p className="text-4xl font-black text-[#8eccae]">{stats.draws}</p>
+            <p className="text-xs text-[#8eccae] mt-1">무승부</p>
           </div>
-
-          {/* 숫자 표시 */}
-          <div className="flex items-center justify-between mt-2">
-            <div className="text-center">
-              <p className="text-2xl font-black text-[#00e677]">{stats.homeWins}</p>
-              <p className="text-xs text-[#8eccae]">승</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-black text-[#8eccae]">{stats.draws}</p>
-              <p className="text-xs text-[#8eccae]">무</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-black text-red-400">{stats.awayWins}</p>
-              <p className="text-xs text-[#8eccae]">패</p>
-            </div>
+          
+          <div className="text-center flex-1">
+            <p className="text-4xl font-black text-red-400">{stats.awayWins}</p>
+            <p className="text-xs text-[#8eccae] mt-1">패배</p>
+            <p className="text-[10px] text-[#8eccae]/50 mt-0.5">
+              홈 {stats.awayWinsAtHome} · 원정 {stats.awayWinsAway}
+            </p>
           </div>
         </div>
 
-        {/* 득점 통계 */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-[#162e23] rounded-lg p-3 text-center">
-            <p className="text-xs text-[#8eccae] mb-1">우리팀 총 득점</p>
-            <p className="text-xl font-bold text-[#00e677]">{stats.homeGoals}</p>
+        <div className="flex items-center justify-center gap-6 py-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xl font-bold text-[#00e677]">{stats.homeGoals}</span>
+            <span className="text-[10px] text-[#8eccae]">득점</span>
           </div>
-          <div className="bg-[#162e23] rounded-lg p-3 text-center">
-            <p className="text-xs text-[#8eccae] mb-1">상대팀 총 득점</p>
-            <p className="text-xl font-bold text-red-400">{stats.awayGoals}</p>
+          <div className="text-[#8eccae]/30">|</div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xl font-bold text-red-400">{stats.awayGoals}</span>
+            <span className="text-[10px] text-[#8eccae]">실점</span>
           </div>
         </div>
 
-        {/* 최근 경기 결과 */}
         {stats.recentMatches.length > 0 && (
-          <div>
-            <p className="text-xs text-[#8eccae] mb-2">최근 경기</p>
+          <div className="pt-4 border-t border-[#214a36]/50">
             <div className="space-y-2">
               {stats.recentMatches.map((match) => (
                 <Link
                   key={match.id}
                   href={`/matches/${match.id}`}
-                  className="flex items-center justify-between bg-[#162e23] hover:bg-[#1e3a2c] rounded-lg px-3 py-2 transition-colors"
+                  className="flex items-center justify-between py-3 hover:bg-[#162e23]/50 rounded-lg px-2 -mx-2 transition-colors"
                 >
-                  <div className="flex items-center gap-2">
-                    {match.result === "W" ? (
-                      <TrendingUp className="w-4 h-4 text-[#00e677]" />
-                    ) : match.result === "L" ? (
-                      <TrendingDown className="w-4 h-4 text-red-400" />
-                    ) : (
-                      <Minus className="w-4 h-4 text-[#8eccae]" />
-                    )}
-                    <span className="text-xs text-[#8eccae]">
-                      {new Date(match.date).toLocaleDateString()}
-                    </span>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <TeamEmblem url={teamEmblemUrl} name={teamName} size={28} />
+                    <span className="text-sm text-white truncate">{teamName}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-bold">
-                      {match.homeScore} - {match.awayScore}
-                    </span>
-                    <span
-                      className={`text-xs font-bold px-2 py-0.5 rounded ${
-                        match.result === "W"
-                          ? "bg-[#00e677]/20 text-[#00e677]"
-                          : match.result === "L"
-                          ? "bg-red-500/20 text-red-400"
-                          : "bg-[#8eccae]/20 text-[#8eccae]"
-                      }`}
-                    >
-                      {match.result === "W" ? "승" : match.result === "L" ? "패" : "무"}
-                    </span>
+                  
+                  <div className="flex flex-col items-center px-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-white">{match.homeScore}</span>
+                      <span className="text-[#8eccae]/50 text-sm">-</span>
+                      <span className="text-lg font-bold text-white">{match.awayScore}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded ${
+                        match.isHome 
+                          ? "bg-[#00e677]/15 text-[#00e677]" 
+                          : "bg-[#8eccae]/15 text-[#8eccae]"
+                      }`}>
+                        {match.isHome ? "H" : "A"}
+                      </span>
+                      <span className="text-[10px] text-[#8eccae]/50">
+                        {new Date(match.date).toLocaleDateString("ko-KR", {
+                          month: "numeric",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
+                    <span className="text-sm text-white truncate">{opponentName}</span>
+                    <TeamEmblem url={opponentEmblemUrl} name={opponentName} size={28} />
                   </div>
                 </Link>
               ))}

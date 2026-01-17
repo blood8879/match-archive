@@ -6,7 +6,7 @@ import Link from "next/link";
 import { updateMatch, getMatchById } from "@/services/matches";
 import { getTeamVenues } from "@/services/venues";
 import { getTeams } from "@/services/teams";
-import { Calendar, MapPin, Users, Save, ArrowLeft, Building2, Search } from "lucide-react";
+import { Calendar, MapPin, Users, Save, ArrowLeft, Building2, Search, Home, Plane } from "lucide-react";
 import { Select, SelectItem } from "@/components/ui/select";
 import type { Venue, Match, Team } from "@/types/supabase";
 
@@ -26,6 +26,7 @@ export default function EditMatchPage() {
   const [searchResults, setSearchResults] = useState<Team[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedOpponent, setSelectedOpponent] = useState<string>("");
+  const [isHome, setIsHome] = useState<boolean>(true);
 
   useEffect(() => {
     async function loadData() {
@@ -47,6 +48,7 @@ export default function EditMatchPage() {
           setUseCustomLocation(true);
         }
 
+        setIsHome((matchData as any).is_home ?? true);
         setIsLoading(false);
       } catch (err) {
         console.error("Failed to load match:", err);
@@ -174,6 +176,40 @@ export default function EditMatchPage() {
                   <SelectItem value="2">2쿼터</SelectItem>
                   <SelectItem value="4">4쿼터</SelectItem>
                 </Select>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <span className="text-gray-300 text-sm font-medium">홈/원정</span>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="is_home"
+                    value="true"
+                    checked={isHome}
+                    onChange={() => setIsHome(true)}
+                    className="peer sr-only"
+                  />
+                  <div className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-[#2f6a4d] bg-[#183527] text-gray-400 peer-checked:bg-[#00e677]/20 peer-checked:text-[#00e677] peer-checked:border-[#00e677] transition-all hover:bg-[#183527]/80">
+                    <Home className="w-5 h-5" />
+                    <span className="font-medium">홈</span>
+                  </div>
+                </label>
+                <label className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="is_home"
+                    value="false"
+                    checked={!isHome}
+                    onChange={() => setIsHome(false)}
+                    className="peer sr-only"
+                  />
+                  <div className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-[#2f6a4d] bg-[#183527] text-gray-400 peer-checked:bg-[#00e677]/20 peer-checked:text-[#00e677] peer-checked:border-[#00e677] transition-all hover:bg-[#183527]/80">
+                    <Plane className="w-5 h-5" />
+                    <span className="font-medium">원정</span>
+                  </div>
+                </label>
               </div>
             </div>
 

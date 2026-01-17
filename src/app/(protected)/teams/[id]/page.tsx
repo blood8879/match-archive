@@ -43,7 +43,11 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
     notFound();
   }
 
-  const currentUserMembership = members.find((m) => m.user_id === user?.id);
+  // active 상태의 멤버십을 우선 찾고, 없으면 다른 상태의 멤버십 반환
+  // (용병 기록 병합 등으로 duplicate 레코드가 생긴 경우 대비)
+  const currentUserMembership = 
+    members.find((m) => m.user_id === user?.id && m.status === "active") ||
+    members.find((m) => m.user_id === user?.id);
   const isManager =
     currentUserMembership?.role === "OWNER" ||
     currentUserMembership?.role === "MANAGER";
@@ -54,7 +58,8 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
     (m) => m.status === "active" && !m.is_guest
   );
   const pendingMembers = members.filter((m) => m.status === "pending");
-  const guestMembers = members.filter((m) => m.is_guest);
+  // 병합 완료된 용병은 제외 (status가 "merged"가 아닌 경우만 표시)
+  const guestMembers = members.filter((m) => m.is_guest && m.status !== "merged");
 
   return (
     <main className="relative z-10 flex-1 max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
@@ -126,7 +131,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
               승인 대기 중
             </button>
           )}
-          {isMember && (
+          {isManager && (
             <Link
               href={`/teams/${team.id}/matches/new`}
               className="flex-1 sm:flex-none h-12 px-8 rounded-xl bg-primary hover:bg-primary/90 text-[#0f2319] font-bold text-base transition-all shadow-[0_0_20px_rgba(6,224,118,0.2)] flex items-center justify-center gap-2"
@@ -347,7 +352,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
               {isManager ? (
                 <Link href={`/teams/${team.id}/manage/members`} className="text-xs text-[#8eccae] hover:text-white">관리하기</Link>
               ) : (
-                <Link href="#" className="text-xs text-[#8eccae] hover:text-white">전체보기</Link>
+                <Link href={`/teams/${team.id}/squad`} className="text-xs text-[#8eccae] hover:text-white">전체보기</Link>
               )}
             </div>
 
@@ -402,10 +407,12 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             </section>
           )}
 
-          {guestMembers.length > 0 && (
+          {/* 용병 목록은 관리자만 볼 수 있음 - 팀 관리 페이지에서 상세 관리 */}
+          {isManager && guestMembers.length > 0 && (
             <section className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-gray-400">용병 <span className="text-gray-500 text-base font-normal ml-1">{guestMembers.length}</span></h3>
+                <Link href={`/teams/${team.id}/manage/merge-records`} className="text-xs text-[#8eccae] hover:text-white">기록 병합</Link>
               </div>
               <MemberList members={guestMembers} isManager={isManager} />
             </section>

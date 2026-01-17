@@ -197,9 +197,6 @@ export async function getTeamInvites(
   return data as unknown as TeamInviteWithUsers[];
 }
 
-/**
- * 팀 초대 수락
- */
 export async function acceptTeamInvite(inviteId: string): Promise<void> {
   const supabase = await createClient();
   const {
@@ -208,48 +205,25 @@ export async function acceptTeamInvite(inviteId: string): Promise<void> {
 
   if (!user) throw new Error("로그인이 필요합니다");
 
-  // 초대 정보 가져오기
-  const inviteResult = await supabase
+  const { data: invite } = await supabase
     .from("team_invites")
-    .select("*")
+    .select("team_id")
     .eq("id", inviteId)
-    .eq("invitee_id", user.id)
-    .eq("status", "pending" as any)
     .single();
 
-  const invite: any = inviteResult.data;
-  const inviteError = inviteResult.error;
-
-  if (inviteError || !invite) {
-    throw new Error("유효하지 않은 초대입니다");
-  }
-
-  // 트랜잭션처럼 처리: 팀 멤버 추가 후 초대 상태 업데이트
-  const { error: memberError } = await supabase.from("team_members").insert({
-    team_id: invite.team_id,
-    user_id: user.id,
-    role: "MEMBER",
-    status: "active",
+  const { error } = await supabase.rpc("accept_team_invite" as any, {
+    p_invite_id: inviteId,
   });
 
-  if (memberError) {
-    console.error("[acceptTeamInvite] Member insert error:", memberError.message);
+  if (error) {
+    console.error("[acceptTeamInvite] RPC error:", error.message);
     throw new Error("팀 가입에 실패했습니다");
   }
 
-  // 초대 상태를 accepted로 변경
-  const { error: updateError } = await supabase
-    .from("team_invites")
-    .update({ status: "accepted" as any } as any)
-    .eq("id", inviteId);
-
-  if (updateError) {
-    console.error("[acceptTeamInvite] Update error:", updateError.message);
-    // 이미 팀 멤버는 추가되었으므로 에러를 throw하지 않음
-  }
-
   revalidatePath("/dashboard");
-  revalidatePath(`/teams/${invite.team_id}`);
+  if (invite?.team_id) {
+    revalidatePath(`/teams/${invite.team_id}`);
+  }
 }
 
 /**

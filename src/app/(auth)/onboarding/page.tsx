@@ -40,10 +40,40 @@ export default function OnboardingPage() {
   const [preferredFoot, setPreferredFoot] = useState<"left" | "right" | "both" | "">("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [nicknameError, setNicknameError] = useState<string | null>(null);
 
   // 선택된 시/도의 구/군 목록
   const districts = area.find((a) => a.name === selectedCity)?.subArea || [];
+
+  // 기존 유저 프로필 불러오기
+  useEffect(() => {
+    const loadExistingProfile = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from("users")
+          .select("nickname, position, nationality, birth_date, preferred_foot")
+          .eq("id", user.id)
+          .single();
+
+        if (profile) {
+          if (profile.nickname) setNickname(profile.nickname);
+          if (profile.position) setPosition(profile.position as Position);
+          if (profile.nationality) setNationality(profile.nationality);
+          if (profile.birth_date) setBirthDate(profile.birth_date);
+          if (profile.preferred_foot) setPreferredFoot(profile.preferred_foot as "left" | "right" | "both");
+        }
+      }
+      setIsLoadingProfile(false);
+    };
+
+    loadExistingProfile();
+  }, []);
 
   // 국가 목록 정렬 (한국어 이름 기준, 대한민국을 맨 위로)
   const sortedCountries = useMemo(() => {
@@ -149,6 +179,21 @@ export default function OnboardingPage() {
     nationality &&
     birthDate &&
     preferredFoot;
+
+  if (isLoadingProfile) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <Card variant="glass" className="w-full max-w-md">
+          <CardContent className="py-12">
+            <div className="flex flex-col items-center gap-4">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" />
+              <p className="text-text-400">프로필 정보를 불러오는 중...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">

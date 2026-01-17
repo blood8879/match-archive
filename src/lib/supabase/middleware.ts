@@ -59,11 +59,16 @@ export async function updateSession(request: NextRequest) {
   if (user && (isProtectedRoute || isOnboardingPage)) {
     const { data: profile } = await supabase
       .from("users")
-      .select("nickname")
+      .select("nickname, nationality, birth_date, preferred_foot")
       .eq("id", user.id)
       .single();
 
-    const isProfileComplete = profile?.nickname && profile.nickname.trim() !== "";
+    const isProfileComplete =
+      profile?.nickname &&
+      profile.nickname.trim() !== "" &&
+      profile?.nationality &&
+      profile?.birth_date &&
+      profile?.preferred_foot;
 
     // 프로필 미완료 상태에서 온보딩 페이지가 아닌 곳 접근 시 온보딩으로
     if (!isProfileComplete && !isOnboardingPage) {

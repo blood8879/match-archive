@@ -822,8 +822,10 @@ function NextMatchCard({ firstTeam, nextMatch, isManager }: { firstTeam: Team | 
                         {formatDateTime(nextMatch.match_date)}
                         {nextMatch.location && ` · ${nextMatch.location}`}
                       </>
-                    ) : (
+                    ) : isManager ? (
                       "경기를 생성하여 일정을 관리하세요"
+                    ) : (
+                      "예정된 경기가 없습니다"
                     )}
                   </div>
                 </div>

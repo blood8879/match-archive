@@ -886,30 +886,61 @@ export async function getTeamForm(
     return null;
   }
 
-  // 팀의 최근 완료된 경기 조회
-  let query = supabase
+  // 팀의 최근 완료된 경기 조회 (홈 경기)
+  let homeQuery = supabase
     .from("matches")
-    .select("id, match_date, opponent_name, opponent_team_id, home_score, away_score, status")
+    .select("id, team_id, match_date, opponent_name, opponent_team_id, home_score, away_score, status")
     .eq("team_id", teamId)
-    .eq("status", "FINISHED")
-    .order("match_date", { ascending: false })
-    .limit(limit);
+    .eq("status", "FINISHED");
 
   if (excludeMatchId) {
-    query = query.neq("id", excludeMatchId);
+    homeQuery = homeQuery.neq("id", excludeMatchId);
   }
 
-  const { data: matches, error: matchesError } = await query;
+  const { data: homeMatches, error: homeError } = await homeQuery;
 
-  if (matchesError) {
-    console.error("Failed to fetch matches:", matchesError);
+  // 원정 경기 조회 (opponent_team_id로 참여한 경기)
+  let awayQuery = supabase
+    .from("matches")
+    .select("id, team_id, match_date, opponent_name, opponent_team_id, home_score, away_score, status")
+    .eq("opponent_team_id", teamId)
+    .eq("status", "FINISHED");
+
+  if (excludeMatchId) {
+    awayQuery = awayQuery.neq("id", excludeMatchId);
+  }
+
+  const { data: awayMatches, error: awayError } = await awayQuery;
+
+  if (homeError || awayError) {
+    console.error("Failed to fetch matches:", homeError || awayError);
     return null;
   }
 
-  // 상대팀 정보 조회 (opponent_team_id가 있는 경우)
-  const opponentTeamIds = matches
-    .filter((m): m is typeof m & { opponent_team_id: string } => m.opponent_team_id !== null)
-    .map((m) => m.opponent_team_id);
+  // 홈 경기와 원정 경기를 합쳐서 날짜순 정렬
+  type MatchWithRole = {
+    id: string;
+    team_id: string;
+    match_date: string;
+    opponent_name: string;
+    opponent_team_id: string | null;
+    home_score: number;
+    away_score: number;
+    status: string;
+    isHome: boolean;
+  };
+
+  const allMatches: MatchWithRole[] = [
+    ...(homeMatches || []).map((m) => ({ ...m, isHome: true })),
+    ...(awayMatches || []).map((m) => ({ ...m, isHome: false })),
+  ]
+    .sort((a, b) => new Date(b.match_date).getTime() - new Date(a.match_date).getTime())
+    .slice(0, limit);
+
+  // 상대팀 정보 조회
+  const opponentTeamIds = allMatches
+    .map((m) => (m.isHome ? m.opponent_team_id : m.team_id))
+    .filter((id): id is string => id !== null);
 
   let opponentTeams: Record<string, { name: string; emblem_url: string | null }> = {};
 
@@ -935,26 +966,35 @@ export async function getTeamForm(
   let goalsAgainst = 0;
   const recentForm: ("W" | "D" | "L")[] = [];
 
-  const formMatches: TeamFormMatch[] = matches.map((match) => {
-    const result: "W" | "D" | "L" =
-      match.home_score > match.away_score
-        ? "W"
-        : match.home_score < match.away_score
-        ? "L"
-        : "D";
+  const formMatches: TeamFormMatch[] = allMatches.map((match) => {
+    // 홈 경기와 원정 경기에 따라 결과 계산 방식이 다름
+    let result: "W" | "D" | "L";
+    let myGoals: number;
+    let theirGoals: number;
+
+    if (match.isHome) {
+      // 홈 경기: home_score가 내 점수
+      myGoals = match.home_score;
+      theirGoals = match.away_score;
+    } else {
+      // 원정 경기: away_score가 내 점수
+      myGoals = match.away_score;
+      theirGoals = match.home_score;
+    }
+
+    result = myGoals > theirGoals ? "W" : myGoals < theirGoals ? "L" : "D";
 
     recentForm.push(result);
-    goalsFor += match.home_score;
-    goalsAgainst += match.away_score;
+    goalsFor += myGoals;
+    goalsAgainst += theirGoals;
 
     if (result === "W") wins++;
     else if (result === "D") draws++;
     else losses++;
 
-    // 상대팀 정보 (연결된 팀이 있으면 현재 이름 사용)
-    const opponentInfo = match.opponent_team_id
-      ? opponentTeams[match.opponent_team_id]
-      : null;
+    // 상대팀 정보
+    const opponentId = match.isHome ? match.opponent_team_id : match.team_id;
+    const opponentInfo = opponentId ? opponentTeams[opponentId] : null;
 
     return {
       id: match.id,
@@ -964,7 +1004,7 @@ export async function getTeamForm(
       homeScore: match.home_score,
       awayScore: match.away_score,
       result,
-      isHome: true, // 현재 시스템에서는 항상 홈 팀으로 기록
+      isHome: match.isHome,
     };
   });
 

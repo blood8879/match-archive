@@ -238,6 +238,7 @@ export function GoalList({
                     value={scorerId}
                     onValueChange={setScorerId}
                     placeholder="선택"
+                    className="w-full"
                   >
                     {scoringTeam === "HOME"
                       ? lineupMembers.map((member) => (
@@ -263,6 +264,7 @@ export function GoalList({
                     value={assistId}
                     onValueChange={setAssistId}
                     placeholder="없음"
+                    className="w-full"
                   >
                     {scoringTeam === "HOME"
                       ? lineupMembers
@@ -317,6 +319,7 @@ export function GoalList({
                     onValueChange={(val) =>
                       setGoalType(val as "NORMAL" | "PK" | "FREEKICK" | "OWN_GOAL")
                     }
+                    className="w-full"
                   >
                     <SelectItem value="NORMAL">일반</SelectItem>
                     <SelectItem value="PK">PK</SelectItem>

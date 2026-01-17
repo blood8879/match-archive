@@ -98,9 +98,9 @@ export function TeamSearchForm({
           />
           <button
             onClick={() => handleSearch({ query })}
-            className="hidden sm:flex bg-[#00e677] hover:bg-green-400 text-[#0f2319] font-bold py-2 px-6 rounded-xl transition-colors items-center gap-1"
+            className="hidden sm:flex shrink-0 bg-[#00e677] hover:bg-green-400 text-[#0f2319] font-bold py-2 px-6 rounded-xl transition-colors items-center gap-1 whitespace-nowrap"
           >
-            <span>검색</span>
+            검색
           </button>
         </div>
       </div>

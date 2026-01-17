@@ -63,8 +63,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   let totalGoals = 0;
   let totalAssists = 0;
   let matchesPlayed = 0;
+  let consecutiveAppearances = 0;
+  let teamTotalMatches = 0;
+  let attendanceRate = 0;
 
-  if (currentMembershipId) {
+  if (currentMembershipId && currentTeam) {
     const { data: myStats } = await supabase
       .from("match_records")
       .select("goals, assists, match:matches!match_records_match_id_fkey(id, status)")
@@ -76,6 +79,43 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       totalGoals = finishedMatches.reduce((sum: number, r: any) => sum + (r.goals || 0), 0);
       totalAssists = finishedMatches.reduce((sum: number, r: any) => sum + (r.assists || 0), 0);
       matchesPlayed = finishedMatches.length;
+    }
+
+    // 팀의 전체 완료된 경기 수 조회 (출석률 계산용)
+    const { count: totalMatchCount } = await supabase
+      .from("matches")
+      .select("id", { count: "exact", head: true })
+      .eq("team_id", currentTeam.id)
+      .eq("status", "FINISHED");
+
+    teamTotalMatches = totalMatchCount || 0;
+    attendanceRate = teamTotalMatches > 0 ? Math.round((matchesPlayed / teamTotalMatches) * 100) : 0;
+
+    // 연속 출전 계산: 팀의 최근 경기들 중 내가 연속으로 출전한 경기 수
+    const { data: teamMatches } = await supabase
+      .from("matches")
+      .select("id, match_date")
+      .eq("team_id", currentTeam.id)
+      .eq("status", "FINISHED")
+      .order("match_date", { ascending: false })
+      .limit(20);
+
+    if (teamMatches && teamMatches.length > 0) {
+      const { data: myAppearances } = await supabase
+        .from("match_records")
+        .select("match_id")
+        .eq("team_member_id", currentMembershipId);
+
+      const myMatchIds = new Set(myAppearances?.map((r) => r.match_id) || []);
+
+      // 가장 최근 경기부터 연속으로 출전한 경기 수 계산
+      for (const match of teamMatches) {
+        if (myMatchIds.has(match.id)) {
+          consecutiveAppearances++;
+        } else {
+          break; // 연속이 끊기면 중단
+        }
+      }
     }
   }
 
@@ -208,6 +248,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           totalGoals={totalGoals}
           totalAssists={totalAssists}
           matchesPlayed={matchesPlayed}
+          consecutiveAppearances={consecutiveAppearances}
+          attendanceRate={attendanceRate}
           members={members}
           venues={venues}
           isManager={isManager}

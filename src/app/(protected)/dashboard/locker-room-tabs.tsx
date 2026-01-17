@@ -16,6 +16,8 @@ import {
   BarChart3,
   UsersRound,
   MapPin,
+  Flame,
+  UserCheck,
 } from "lucide-react";
 import type { Team, TeamMember, User, Venue } from "@/types/supabase";
 import { formatDateTime } from "@/lib/utils";
@@ -34,6 +36,8 @@ interface LockerRoomTabsProps {
   totalGoals: number;
   totalAssists: number;
   matchesPlayed: number;
+  consecutiveAppearances: number;
+  attendanceRate: number;
   members: TeamMemberWithUser[];
   venues: Venue[];
   isManager: boolean;
@@ -50,6 +54,8 @@ export function LockerRoomTabs({
   totalGoals,
   totalAssists,
   matchesPlayed,
+  consecutiveAppearances,
+  attendanceRate,
   members,
   venues,
   isManager,
@@ -101,6 +107,7 @@ export function LockerRoomTabs({
           totalGoals={totalGoals}
           totalAssists={totalAssists}
           matchesPlayed={matchesPlayed}
+          consecutiveAppearances={consecutiveAppearances}
         />
       )}
 
@@ -109,6 +116,7 @@ export function LockerRoomTabs({
           totalGoals={totalGoals}
           totalAssists={totalAssists}
           matchesPlayed={matchesPlayed}
+          attendanceRate={attendanceRate}
           typedProfile={typedProfile}
           recentMatches={recentMatches}
         />
@@ -139,6 +147,7 @@ function LockerContent({
   totalGoals,
   totalAssists,
   matchesPlayed,
+  consecutiveAppearances,
 }: {
   firstTeam: Team | null;
   myTeams: TeamMemberWithTeam[] | null;
@@ -148,6 +157,7 @@ function LockerContent({
   totalGoals: number;
   totalAssists: number;
   matchesPlayed: number;
+  consecutiveAppearances: number;
 }) {
   return (
     <>
@@ -230,18 +240,23 @@ function LockerContent({
           <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-0 rounded-xl relative overflow-hidden flex flex-col">
             <div className="p-5 flex-1 relative z-10">
               <div className="flex items-center gap-3 mb-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-500 border border-yellow-500/30">
-                  MVP
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-500/20 text-orange-500 border border-orange-500/30">
+                  <Flame className="w-3 h-3 inline-block mr-1" />
+                  STREAK
                 </span>
-                <p className="text-white/60 text-sm font-medium">내 포지션</p>
+                <p className="text-white/60 text-sm font-medium">연속 출전</p>
               </div>
-              <h3 className="text-xl font-bold text-white">{typedProfile?.position || "미설정"}</h3>
-              <p className="text-3xl font-black text-[#00e677] mt-1">
-                {totalGoals + totalAssists}{" "}
-                <span className="text-sm font-medium text-white/50">공헌</span>
+              <p className="text-4xl font-black text-white mt-2">
+                {consecutiveAppearances}
+                <span className="text-sm font-medium text-white/50 ml-2">경기</span>
+              </p>
+              <p className="text-xs text-white/40 mt-2">
+                {consecutiveAppearances > 0
+                  ? "경기 연속으로 출전 중!"
+                  : "다음 경기 출전을 노려보세요"}
               </p>
             </div>
-            <div className="absolute right-[-20px] bottom-[-20px] size-32 opacity-20 bg-gradient-to-tr from-[#00e677] to-transparent rounded-full blur-2xl"></div>
+            <div className="absolute right-[-20px] bottom-[-20px] size-32 opacity-20 bg-gradient-to-tr from-orange-500 to-transparent rounded-full blur-2xl"></div>
           </div>
         </div>
       </div>
@@ -381,12 +396,14 @@ function StatsContent({
   totalGoals,
   totalAssists,
   matchesPlayed,
+  attendanceRate,
   typedProfile,
   recentMatches,
 }: {
   totalGoals: number;
   totalAssists: number;
   matchesPlayed: number;
+  attendanceRate: number;
   typedProfile: User | null;
   recentMatches: any[];
 }) {
@@ -413,9 +430,10 @@ function StatsContent({
           value={matchesPlayed}
         />
         <StatCard
-          icon={<BarChart3 className="w-12 h-12" />}
-          label="공헌점"
-          value={totalGoals + totalAssists}
+          icon={<UserCheck className="w-12 h-12" />}
+          label="출석률"
+          value={attendanceRate}
+          suffix="%"
         />
       </div>
 
@@ -876,12 +894,14 @@ function StatCard({
   value,
   trend,
   subtext,
+  suffix,
 }: {
   icon: React.ReactNode;
   label: string;
   value: number;
   trend?: string;
   subtext?: string;
+  suffix?: string;
 }) {
   return (
     <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6 rounded-xl relative overflow-hidden group">
@@ -890,7 +910,9 @@ function StatCard({
       </div>
       <p className="text-white/60 text-sm font-medium mb-1">{label}</p>
       <div className="flex items-baseline gap-2">
-        <h3 className="text-4xl font-black text-white">{value}</h3>
+        <h3 className="text-4xl font-black text-white">
+          {value}{suffix && <span className="text-2xl">{suffix}</span>}
+        </h3>
         {trend && (
           <span className="text-[#00e677] text-sm font-bold flex items-center">
             <TrendingUp className="w-3 h-3 mr-1" />
@@ -902,7 +924,7 @@ function StatCard({
       <div className="w-full bg-white/10 h-1 mt-4 rounded-full overflow-hidden">
         <div
           className="bg-[#00e677] h-full rounded-full shadow-[0_0_10px_#00e677]"
-          style={{ width: `${Math.min(value * 5, 100)}%` }}
+          style={{ width: `${Math.min(suffix === "%" ? value : value * 5, 100)}%` }}
         ></div>
       </div>
     </div>

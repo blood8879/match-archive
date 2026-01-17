@@ -30,21 +30,26 @@ export async function getTeamStatistics(
 ): Promise<TeamStatistics> {
   const supabase = await createClient();
 
-  // 완료된 경기만 조회
-  const { data: matches, error } = await supabase
+  // 홈 경기 조회 (team_id)
+  const { data: homeMatches, error: homeError } = await supabase
     .from("matches")
     .select("*")
     .eq("team_id", teamId)
-    .eq("status", "FINISHED")
-    .order("match_date", { ascending: false });
+    .eq("status", "FINISHED");
 
-  if (error) {
-    console.error("Failed to fetch team matches:", error);
-    throw error;
+  // 원정 경기 조회 (opponent_team_id)
+  const { data: awayMatches, error: awayError } = await supabase
+    .from("matches")
+    .select("*")
+    .eq("opponent_team_id", teamId)
+    .eq("status", "FINISHED");
+
+  if (homeError || awayError) {
+    console.error("Failed to fetch team matches:", homeError || awayError);
+    throw homeError || awayError;
   }
 
-  const typedMatches = matches as Match[];
-  const totalMatches = typedMatches.length;
+  const totalMatches = (homeMatches?.length || 0) + (awayMatches?.length || 0);
 
   if (totalMatches === 0) {
     return {
@@ -65,20 +70,31 @@ export async function getTeamStatistics(
   let totalGoalsScored = 0;
   let totalGoalsConceded = 0;
 
-  typedMatches.forEach((match) => {
+  // 홈 경기 통계
+  (homeMatches || []).forEach((match) => {
     const homeScore = match.home_score || 0;
     const awayScore = match.away_score || 0;
 
     totalGoalsScored += homeScore;
     totalGoalsConceded += awayScore;
 
-    if (homeScore > awayScore) {
-      wins++;
-    } else if (homeScore === awayScore) {
-      draws++;
-    } else {
-      losses++;
-    }
+    if (homeScore > awayScore) wins++;
+    else if (homeScore === awayScore) draws++;
+    else losses++;
+  });
+
+  // 원정 경기 통계 (점수 역전)
+  (awayMatches || []).forEach((match) => {
+    const homeScore = match.home_score || 0;
+    const awayScore = match.away_score || 0;
+
+    // 원정팀이므로 away_score가 내 점수
+    totalGoalsScored += awayScore;
+    totalGoalsConceded += homeScore;
+
+    if (awayScore > homeScore) wins++;
+    else if (awayScore === homeScore) draws++;
+    else losses++;
   });
 
   const winRate = totalMatches > 0 ? (wins / totalMatches) * 100 : 0;
@@ -106,29 +122,63 @@ export async function getRecentMatches(
 ): Promise<RecentMatch[]> {
   const supabase = await createClient();
 
-  const { data: matches, error } = await supabase
+  // 홈 경기 조회
+  const { data: homeMatches, error: homeError } = await supabase
     .from("matches")
-    .select("*")
+    .select("*, opponent_team:teams!matches_opponent_team_id_fkey(id, name)")
     .eq("team_id", teamId)
-    .eq("status", "FINISHED")
-    .order("match_date", { ascending: false })
-    .limit(limit);
+    .eq("status", "FINISHED");
 
-  if (error) {
-    console.error("Failed to fetch recent matches:", error);
-    throw error;
+  // 원정 경기 조회
+  const { data: awayMatches, error: awayError } = await supabase
+    .from("matches")
+    .select("*, home_team:teams!matches_team_id_fkey(id, name)")
+    .eq("opponent_team_id", teamId)
+    .eq("status", "FINISHED");
+
+  if (homeError || awayError) {
+    console.error("Failed to fetch recent matches:", homeError || awayError);
+    throw homeError || awayError;
   }
 
-  const typedMatches = matches as Match[];
+  // 홈/원정 경기 합치기
+  type MatchWithRole = Match & { isHome: boolean; opponentDisplayName: string };
 
-  return typedMatches.map((match) => {
+  const allMatches: MatchWithRole[] = [
+    ...(homeMatches || []).map((m: any) => ({
+      ...m,
+      isHome: true,
+      opponentDisplayName: m.opponent_team?.name || m.opponent_name,
+    })),
+    ...(awayMatches || []).map((m: any) => ({
+      ...m,
+      isHome: false,
+      opponentDisplayName: m.home_team?.name || "상대팀",
+    })),
+  ]
+    .sort((a, b) => new Date(b.match_date).getTime() - new Date(a.match_date).getTime())
+    .slice(0, limit);
+
+  return allMatches.map((match) => {
     const homeScore = match.home_score || 0;
     const awayScore = match.away_score || 0;
 
+    // 홈/원정에 따라 결과 계산
+    let myGoals: number;
+    let theirGoals: number;
+
+    if (match.isHome) {
+      myGoals = homeScore;
+      theirGoals = awayScore;
+    } else {
+      myGoals = awayScore;
+      theirGoals = homeScore;
+    }
+
     let result: "W" | "D" | "L";
-    if (homeScore > awayScore) {
+    if (myGoals > theirGoals) {
       result = "W";
-    } else if (homeScore === awayScore) {
+    } else if (myGoals === theirGoals) {
       result = "D";
     } else {
       result = "L";
@@ -138,7 +188,7 @@ export async function getRecentMatches(
       result,
       homeScore,
       awayScore,
-      opponentName: match.opponent_name,
+      opponentName: match.opponentDisplayName,
       matchDate: match.match_date,
     };
   });
@@ -147,6 +197,8 @@ export async function getRecentMatches(
 export type MatchWithOpponentTeam = Match & {
   opponent_team: { id: string; name: string; emblem_url: string | null } | null;
   venue: { id: string; name: string; address: string } | null;
+  isAwayMatch?: boolean; // 원정 경기 여부
+  home_team?: { id: string; name: string; emblem_url: string | null } | null;
 };
 
 /**
@@ -157,7 +209,8 @@ export async function getNextMatch(teamId: string): Promise<MatchWithOpponentTea
 
   const now = new Date().toISOString();
 
-  const { data: matches, error } = await supabase
+  // 홈 경기 조회
+  const { data: homeMatches, error: homeError } = await supabase
     .from("matches")
     .select(`
       *,
@@ -170,11 +223,61 @@ export async function getNextMatch(teamId: string): Promise<MatchWithOpponentTea
     .order("match_date", { ascending: true })
     .limit(1);
 
-  if (error) {
-    console.error("Failed to fetch next match:", error);
-    throw error;
+  // 원정 경기 조회 (opponent_team_id로 참여)
+  const { data: awayMatches, error: awayError } = await supabase
+    .from("matches")
+    .select(`
+      *,
+      home_team:teams!matches_team_id_fkey(id, name, emblem_url),
+      venue:venues!matches_venue_id_fkey(id, name, address)
+    `)
+    .eq("opponent_team_id", teamId)
+    .eq("status", "SCHEDULED")
+    .gte("match_date", now)
+    .order("match_date", { ascending: true })
+    .limit(1);
+
+  if (homeError || awayError) {
+    console.error("Failed to fetch next match:", homeError || awayError);
+    throw homeError || awayError;
   }
 
-  const typedMatches = matches as MatchWithOpponentTeam[];
-  return typedMatches.length > 0 ? typedMatches[0] : null;
+  // 홈 경기와 원정 경기 중 가장 빠른 경기 선택
+  const homeMatch = homeMatches?.[0] as MatchWithOpponentTeam | undefined;
+  const awayMatch = awayMatches?.[0] as (MatchWithOpponentTeam & { home_team: { id: string; name: string; emblem_url: string | null } }) | undefined;
+
+  if (!homeMatch && !awayMatch) {
+    return null;
+  }
+
+  if (!homeMatch) {
+    // 원정 경기만 있음 - 상대팀을 홈팀으로 표시
+    return {
+      ...awayMatch!,
+      isAwayMatch: true,
+      // 원정 경기에서는 home_team이 상대팀
+      opponent_team: awayMatch!.home_team || null,
+      opponent_name: awayMatch!.home_team?.name || awayMatch!.opponent_name,
+    };
+  }
+
+  if (!awayMatch) {
+    // 홈 경기만 있음
+    return { ...homeMatch, isAwayMatch: false };
+  }
+
+  // 둘 다 있으면 더 빠른 경기 선택
+  const homeDate = new Date(homeMatch.match_date).getTime();
+  const awayDate = new Date(awayMatch.match_date).getTime();
+
+  if (homeDate <= awayDate) {
+    return { ...homeMatch, isAwayMatch: false };
+  } else {
+    return {
+      ...awayMatch,
+      isAwayMatch: true,
+      opponent_team: awayMatch.home_team || null,
+      opponent_name: awayMatch.home_team?.name || awayMatch.opponent_name,
+    };
+  }
 }

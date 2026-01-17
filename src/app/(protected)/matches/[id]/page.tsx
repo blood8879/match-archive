@@ -157,7 +157,7 @@ export default async function MatchDetailPage({
 
         {/* Score Board */}
         <section className="glass-panel rounded-2xl p-6 relative overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-full bg-gradient-to-b from-[#00e677]/5 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#00e677]/5 via-transparent to-transparent pointer-events-none" />
 
           <div className="flex items-center justify-between relative z-10">
             {/* Home Team */}

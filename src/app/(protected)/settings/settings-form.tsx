@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useMemo } from "react";
-import { User, Mail, Phone, Zap, Edit, Trash2, LogOut, Upload, Hash, Copy, Check, Globe, Calendar, Footprints, Clock, Tag, Briefcase, X, Plus, Shield } from "lucide-react";
+import { User, Mail, Phone, Zap, Edit, Trash2, LogOut, Upload, Hash, Copy, Check, Globe, Footprints, Clock, Tag, Briefcase, X, Plus, Shield } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
 import { updateUserProfile, signOut } from "@/services/auth";
 import { createClient } from "@/lib/supabase/client";
 import imageCompression from "browser-image-compression";
@@ -481,19 +482,15 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
             </label>
 
             {/* Birth Date */}
-            <label className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
               <span className="text-sm font-semibold text-white/80">생년월일</span>
-              <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                <input
-                  type="date"
-                  value={birthDate}
-                  onChange={(e) => setBirthDate(e.target.value)}
-                  max={new Date().toISOString().split("T")[0]}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-white focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all [color-scheme:dark]"
-                />
-              </div>
-            </label>
+              <DatePicker
+                value={birthDate}
+                onChange={(value) => setBirthDate(value)}
+                max={new Date().toISOString().split("T")[0]}
+                placeholder="생년월일 선택"
+              />
+            </div>
 
             {/* Preferred Foot */}
             <label className="flex flex-col gap-2">

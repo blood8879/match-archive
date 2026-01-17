@@ -7,7 +7,8 @@ import { createMatch } from "@/services/matches";
 import { getTeamVenues } from "@/services/venues";
 import { getTeams } from "@/services/teams";
 import { getGuestTeams, createGuestTeam, type GuestTeam } from "@/services/guest-teams";
-import { Calendar, MapPin, Users, FileText, PlusCircle, Search, Building2, X } from "lucide-react";
+import { MapPin, Users, FileText, PlusCircle, Search, Building2, X, CalendarDays } from "lucide-react";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Select, SelectItem } from "@/components/ui/select";
 import type { Venue, Team } from "@/types/supabase";
 
@@ -201,22 +202,18 @@ export default function NewMatchPage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-8 bg-[#183527]/30 rounded-2xl p-6 md:p-8 border border-[#2f6a4d]/50 shadow-xl">
           <div className="space-y-6">
             <div className="flex items-center gap-2 border-b border-[#2f6a4d] pb-2 mb-4">
-              <Calendar className="w-5 h-5 text-[#00e677]" />
+              <CalendarDays className="w-5 h-5 text-[#00e677]" />
               <h3 className="text-white font-semibold text-lg">기본 정보</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <label className="flex flex-col gap-2 group">
-                <span className="text-gray-300 text-sm font-medium group-focus-within:text-[#00e677] transition-colors">경기 일시</span>
-                <div className="relative">
-                  <input
-                    name="match_date"
-                    type="datetime-local"
-                    required
-                    className="w-full bg-[#183527] border border-[#2f6a4d] rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#00e677] focus:ring-1 focus:ring-[#00e677] transition-all appearance-none"
-                  />
-                  <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none group-focus-within:text-[#00e677] transition-colors" />
-                </div>
-              </label>
+              <div className="flex flex-col gap-2">
+                <span className="text-gray-300 text-sm font-medium">경기 일시</span>
+                <DateTimePicker
+                  name="match_date"
+                  required
+                  placeholder="경기 날짜와 시간 선택"
+                />
+              </div>
 
               <div className="flex flex-col gap-2">
                 <span className="text-gray-300 text-sm font-medium">경기 유형</span>

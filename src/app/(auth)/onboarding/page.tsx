@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectItem } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { AlertCircle, Globe, Calendar, Footprints } from "lucide-react";
+import { AlertCircle, Globe, Footprints } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
 import { area } from "@/constants/area";
 import { countries, TCountryCode } from "countries-list";
 
@@ -315,16 +316,12 @@ export default function OnboardingPage() {
                 <label className="mb-2 block text-sm font-medium text-text-400">
                   생년월일 *
                 </label>
-                <div className="relative">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 pointer-events-none z-10" />
-                  <input
-                    type="date"
-                    value={birthDate}
-                    onChange={(e) => setBirthDate(e.target.value)}
-                    max={new Date().toISOString().split("T")[0]}
-                    className="w-full rounded-xl border border-white/10 bg-surface-700 py-3 pl-12 pr-4 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all [color-scheme:dark]"
-                  />
-                </div>
+                <DatePicker
+                  value={birthDate}
+                  onChange={(value) => setBirthDate(value)}
+                  max={new Date().toISOString().split("T")[0]}
+                  placeholder="생년월일 선택"
+                />
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-text-400">

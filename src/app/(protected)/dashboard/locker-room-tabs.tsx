@@ -27,6 +27,14 @@ type TeamMemberWithUser = TeamMember & {
   user: Pick<User, "id" | "nickname" | "avatar_url" | "position"> | null;
 };
 
+type SeasonStats = {
+  wins: number;
+  draws: number;
+  losses: number;
+  totalMatches: number;
+  seasonYear: number;
+};
+
 interface LockerRoomTabsProps {
   firstTeam: Team | null;
   myTeams: TeamMemberWithTeam[] | null;
@@ -41,6 +49,7 @@ interface LockerRoomTabsProps {
   members: TeamMemberWithUser[];
   venues: Venue[];
   isManager: boolean;
+  seasonStats: SeasonStats;
 }
 
 type TabType = "locker" | "stats" | "squad" | "venue";
@@ -59,6 +68,7 @@ export function LockerRoomTabs({
   members,
   venues,
   isManager,
+  seasonStats,
 }: LockerRoomTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("locker");
 
@@ -119,7 +129,7 @@ export function LockerRoomTabs({
           matchesPlayed={matchesPlayed}
           attendanceRate={attendanceRate}
           typedProfile={typedProfile}
-          recentMatches={recentMatches}
+          seasonStats={seasonStats}
         />
       )}
 
@@ -394,25 +404,22 @@ function LockerContent({
   );
 }
 
-// 기록(Stats) 탭 콘텐츠
 function StatsContent({
   totalGoals,
   totalAssists,
   matchesPlayed,
   attendanceRate,
   typedProfile,
-  recentMatches,
+  seasonStats,
 }: {
   totalGoals: number;
   totalAssists: number;
   matchesPlayed: number;
   attendanceRate: number;
   typedProfile: User | null;
-  recentMatches: any[];
+  seasonStats: SeasonStats;
 }) {
-  const wins = recentMatches.filter((m) => m.result === "W").length;
-  const draws = recentMatches.filter((m) => m.result === "D").length;
-  const losses = recentMatches.filter((m) => m.result === "L").length;
+  const { wins, draws, losses, seasonYear } = seasonStats;
 
   return (
     <div className="space-y-6">
@@ -443,7 +450,7 @@ function StatsContent({
       <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6 rounded-xl">
         <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
           <BarChart3 className="w-5 h-5 text-[#00e677]" />
-          시즌 요약
+          {seasonYear} 시즌 요약
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-4 rounded-xl bg-[#00e677]/10 border border-[#00e677]/20">

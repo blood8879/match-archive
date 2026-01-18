@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Users, Calendar, Zap } from "lucide-react";
 import type { Team, TeamMember, User, Venue } from "@/types/supabase";
-import { getRecentMatches, getNextMatch } from "@/services/team-stats";
+import { getRecentMatches, getNextMatch, getSeasonStatistics } from "@/services/team-stats";
 import { getTeamMembers } from "@/services/teams";
 import { getNotifications } from "@/services/notifications";
 import { LockerRoomTabs } from "./locker-room-tabs";
@@ -123,12 +123,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   let nextMatch: any = null;
   let members: TeamMemberWithUser[] = [];
   let venues: Venue[] = [];
+  let seasonStats = { wins: 0, draws: 0, losses: 0, totalMatches: 0, seasonYear: new Date().getFullYear() };
 
   if (currentTeam) {
     try {
       recentMatches = await getRecentMatches(currentTeam.id, 5);
       nextMatch = await getNextMatch(currentTeam.id);
       members = await getTeamMembers(currentTeam.id);
+      seasonStats = await getSeasonStatistics(currentTeam.id);
 
       const { data: venueData } = await supabase
         .from("venues")
@@ -253,6 +255,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           members={members}
           venues={venues}
           isManager={isManager}
+          seasonStats={seasonStats}
         />
       </main>
     </div>

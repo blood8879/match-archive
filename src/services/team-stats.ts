@@ -14,6 +14,24 @@ export type TeamStatistics = {
   averageGoalsPerMatch: number;
 };
 
+export type SeasonStats = {
+  wins: number;
+  draws: number;
+  losses: number;
+  totalMatches: number;
+  seasonYear: number;
+};
+
+function getCurrentSeasonRange(): { start: string; end: string; year: number } {
+  const now = new Date();
+  const year = now.getFullYear();
+  return {
+    start: `${year}-01-01T00:00:00.000Z`,
+    end: `${year}-12-31T23:59:59.999Z`,
+    year,
+  };
+}
+
 export type RecentMatch = {
   result: "W" | "D" | "L";
   homeScore: number;
@@ -21,6 +39,58 @@ export type RecentMatch = {
   opponentName: string;
   matchDate: string;
 };
+
+/**
+ * 현재 시즌의 팀 승/무/패 통계를 반환합니다
+ */
+export async function getSeasonStatistics(teamId: string): Promise<SeasonStats> {
+  const supabase = await createClient();
+  const { start, end, year } = getCurrentSeasonRange();
+
+  const { data: homeMatches } = await supabase
+    .from("matches")
+    .select("home_score, away_score")
+    .eq("team_id", teamId)
+    .eq("status", "FINISHED")
+    .gte("match_date", start)
+    .lte("match_date", end);
+
+  const { data: awayMatches } = await supabase
+    .from("matches")
+    .select("home_score, away_score")
+    .eq("opponent_team_id", teamId)
+    .eq("status", "FINISHED")
+    .gte("match_date", start)
+    .lte("match_date", end);
+
+  let wins = 0;
+  let draws = 0;
+  let losses = 0;
+
+  (homeMatches || []).forEach((m) => {
+    const home = m.home_score || 0;
+    const away = m.away_score || 0;
+    if (home > away) wins++;
+    else if (home === away) draws++;
+    else losses++;
+  });
+
+  (awayMatches || []).forEach((m) => {
+    const home = m.home_score || 0;
+    const away = m.away_score || 0;
+    if (away > home) wins++;
+    else if (away === home) draws++;
+    else losses++;
+  });
+
+  return {
+    wins,
+    draws,
+    losses,
+    totalMatches: wins + draws + losses,
+    seasonYear: year,
+  };
+}
 
 /**
  * 팀의 전체 통계를 계산합니다

@@ -60,7 +60,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
   const pendingMembers = members.filter(
     (m) => m.status === "pending" && !activeUserIds.has(m.user_id)
   );
-  const guestMembers = members.filter((m) => m.is_guest && m.status !== "merged");
+
 
   return (
     <main className="relative z-10 flex-1 max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
@@ -408,29 +408,11 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             </section>
           )}
 
-          {/* 용병 목록은 관리자만 볼 수 있음 - 팀 관리 페이지에서 상세 관리 */}
-          {isManager && guestMembers.length > 0 && (
-            <section className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-400">용병 <span className="text-gray-500 text-base font-normal ml-1">{guestMembers.length}</span></h3>
-                <Link href={`/teams/${team.id}/manage/merge-records`} className="text-xs text-[#8eccae] hover:text-white">기록 병합</Link>
-              </div>
-              <MemberList members={guestMembers} isManager={isManager} />
-            </section>
-          )}
+
         </div>
       </div>
 
-      {isManager && (
-        <div className="flex justify-end gap-3">
-          <Link
-            href={`/teams/${team.id}/guests/new`}
-            className="h-10 px-6 rounded-xl bg-[#214a36] hover:bg-[#2b5d45] text-white font-medium text-sm transition-all border border-white/5 flex items-center justify-center"
-          >
-            용병 추가
-          </Link>
-        </div>
-      )}
+
     </main>
   );
 }

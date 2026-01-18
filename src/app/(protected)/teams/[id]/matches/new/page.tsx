@@ -125,17 +125,20 @@ export default function NewMatchPage() {
         formData.set("region", regionInput.value);
       }
 
-      const newGuestTeam = await createGuestTeam(teamId, formData);
+      const result = await createGuestTeam(teamId, formData);
+      
+      if (!result.success) {
+        setError(result.error);
+        setIsCreatingGuestTeam(false);
+        return;
+      }
 
-      // Reload guest teams
       const teams = await getGuestTeams(teamId);
       setGuestTeams(teams);
 
-      // Select the newly created guest team
-      setSelectedGuestTeam(newGuestTeam.id);
+      setSelectedGuestTeam(result.data.id);
       setShowGuestTeamForm(false);
 
-      // Clear input values
       if (nameInput) nameInput.value = "";
       if (regionInput) regionInput.value = "";
     } catch (err) {

@@ -47,8 +47,14 @@ export function GuestTeamList({ teamId, initialGuestTeams }: GuestTeamListProps)
 
     try {
       const formData = new FormData(e.currentTarget);
-      const newGuestTeam = await createGuestTeam(teamId, formData);
-      setGuestTeams([...guestTeams, newGuestTeam]);
+      const result = await createGuestTeam(teamId, formData);
+      
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      
+      setGuestTeams([...guestTeams, result.data]);
       setShowForm(false);
       router.refresh();
     } catch (err: any) {

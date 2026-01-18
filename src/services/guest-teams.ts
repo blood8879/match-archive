@@ -58,24 +58,21 @@ export async function getGuestTeamById(id: string): Promise<GuestTeam | null> {
   return data as GuestTeam;
 }
 
-/**
- * Create a new guest team
- * @param teamId - The team ID that owns this guest team
- * @param formData - Form data containing name, region, emblem
- * @returns Created guest team
- */
+export type CreateGuestTeamResult = 
+  | { success: true; data: GuestTeam }
+  | { success: false; error: string };
+
 export async function createGuestTeam(
   teamId: string,
   formData: FormData
-): Promise<GuestTeam> {
+): Promise<CreateGuestTeamResult> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) throw new Error("로그인이 필요합니다");
+  if (!user) return { success: false, error: "로그인이 필요합니다" };
 
-  // Check permission
   const { data: membership } = await supabase
     .from("team_members")
     .select("role")
@@ -87,7 +84,7 @@ export async function createGuestTeam(
     !membership ||
     (membership.role !== "OWNER" && membership.role !== "MANAGER")
   ) {
-    throw new Error("권한이 없습니다");
+    return { success: false, error: "권한이 없습니다" };
   }
 
   const name = formData.get("name") as string;
@@ -95,9 +92,8 @@ export async function createGuestTeam(
   const notes = formData.get("notes") as string;
   const emblemFile = formData.get("emblem") as File | null;
 
-  if (!name) throw new Error("팀 이름은 필수입니다");
+  if (!name) return { success: false, error: "팀 이름은 필수입니다" };
 
-  // Check for duplicate name
   const { data: existing } = await supabase
     .from("guest_teams")
     .select("id")
@@ -106,18 +102,16 @@ export async function createGuestTeam(
     .maybeSingle();
 
   if (existing) {
-    throw new Error("이미 존재하는 게스트팀 이름입니다");
+    return { success: false, error: "이미 존재하는 게스트팀 이름입니다" };
   }
 
   let emblemUrl: string | null = null;
 
   if (emblemFile && emblemFile.size > 0) {
-    // File size validation (5MB)
     if (emblemFile.size > 5 * 1024 * 1024) {
-      throw new Error("파일 크기는 5MB를 초과할 수 없습니다");
+      return { success: false, error: "파일 크기는 5MB를 초과할 수 없습니다" };
     }
 
-    // File type validation
     const allowedTypes = [
       "image/jpeg",
       "image/png",
@@ -125,19 +119,15 @@ export async function createGuestTeam(
       "image/svg+xml",
     ];
     if (!allowedTypes.includes(emblemFile.type)) {
-      throw new Error(
-        "지원되지 않는 이미지 형식입니다 (JPG, PNG, WebP, SVG만 가능)"
-      );
+      return { success: false, error: "지원되지 않는 이미지 형식입니다 (JPG, PNG, WebP, SVG만 가능)" };
     }
 
-    // Generate filename
     const fileExt = emblemFile.name.split(".").pop();
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(2, 15);
     const fileName = `${timestamp}_${randomStr}.${fileExt}`;
     const path = `${teamId}/${fileName}`;
 
-    // Upload file
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("team-emblems")
       .upload(path, emblemFile, {
@@ -146,10 +136,9 @@ export async function createGuestTeam(
       });
 
     if (uploadError) {
-      throw new Error(`이미지 업로드 실패: ${uploadError.message}`);
+      return { success: false, error: `이미지 업로드 실패: ${uploadError.message}` };
     }
 
-    // Get public URL
     const {
       data: { publicUrl },
     } = supabase.storage.from("team-emblems").getPublicUrl(uploadData.path);
@@ -171,17 +160,16 @@ export async function createGuestTeam(
 
   if (error) {
     console.error("[createGuestTeam] Error:", error);
-    // Handle unique constraint violation
     if (error.code === "23505" || error.message?.includes("unique")) {
-      throw new Error("이미 존재하는 게스트팀 이름입니다");
+      return { success: false, error: "이미 존재하는 게스트팀 이름입니다" };
     }
-    throw new Error("게스트팀 생성에 실패했습니다");
+    return { success: false, error: "게스트팀 생성에 실패했습니다" };
   }
 
   revalidatePath(`/teams/${teamId}`);
   revalidatePath(`/teams/${teamId}/matches/new`);
 
-  return data as GuestTeam;
+  return { success: true, data: data as GuestTeam };
 }
 
 /**

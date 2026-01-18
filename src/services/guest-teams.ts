@@ -171,6 +171,10 @@ export async function createGuestTeam(
 
   if (error) {
     console.error("[createGuestTeam] Error:", error);
+    // Handle unique constraint violation
+    if (error.code === "23505" || error.message?.includes("unique")) {
+      throw new Error("이미 존재하는 게스트팀 이름입니다");
+    }
     throw new Error("게스트팀 생성에 실패했습니다");
   }
 

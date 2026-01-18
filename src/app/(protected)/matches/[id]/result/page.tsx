@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Target } from "lucide-react";
+import { ArrowLeft, Target, Star } from "lucide-react";
 import {
   getMatchById,
   getMatchRecords,
@@ -13,6 +13,7 @@ import { formatDateTime } from "@/lib/utils";
 import { ScoreForm } from "../score-form";
 import { GoalList } from "../goal-list";
 import { FinishMatchButton } from "../finish-match-button";
+import { MOMSelector } from "../mom-selector";
 
 interface ResultPageProps {
   params: Promise<{ id: string }>;
@@ -168,6 +169,24 @@ export default async function ResultPage({ params }: ResultPageProps) {
               isManager={isManager}
               isFinished={isFinished}
               attendingMemberIds={lineupMemberIds}
+            />
+          </div>
+        </section>
+
+        {/* MOM Selection Section */}
+        <section className="glass-panel rounded-2xl overflow-hidden">
+          <div className="px-5 py-3 border-b border-[#214a36] bg-[#162e23]/50 flex items-center gap-2">
+            <div className="p-1 bg-amber-500/20 rounded-md">
+              <Star className="h-4 w-4 text-amber-400" />
+            </div>
+            <h3 className="text-white text-sm font-bold">MOM 선정</h3>
+          </div>
+          <div className="p-5">
+            <MOMSelector
+              matchId={match.id}
+              records={records}
+              teamMembers={teamMembers}
+              isFinished={isFinished}
             />
           </div>
         </section>

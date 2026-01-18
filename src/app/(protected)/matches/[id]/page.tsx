@@ -11,7 +11,7 @@ import {
 import { getOpponentPlayers } from "@/services/opponent-players";
 import { getTeamById, getTeamMembers } from "@/services/teams";
 import { createClient } from "@/lib/supabase/server";
-import { ArrowLeft, Calendar, Users, Target, Edit, MapPin } from "lucide-react";
+import { ArrowLeft, Calendar, Users, Target, Edit, MapPin, Star } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
 import { AttendanceButton } from "./attendance-button";
 import { AttendanceManager } from "./attendance-manager";
@@ -334,11 +334,19 @@ export default async function MatchDetailPage({
                             </span>
                           )}
                         </div>
-                        <span className="text-sm text-[#8eccae]">
-                          {record.goals > 0 && `${record.goals}골`}
-                          {record.goals > 0 && record.assists > 0 && " "}
-                          {record.assists > 0 && `${record.assists}도움`}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {record.is_mom && (
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">
+                              <Star className="w-3 h-3 fill-amber-400" />
+                              MOM
+                            </span>
+                          )}
+                          <span className="text-sm text-[#8eccae]">
+                            {record.goals > 0 && `${record.goals}골`}
+                            {record.goals > 0 && record.assists > 0 && " "}
+                            {record.assists > 0 && `${record.assists}도움`}
+                          </span>
+                        </div>
                       </li>
                     );
                   })}

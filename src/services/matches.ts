@@ -737,6 +737,44 @@ export async function getAttendingMembers(matchId: string): Promise<string[]> {
   return data.map((record) => record.team_member_id);
 }
 
+export async function updateMOM(
+  matchId: string,
+  teamMemberId: string | null
+): Promise<void> {
+  const supabase = await createClient();
+
+  const { data: match } = await supabase
+    .from("matches")
+    .select("team_id")
+    .eq("id", matchId)
+    .single();
+
+  if (!match) {
+    throw new Error("경기를 찾을 수 없습니다");
+  }
+
+  await supabase
+    .from("match_records")
+    .update({ is_mom: false })
+    .eq("match_id", matchId);
+
+  if (teamMemberId) {
+    const { error } = await supabase
+      .from("match_records")
+      .update({ is_mom: true })
+      .eq("match_id", matchId)
+      .eq("team_member_id", teamMemberId);
+
+    if (error) {
+      console.error("Failed to update MOM:", error);
+      throw new Error("MOM 업데이트에 실패했습니다");
+    }
+  }
+
+  revalidatePath(`/matches/${matchId}`);
+  revalidatePath(`/teams/${match.team_id}`);
+}
+
 /**
  * 두 팀 간의 상대전적 통계를 가져옵니다 (Previous Meetings)
  */

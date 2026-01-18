@@ -140,7 +140,7 @@ export function DateTimePicker({
   const updateValue = useCallback(
     (date: Date, hour: number, minute: number) => {
       const dateTime = setMinutes(setHours(date, hour), minute);
-      const formatted = format(dateTime, "yyyy-MM-dd'T'HH:mm");
+      const formatted = format(dateTime, "yyyy-MM-dd'T'HH:mm:ss'+09:00'");
       onChange?.(formatted);
     },
     [onChange]
@@ -257,7 +257,7 @@ export function DateTimePicker({
           selectedDate
             ? format(
                 setMinutes(setHours(selectedDate, selectedHour), selectedMinute),
-                "yyyy-MM-dd'T'HH:mm"
+                "yyyy-MM-dd'T'HH:mm:ss'+09:00'"
               )
             : ""
         }

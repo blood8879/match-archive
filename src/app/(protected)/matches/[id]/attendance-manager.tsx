@@ -31,24 +31,33 @@ export function AttendanceManager({
     (m) => m.status === "active" && (m.user_id || m.is_guest)
   );
 
-  // 참석 상태별로 분류
+  const getDisplayName = (member: TeamMemberWithUser): string => {
+    return member.is_guest && member.guest_name
+      ? member.guest_name
+      : member.user?.nickname || "알 수 없음";
+  };
+
+  const sortByName = (a: TeamMemberWithUser, b: TeamMemberWithUser): number => {
+    return getDisplayName(a).localeCompare(getDisplayName(b), "ko");
+  };
+
   const getAttendanceStatus = (memberId: string): AttendanceStatus | null => {
     const record = attendance.find((a) => a.team_member_id === memberId);
     return record?.status ?? null;
   };
 
-  const attendingMembers = activeMembers.filter(
-    (m) => getAttendanceStatus(m.id) === "attending"
-  );
-  const maybeMembers = activeMembers.filter(
-    (m) => getAttendanceStatus(m.id) === "maybe"
-  );
-  const absentMembers = activeMembers.filter(
-    (m) => getAttendanceStatus(m.id) === "absent"
-  );
-  const noResponseMembers = activeMembers.filter(
-    (m) => getAttendanceStatus(m.id) === null
-  );
+  const attendingMembers = activeMembers
+    .filter((m) => getAttendanceStatus(m.id) === "attending")
+    .sort(sortByName);
+  const maybeMembers = activeMembers
+    .filter((m) => getAttendanceStatus(m.id) === "maybe")
+    .sort(sortByName);
+  const absentMembers = activeMembers
+    .filter((m) => getAttendanceStatus(m.id) === "absent")
+    .sort(sortByName);
+  const noResponseMembers = activeMembers
+    .filter((m) => getAttendanceStatus(m.id) === null)
+    .sort(sortByName);
 
   const handleStatusChange = async (
     memberId: string,

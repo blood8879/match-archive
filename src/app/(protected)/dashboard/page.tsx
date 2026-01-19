@@ -136,6 +136,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         .from("venues")
         .select("*")
         .eq("team_id", currentTeam.id)
+        .is("deleted_at", null)
         .order("is_primary", { ascending: false });
 
       venues = (venueData || []) as Venue[];

@@ -351,3 +351,225 @@ export async function getNextMatch(teamId: string): Promise<MatchWithOpponentTea
     };
   }
 }
+
+export type GoalTypeDistribution = {
+  type: string;
+  count: number;
+  percentage: number;
+};
+
+export type QuarterGoals = {
+  quarter: string;
+  goals: number;
+};
+
+export type PlayerRanking = {
+  memberId: string;
+  name: string;
+  avatarUrl: string | null;
+  value: number;
+};
+
+export type ScorerAssistPair = {
+  scorerName: string;
+  assistName: string;
+  count: number;
+};
+
+export type TeamDetailedStats = {
+  goalTypeDistribution: GoalTypeDistribution[];
+  quarterGoals: QuarterGoals[];
+  topScorers: PlayerRanking[];
+  topAssists: PlayerRanking[];
+  topMom: PlayerRanking[];
+  topAppearances: PlayerRanking[];
+  scorerAssistPairs: ScorerAssistPair[];
+  goalDistribution: PlayerRanking[];
+  totalGoals: number;
+  seasonYear: number;
+};
+
+export async function getTeamDetailedStats(
+  teamId: string,
+  year?: number
+): Promise<TeamDetailedStats> {
+  const supabase = await createClient();
+  const seasonYear = year || new Date().getFullYear();
+  const startDate = `${seasonYear}-01-01T00:00:00.000Z`;
+  const endDate = `${seasonYear}-12-31T23:59:59.999Z`;
+
+  const { data: matches } = await supabase
+    .from("matches")
+    .select("id, home_score, is_home")
+    .eq("team_id", teamId)
+    .eq("status", "FINISHED")
+    .gte("match_date", startDate)
+    .lte("match_date", endDate);
+
+  const matchIds = matches?.map((m) => m.id) || [];
+
+  if (matchIds.length === 0) {
+    return {
+      goalTypeDistribution: [],
+      quarterGoals: [],
+      topScorers: [],
+      topAssists: [],
+      topMom: [],
+      topAppearances: [],
+      scorerAssistPairs: [],
+      goalDistribution: [],
+      totalGoals: 0,
+      seasonYear,
+    };
+  }
+
+  const { data: goals } = await supabase
+    .from("goals")
+    .select(`
+      id, type, quarter, scoring_team,
+      team_member_id, assist_member_id,
+      scorer:team_members!goals_team_member_id_fkey(id, user:users(id, nickname, avatar_url), guest_name, is_guest),
+      assister:team_members!goals_assist_member_id_fkey(id, user:users(id, nickname, avatar_url), guest_name, is_guest)
+    `)
+    .in("match_id", matchIds);
+
+  const { data: records } = await supabase
+    .from("match_records")
+    .select(`
+      id, goals, assists, is_mom,
+      team_member:team_members!match_records_team_member_id_fkey(
+        id, user:users(id, nickname, avatar_url), guest_name, is_guest
+      )
+    `)
+    .in("match_id", matchIds);
+
+  const goalTypeMap: Record<string, number> = { NORMAL: 0, PK: 0, FREEKICK: 0, OWN_GOAL: 0 };
+  const quarterMap: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0 };
+
+  (goals || []).forEach((g: any) => {
+    if (g.team_member_id) {
+      goalTypeMap[g.type] = (goalTypeMap[g.type] || 0) + 1;
+      if (g.quarter >= 1 && g.quarter <= 4) {
+        quarterMap[g.quarter] = (quarterMap[g.quarter] || 0) + 1;
+      }
+    }
+  });
+
+  const totalGoalsCount = Object.values(goalTypeMap).reduce((a, b) => a + b, 0);
+  const goalTypeLabels: Record<string, string> = {
+    NORMAL: "일반골",
+    PK: "페널티킥",
+    FREEKICK: "프리킥",
+    OWN_GOAL: "자책골",
+  };
+
+  const goalTypeDistribution: GoalTypeDistribution[] = Object.entries(goalTypeMap)
+    .filter(([_, count]) => count > 0)
+    .map(([type, count]) => ({
+      type: goalTypeLabels[type] || type,
+      count,
+      percentage: totalGoalsCount > 0 ? Math.round((count / totalGoalsCount) * 100) : 0,
+    }));
+
+  const quarterGoals: QuarterGoals[] = Object.entries(quarterMap).map(([q, goals]) => ({
+    quarter: `${q}Q`,
+    goals,
+  }));
+
+  const getMemberName = (member: any): string => {
+    if (!member) return "알 수 없음";
+    return member.is_guest ? member.guest_name || "용병" : member.user?.nickname || "알 수 없음";
+  };
+
+  const getMemberAvatar = (member: any): string | null => {
+    if (!member || member.is_guest) return null;
+    return member.user?.avatar_url || null;
+  };
+
+  const playerGoals: Record<string, { name: string; avatar: string | null; goals: number }> = {};
+  const playerAssists: Record<string, { name: string; avatar: string | null; assists: number }> = {};
+  const playerMom: Record<string, { name: string; avatar: string | null; count: number }> = {};
+  const playerAppearances: Record<string, { name: string; avatar: string | null; count: number }> = {};
+
+  (records || []).forEach((r: any) => {
+    const memberId = r.team_member?.id;
+    if (!memberId) return;
+    const name = getMemberName(r.team_member);
+    const avatar = getMemberAvatar(r.team_member);
+
+    if (r.goals > 0) {
+      if (!playerGoals[memberId]) playerGoals[memberId] = { name, avatar, goals: 0 };
+      playerGoals[memberId].goals += r.goals;
+    }
+
+    if (r.assists > 0) {
+      if (!playerAssists[memberId]) playerAssists[memberId] = { name, avatar, assists: 0 };
+      playerAssists[memberId].assists += r.assists;
+    }
+
+    if (r.is_mom) {
+      if (!playerMom[memberId]) playerMom[memberId] = { name, avatar, count: 0 };
+      playerMom[memberId].count += 1;
+    }
+
+    if (!playerAppearances[memberId]) playerAppearances[memberId] = { name, avatar, count: 0 };
+    playerAppearances[memberId].count += 1;
+  });
+
+  const topScorers: PlayerRanking[] = Object.entries(playerGoals)
+    .sort((a, b) => b[1].goals - a[1].goals)
+    .slice(0, 5)
+    .map(([id, data]) => ({ memberId: id, name: data.name, avatarUrl: data.avatar, value: data.goals }));
+
+  const topAssists: PlayerRanking[] = Object.entries(playerAssists)
+    .sort((a, b) => b[1].assists - a[1].assists)
+    .slice(0, 5)
+    .map(([id, data]) => ({ memberId: id, name: data.name, avatarUrl: data.avatar, value: data.assists }));
+
+  const topMom: PlayerRanking[] = Object.entries(playerMom)
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 5)
+    .map(([id, data]) => ({ memberId: id, name: data.name, avatarUrl: data.avatar, value: data.count }));
+
+  const topAppearances: PlayerRanking[] = Object.entries(playerAppearances)
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 5)
+    .map(([id, data]) => ({ memberId: id, name: data.name, avatarUrl: data.avatar, value: data.count }));
+
+  const pairMap: Record<string, { scorerName: string; assistName: string; count: number }> = {};
+  (goals || []).forEach((g: any) => {
+    if (g.team_member_id && g.assist_member_id) {
+      const scorerName = getMemberName(g.scorer);
+      const assistName = getMemberName(g.assister);
+      const key = `${g.team_member_id}-${g.assist_member_id}`;
+      if (!pairMap[key]) pairMap[key] = { scorerName, assistName, count: 0 };
+      pairMap[key].count += 1;
+    }
+  });
+
+  const scorerAssistPairs: ScorerAssistPair[] = Object.values(pairMap)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  const goalDistribution: PlayerRanking[] = Object.entries(playerGoals)
+    .sort((a, b) => b[1].goals - a[1].goals)
+    .map(([id, data]) => ({
+      memberId: id,
+      name: data.name,
+      avatarUrl: data.avatar,
+      value: totalGoalsCount > 0 ? Math.round((data.goals / totalGoalsCount) * 100) : 0,
+    }));
+
+  return {
+    goalTypeDistribution,
+    quarterGoals,
+    topScorers,
+    topAssists,
+    topMom,
+    topAppearances,
+    scorerAssistPairs,
+    goalDistribution,
+    totalGoals: totalGoalsCount,
+    seasonYear,
+  };
+}

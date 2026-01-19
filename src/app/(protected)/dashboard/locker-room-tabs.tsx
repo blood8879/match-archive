@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import {
   Users,
@@ -18,8 +18,27 @@ import {
   MapPin,
   Flame,
   UserCheck,
+  PieChart,
+  Target,
+  Star,
+  Handshake,
+  X,
 } from "lucide-react";
+import {
+  PieChart as RechartsPie,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 import type { Team, TeamMember, User, Venue } from "@/types/supabase";
+import type { TeamDetailedStats } from "@/services/team-stats";
+import { fetchTeamStatsBySeason } from "./actions";
 import { formatDateTime } from "@/lib/utils";
 
 type TeamMemberWithTeam = TeamMember & { team: Team | null };
@@ -50,9 +69,11 @@ interface LockerRoomTabsProps {
   venues: Venue[];
   isManager: boolean;
   seasonStats: SeasonStats;
+  teamDetailedStats: TeamDetailedStats | null;
+  availableYears: number[];
 }
 
-type TabType = "locker" | "stats" | "squad" | "venue";
+type TabType = "locker" | "stats" | "team-stats" | "squad" | "venue";
 
 export function LockerRoomTabs({
   firstTeam,
@@ -69,12 +90,15 @@ export function LockerRoomTabs({
   venues,
   isManager,
   seasonStats,
+  teamDetailedStats,
+  availableYears,
 }: LockerRoomTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("locker");
 
   const tabs = [
     { id: "locker" as const, label: "라커룸", icon: Zap },
     { id: "stats" as const, label: "기록", icon: BarChart3 },
+    { id: "team-stats" as const, label: "팀 통계", icon: PieChart },
     { id: "squad" as const, label: "스쿼드", icon: UsersRound },
     { id: "venue" as const, label: "경기장", icon: MapPin },
   ];
@@ -143,6 +167,10 @@ export function LockerRoomTabs({
 
       {activeTab === "venue" && (
         <VenueContent venues={venues} firstTeam={firstTeam} isManager={isManager} />
+      )}
+
+      {activeTab === "team-stats" && (
+        <TeamStatsContent teamDetailedStats={teamDetailedStats} firstTeam={firstTeam} availableYears={availableYears} />
       )}
     </>
   );
@@ -939,6 +967,495 @@ function StatCard({
           style={{ width: `${Math.min(suffix === "%" ? value : value * 5, 100)}%` }}
         ></div>
       </div>
+    </div>
+  );
+}
+
+function TeamStatsContent({
+  teamDetailedStats: initialStats,
+  firstTeam,
+  availableYears,
+}: {
+  teamDetailedStats: TeamDetailedStats | null;
+  firstTeam: Team | null;
+  availableYears: number[];
+}) {
+  const currentYear = new Date().getFullYear();
+  const availableSeasons = availableYears.length > 0 ? availableYears : [currentYear];
+  
+  const [selectedSeason, setSelectedSeason] = useState(initialStats?.seasonYear || availableSeasons[0]);
+  const [stats, setStats] = useState(initialStats);
+  const [isPending, startTransition] = useTransition();
+  
+  const COLORS = ["#00e677", "#22d3ee", "#f472b6", "#fbbf24", "#a78bfa", "#f97316", "#ec4899", "#14b8a6"];
+
+  const handleSeasonChange = (year: number) => {
+    if (!firstTeam || year === selectedSeason) return;
+    setSelectedSeason(year);
+    startTransition(async () => {
+      const newStats = await fetchTeamStatsBySeason(firstTeam.id, year);
+      setStats(newStats);
+    });
+  };
+
+  if (!firstTeam) {
+    return (
+      <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-8 rounded-xl text-center">
+        <p className="text-white/60 mb-4">소속된 팀이 없습니다</p>
+        <div className="flex gap-3 justify-center">
+          <Link
+            href="/teams/new"
+            className="h-10 px-5 bg-[#00e677] hover:bg-green-400 text-[#0f2319] text-sm font-bold rounded-lg flex items-center justify-center transition-all"
+          >
+            팀 만들기
+          </Link>
+          <Link
+            href="/teams"
+            className="h-10 px-5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-medium rounded-lg flex items-center justify-center transition-all"
+          >
+            팀 찾기
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const {
+    goalTypeDistribution = [],
+    quarterGoals = [],
+    topScorers = [],
+    topAssists = [],
+    topMom = [],
+    topAppearances = [],
+    allScorers = [],
+    allAssists = [],
+    allMom = [],
+    allAppearances = [],
+    scorerAssistPairs = [],
+    goalDistribution = [],
+    totalGoals = 0,
+  } = stats || {};
+
+  const hasData = totalGoals > 0;
+
+  return (
+    <div className={`space-y-6 ${isPending ? "opacity-60 pointer-events-none" : ""}`}>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+          <BarChart3 className="w-5 h-5 text-[#00e677]" />
+          {selectedSeason} 시즌 팀 통계
+          {isPending && <span className="text-sm text-white/40 font-normal ml-2">로딩중...</span>}
+        </h3>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-white/40">총 {totalGoals}골</span>
+          <select
+            value={selectedSeason}
+            onChange={(e) => handleSeasonChange(Number(e.target.value))}
+            disabled={isPending}
+            className="bg-white/5 border border-white/10 text-white text-sm font-medium rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00e677]/50 cursor-pointer hover:bg-white/10 transition-colors appearance-none pr-8 [&>option]:bg-[#0f2319] [&>option]:text-white"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff60'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1rem' }}
+          >
+            {availableSeasons.map((year) => (
+              <option key={year} value={year}>
+                {year}시즌
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {!hasData ? (
+        <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-8 rounded-xl text-center">
+          <BarChart3 className="w-12 h-12 text-white/20 mx-auto mb-4" />
+          <p className="text-white/60 mb-2">{selectedSeason}년 통계 데이터가 없습니다</p>
+          <p className="text-white/40 text-sm">경기를 완료하면 팀 통계가 표시됩니다</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6 rounded-xl">
+              <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                <Target className="w-4 h-4 text-[#00e677]" />
+                골 유형 분포
+              </h4>
+              {goalTypeDistribution.length > 0 ? (
+                <div className="h-[250px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsPie>
+                      <Pie
+                        data={goalTypeDistribution}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={90}
+                        paddingAngle={2}
+                        dataKey="count"
+                        nameKey="type"
+                        label={({ name, percent }) => `${name} ${Math.round((percent || 0) * 100)}%`}
+                        labelLine={false}
+                      >
+                        {goalTypeDistribution.map((_, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#1a2e23",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          borderRadius: "8px",
+                          color: "#fff",
+                        }}
+                      />
+                      <Legend
+                        wrapperStyle={{ color: "#fff" }}
+                        formatter={(value) => <span className="text-white/80 text-xs">{value}</span>}
+                      />
+                    </RechartsPie>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="h-[250px] flex items-center justify-center text-white/40 text-sm">
+                  데이터 없음
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6 rounded-xl">
+              <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-[#00e677]" />
+                쿼터별 득점
+              </h4>
+              {quarterGoals.some((q) => q.goals > 0) ? (
+                <div className="h-[250px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={quarterGoals}>
+                      <XAxis dataKey="quarter" stroke="#ffffff60" fontSize={12} />
+                      <YAxis stroke="#ffffff60" fontSize={12} allowDecimals={false} />
+                      <Tooltip
+                        cursor={false}
+                        isAnimationActive={false}
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            return (
+                              <div className="bg-[#0f2319] border border-[#00e677]/30 rounded-lg px-3 py-2 shadow-lg shadow-black/50">
+                                <p className="text-white font-bold">{payload[0].payload.quarter}</p>
+                                <p className="text-[#00e677] font-bold text-lg">{payload[0].value}골</p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <Bar dataKey="goals" fill="#00e677" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="h-[250px] flex items-center justify-center text-white/40 text-sm">
+                  데이터 없음
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <RankingBarChart
+              title="득점 Top 5"
+              icon={<Trophy className="w-4 h-4 text-[#00e677]" />}
+              data={topScorers}
+              allData={allScorers}
+              suffix="골"
+              colors={["#fbbf24", "#94a3b8", "#f97316", "#22d3ee", "#ec4899"]}
+            />
+            <RankingBarChart
+              title="어시스트 Top 5"
+              icon={<TrendingUp className="w-4 h-4 text-[#22d3ee]" />}
+              data={topAssists}
+              allData={allAssists}
+              suffix="도움"
+              colors={["#fbbf24", "#94a3b8", "#f97316", "#a78bfa", "#00e677"]}
+            />
+            <RankingBarChart
+              title="MOM Top 5"
+              icon={<Star className="w-4 h-4 text-[#fbbf24]" />}
+              data={topMom}
+              allData={allMom}
+              suffix="회"
+              colors={["#fbbf24", "#94a3b8", "#f97316", "#f472b6", "#14b8a6"]}
+            />
+            <RankingBarChart
+              title="출전 Top 5"
+              icon={<UserCheck className="w-4 h-4 text-[#a78bfa]" />}
+              data={topAppearances}
+              allData={allAppearances}
+              suffix="경기"
+              colors={["#fbbf24", "#94a3b8", "#f97316", "#8b5cf6", "#06b6d4"]}
+            />
+          </div>
+
+          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6 rounded-xl">
+            <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+              <Handshake className="w-4 h-4 text-[#00e677]" />
+              영혼의 파트너 (득점-도움 조합)
+            </h4>
+            {scorerAssistPairs.length > 0 ? (
+              <div className="space-y-3">
+                {scorerAssistPairs.map((pair, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 rounded-lg bg-white/5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-[#00e677] font-bold text-sm w-6">{index + 1}</span>
+                      <span className="text-white font-medium">
+                        {pair.scorerName} <span className="text-white/40">←</span> {pair.assistName}
+                      </span>
+                    </div>
+                    <span className="text-[#00e677] font-bold">{pair.count}회</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-white/40 text-sm text-center py-4">데이터 없음</p>
+            )}
+          </div>
+
+          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6 rounded-xl">
+            <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+              <PieChart className="w-4 h-4 text-[#00e677]" />
+              득점 분포도
+            </h4>
+            {goalDistribution.length > 0 ? (
+              <GoalDistributionPieChart
+                data={goalDistribution.slice(0, 8).map((p) => ({
+                  name: p.name,
+                  value: p.value,
+                  goals: Math.round((p.value / 100) * totalGoals),
+                }))}
+                colors={COLORS}
+              />
+            ) : (
+              <p className="text-white/40 text-sm text-center py-4">데이터 없음</p>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function RankingBarChart({
+  title,
+  icon,
+  data,
+  allData,
+  suffix,
+  colors,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  data: { memberId: string; name: string; avatarUrl: string | null; value: number }[];
+  allData: { memberId: string; name: string; avatarUrl: string | null; value: number }[];
+  suffix: string;
+  colors: string[];
+}) {
+  const [showModal, setShowModal] = useState(false);
+  
+  const chartData = data.map((player, index) => ({
+    name: player.name.length > 6 ? player.name.slice(0, 6) + "..." : player.name,
+    fullName: player.name,
+    value: player.value,
+    fill: colors[index % colors.length],
+  }));
+
+  return (
+    <>
+      <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6 rounded-xl">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-sm font-bold text-white flex items-center gap-2">
+            {icon}
+            {title}
+          </h4>
+          {allData.length > 5 && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="text-xs text-[#00e677] hover:text-[#00e677]/80 font-medium"
+            >
+              전체 보기
+            </button>
+          )}
+        </div>
+        {data.length > 0 ? (
+          <div className="h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 30 }}>
+                <XAxis type="number" stroke="#ffffff60" fontSize={11} allowDecimals={false} />
+                <YAxis type="category" dataKey="name" stroke="#ffffff60" fontSize={11} width={60} />
+                <Tooltip
+                  cursor={false}
+                  isAnimationActive={false}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const item = payload[0].payload;
+                      return (
+                        <div className="bg-[#0f2319] border border-[#00e677]/30 rounded-lg px-3 py-2 shadow-lg shadow-black/50">
+                          <p className="text-white font-bold">{item.fullName}</p>
+                          <p className="text-[#00e677] font-bold text-lg">{item.value}{suffix}</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                  {chartData.map((entry, index) => (
+                    <Cell key={`bar-${index}`} fill={entry.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="h-[200px] flex items-center justify-center text-white/40 text-sm">
+            데이터 없음
+          </div>
+        )}
+      </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowModal(false)}>
+          <div className="bg-[#0f2319] border border-white/10 rounded-2xl w-full max-w-md max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h3 className="text-white font-bold flex items-center gap-2">
+                {icon}
+                {title} 전체 순위
+              </h3>
+              <button onClick={() => setShowModal(false)} className="text-white/60 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
+              <div className="space-y-2">
+                {allData.map((player, index) => (
+                  <div
+                    key={player.memberId}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                  >
+                    <span
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                        index === 0
+                          ? "bg-[#fbbf24] text-[#0f2319]"
+                          : index === 1
+                          ? "bg-[#94a3b8] text-[#0f2319]"
+                          : index === 2
+                          ? "bg-[#f97316] text-white"
+                          : "bg-white/10 text-white/60"
+                      }`}
+                    >
+                      {index + 1}
+                    </span>
+                    {player.avatarUrl ? (
+                      <img
+                        src={player.avatarUrl}
+                        alt={player.name}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/60 text-sm">
+                        {player.name.charAt(0)}
+                      </div>
+                    )}
+                    <span className="flex-1 text-white font-medium truncate">{player.name}</span>
+                    <span className="text-[#00e677] font-bold">
+                      {player.value}
+                      <span className="text-white/40 text-xs ml-1">{suffix}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function GoalDistributionPieChart({
+  data,
+  colors,
+}: {
+  data: { name: string; value: number; goals: number }[];
+  colors: string[];
+}) {
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+
+  const renderLabel = ({ cx, cy, midAngle, outerRadius, name, value, index }: any) => {
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius + 25;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const color = colors[index % colors.length];
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill={color}
+        textAnchor={x > cx ? "start" : "end"}
+        dominantBaseline="central"
+        fontSize={12}
+        fontWeight="bold"
+      >
+        {name} {value}%
+      </text>
+    );
+  };
+
+  return (
+    <div className="h-[400px] relative">
+      <ResponsiveContainer width="100%" height="100%">
+        <RechartsPie>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="45%"
+            innerRadius={0}
+            outerRadius={100}
+            paddingAngle={2}
+            dataKey="value"
+            nameKey="name"
+            label={renderLabel}
+            labelLine={{ stroke: "#ffffff40", strokeWidth: 1 }}
+            isAnimationActive={false}
+            onMouseEnter={(_, index) => setHoverIndex(index)}
+            onMouseLeave={() => setHoverIndex(null)}
+          >
+            {data.map((_, index) => (
+              <Cell
+                key={`dist-${index}`}
+                fill={colors[index % colors.length]}
+                cursor="pointer"
+                style={{
+                  filter: hoverIndex === index ? "brightness(1.2) drop-shadow(0 0 6px " + colors[index % colors.length] + ")" : "none",
+                  transition: "all 0.2s ease-out",
+                }}
+              />
+            ))}
+          </Pie>
+          <Tooltip content={() => null} />
+          <Legend
+            wrapperStyle={{ color: "#fff" }}
+            formatter={(value) => <span className="text-white/80 text-xs">{value}</span>}
+          />
+        </RechartsPie>
+      </ResponsiveContainer>
+      {hoverIndex !== null && (
+        <div className="absolute top-[42%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none bg-[#0f2319]/90 px-3 py-2 rounded-lg">
+          <p className="text-white font-bold text-sm">{data[hoverIndex].name}</p>
+          <p className="text-[#00e677] font-bold text-xl">{data[hoverIndex].goals}골</p>
+        </div>
+      )}
     </div>
   );
 }

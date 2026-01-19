@@ -40,6 +40,36 @@ export type RecentMatch = {
   matchDate: string;
 };
 
+export async function getTeamAvailableYears(teamId: string): Promise<number[]> {
+  const supabase = await createClient();
+  
+  const { data: homeMatches } = await supabase
+    .from("matches")
+    .select("match_date")
+    .eq("team_id", teamId)
+    .eq("status", "FINISHED");
+
+  const { data: awayMatches } = await supabase
+    .from("matches")
+    .select("match_date")
+    .eq("opponent_team_id", teamId)
+    .eq("status", "FINISHED");
+
+  const allDates = [
+    ...(homeMatches || []).map((m) => m.match_date),
+    ...(awayMatches || []).map((m) => m.match_date),
+  ];
+
+  const years = new Set<number>();
+  allDates.forEach((date) => {
+    if (date) {
+      years.add(new Date(date).getFullYear());
+    }
+  });
+
+  return Array.from(years).sort((a, b) => b - a);
+}
+
 /**
  * 현재 시즌의 팀 승/무/패 통계를 반환합니다
  */
@@ -383,6 +413,10 @@ export type TeamDetailedStats = {
   topAssists: PlayerRanking[];
   topMom: PlayerRanking[];
   topAppearances: PlayerRanking[];
+  allScorers: PlayerRanking[];
+  allAssists: PlayerRanking[];
+  allMom: PlayerRanking[];
+  allAppearances: PlayerRanking[];
   scorerAssistPairs: ScorerAssistPair[];
   goalDistribution: PlayerRanking[];
   totalGoals: number;
@@ -416,6 +450,10 @@ export async function getTeamDetailedStats(
       topAssists: [],
       topMom: [],
       topAppearances: [],
+      allScorers: [],
+      allAssists: [],
+      allMom: [],
+      allAppearances: [],
       scorerAssistPairs: [],
       goalDistribution: [],
       totalGoals: 0,
@@ -516,25 +554,25 @@ export async function getTeamDetailedStats(
     playerAppearances[memberId].count += 1;
   });
 
-  const topScorers: PlayerRanking[] = Object.entries(playerGoals)
+  const allScorers: PlayerRanking[] = Object.entries(playerGoals)
     .sort((a, b) => b[1].goals - a[1].goals)
-    .slice(0, 5)
     .map(([id, data]) => ({ memberId: id, name: data.name, avatarUrl: data.avatar, value: data.goals }));
+  const topScorers = allScorers.slice(0, 5);
 
-  const topAssists: PlayerRanking[] = Object.entries(playerAssists)
+  const allAssists: PlayerRanking[] = Object.entries(playerAssists)
     .sort((a, b) => b[1].assists - a[1].assists)
-    .slice(0, 5)
     .map(([id, data]) => ({ memberId: id, name: data.name, avatarUrl: data.avatar, value: data.assists }));
+  const topAssists = allAssists.slice(0, 5);
 
-  const topMom: PlayerRanking[] = Object.entries(playerMom)
+  const allMom: PlayerRanking[] = Object.entries(playerMom)
     .sort((a, b) => b[1].count - a[1].count)
-    .slice(0, 5)
     .map(([id, data]) => ({ memberId: id, name: data.name, avatarUrl: data.avatar, value: data.count }));
+  const topMom = allMom.slice(0, 5);
 
-  const topAppearances: PlayerRanking[] = Object.entries(playerAppearances)
+  const allAppearances: PlayerRanking[] = Object.entries(playerAppearances)
     .sort((a, b) => b[1].count - a[1].count)
-    .slice(0, 5)
     .map(([id, data]) => ({ memberId: id, name: data.name, avatarUrl: data.avatar, value: data.count }));
+  const topAppearances = allAppearances.slice(0, 5);
 
   const pairMap: Record<string, { scorerName: string; assistName: string; count: number }> = {};
   (goals || []).forEach((g: any) => {
@@ -567,6 +605,10 @@ export async function getTeamDetailedStats(
     topAssists,
     topMom,
     topAppearances,
+    allScorers,
+    allAssists,
+    allMom,
+    allAppearances,
     scorerAssistPairs,
     goalDistribution,
     totalGoals: totalGoalsCount,

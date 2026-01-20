@@ -300,21 +300,28 @@ export async function acceptMergeRequest(requestId: string): Promise<{
   });
 
   if (error) {
-    console.error("[acceptMergeRequest] RPC Error:", error.message);
-    throw new Error("기록 병합에 실패했습니다");
+    console.error("[acceptMergeRequest] RPC Error:", error.message, error);
+    throw new Error(`기록 병합에 실패했습니다: ${error.message}`);
   }
 
   const result = data as {
     success: boolean;
     new_member_id?: string;
     records_updated?: number;
+    records_merged?: number;
     goals_updated?: number;
     assists_updated?: number;
     error?: string;
+    error_detail?: string;
+    debug_step?: string;
   };
 
+  console.log("[acceptMergeRequest] Result:", JSON.stringify(result));
+
   if (!result.success) {
-    throw new Error(result.error || "기록 병합에 실패했습니다");
+    const errorMsg = result.error || "기록 병합에 실패했습니다";
+    const debugInfo = result.debug_step ? ` (step: ${result.debug_step})` : "";
+    throw new Error(`${errorMsg}${debugInfo}`);
   }
 
   revalidatePath("/dashboard");

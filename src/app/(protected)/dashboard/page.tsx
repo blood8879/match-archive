@@ -67,36 +67,48 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   let teamTotalMatches = 0;
   let attendanceRate = 0;
 
+  const currentYear = new Date().getFullYear();
+  const seasonStart = `${currentYear}-01-01`;
+  const seasonEnd = `${currentYear}-12-31`;
+
   if (currentMembershipId && currentTeam) {
     const { data: myStats } = await supabase
       .from("match_records")
-      .select("goals, assists, match:matches!match_records_match_id_fkey(id, status)")
+      .select("goals, assists, match:matches!match_records_match_id_fkey(id, status, match_date)")
       .eq("team_member_id", currentMembershipId);
 
     if (myStats) {
-      const finishedMatches = myStats.filter((record: any) => record.match?.status === "FINISHED");
+      const finishedMatches = myStats.filter((record: any) => {
+        if (record.match?.status !== "FINISHED") return false;
+        const matchDate = record.match?.match_date;
+        if (!matchDate) return false;
+        const matchYear = new Date(matchDate).getFullYear();
+        return matchYear === currentYear;
+      });
 
       totalGoals = finishedMatches.reduce((sum: number, r: any) => sum + (r.goals || 0), 0);
       totalAssists = finishedMatches.reduce((sum: number, r: any) => sum + (r.assists || 0), 0);
       matchesPlayed = finishedMatches.length;
     }
 
-    // 팀의 전체 완료된 경기 수 조회 (출석률 계산용)
     const { count: totalMatchCount } = await supabase
       .from("matches")
       .select("id", { count: "exact", head: true })
       .eq("team_id", currentTeam.id)
-      .eq("status", "FINISHED");
+      .eq("status", "FINISHED")
+      .gte("match_date", seasonStart)
+      .lte("match_date", seasonEnd);
 
     teamTotalMatches = totalMatchCount || 0;
     attendanceRate = teamTotalMatches > 0 ? Math.round((matchesPlayed / teamTotalMatches) * 100) : 0;
 
-    // 연속 출전 계산: 팀의 최근 경기들 중 내가 연속으로 출전한 경기 수
     const { data: teamMatches } = await supabase
       .from("matches")
       .select("id, match_date")
       .eq("team_id", currentTeam.id)
       .eq("status", "FINISHED")
+      .gte("match_date", seasonStart)
+      .lte("match_date", seasonEnd)
       .order("match_date", { ascending: false })
       .limit(20);
 
@@ -108,12 +120,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       const myMatchIds = new Set(myAppearances?.map((r) => r.match_id) || []);
 
-      // 가장 최근 경기부터 연속으로 출전한 경기 수 계산
       for (const match of teamMatches) {
         if (myMatchIds.has(match.id)) {
           consecutiveAppearances++;
         } else {
-          break; // 연속이 끊기면 중단
+          break;
         }
       }
     }

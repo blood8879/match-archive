@@ -43,6 +43,11 @@ export function MergeRequestsSection({ requests }: MergeRequestsSectionProps) {
     try {
       const response = await acceptMergeRequest(requestId);
 
+      if (!response.success) {
+        showModal("error", response.error || "기록 병합에 실패했습니다");
+        return;
+      }
+
       showModal(
         "success",
         `기록 병합이 완료되었습니다!\n- ${response.recordsUpdated || 0}개의 경기 기록이 통합되었습니다.`,

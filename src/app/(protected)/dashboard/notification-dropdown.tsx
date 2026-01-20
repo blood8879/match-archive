@@ -118,7 +118,12 @@ export function NotificationDropdown({
 
     try {
       const response = await acceptMergeRequest(notification.related_merge_request_id);
-      // 병합 완료 후 관련 알림 삭제
+      
+      if (!response.success) {
+        showModal("error", response.error || "병합에 실패했습니다");
+        return;
+      }
+      
       await deleteNotificationByRelation({ mergeRequestId: notification.related_merge_request_id });
       showModal(
         "success",
@@ -127,6 +132,7 @@ export function NotificationDropdown({
       );
       router.refresh();
     } catch (error) {
+      console.error("[handleAcceptMerge] Error:", error);
       showModal("error", error instanceof Error ? error.message : "병합에 실패했습니다");
     } finally {
       setLoadingId(null);

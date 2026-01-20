@@ -286,53 +286,62 @@ export async function acceptMergeRequest(requestId: string): Promise<{
   assistsUpdated?: number;
   error?: string;
 }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) throw new Error("로그인이 필요합니다");
+    if (!user) {
+      return { success: false, error: "로그인이 필요합니다" };
+    }
 
-  // DB 함수 호출
-  const { data, error } = await supabase.rpc("process_record_merge", {
-    p_merge_request_id: requestId,
-    p_user_id: user.id,
-  });
+    const { data, error } = await supabase.rpc("process_record_merge", {
+      p_merge_request_id: requestId,
+      p_user_id: user.id,
+    });
 
-  if (error) {
-    console.error("[acceptMergeRequest] RPC Error:", error.message, error);
-    throw new Error(`기록 병합에 실패했습니다: ${error.message}`);
+    if (error) {
+      console.error("[acceptMergeRequest] RPC Error:", error.message, error);
+      return { success: false, error: `RPC 에러: ${error.message}` };
+    }
+
+    const result = data as {
+      success: boolean;
+      new_member_id?: string;
+      records_updated?: number;
+      records_merged?: number;
+      goals_updated?: number;
+      assists_updated?: number;
+      error?: string;
+      error_detail?: string;
+      debug_step?: string;
+    };
+
+    console.log("[acceptMergeRequest] Result:", JSON.stringify(result));
+
+    if (!result.success) {
+      const errorMsg = result.error || "기록 병합에 실패했습니다";
+      const debugInfo = result.debug_step ? ` (step: ${result.debug_step})` : "";
+      return { success: false, error: `${errorMsg}${debugInfo}` };
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/profile");
+
+    return {
+      success: true,
+      recordsUpdated: result.records_updated,
+      goalsUpdated: result.goals_updated,
+      assistsUpdated: result.assists_updated,
+    };
+  } catch (err) {
+    console.error("[acceptMergeRequest] Unexpected error:", err);
+    return { 
+      success: false, 
+      error: err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다" 
+    };
   }
-
-  const result = data as {
-    success: boolean;
-    new_member_id?: string;
-    records_updated?: number;
-    records_merged?: number;
-    goals_updated?: number;
-    assists_updated?: number;
-    error?: string;
-    error_detail?: string;
-    debug_step?: string;
-  };
-
-  console.log("[acceptMergeRequest] Result:", JSON.stringify(result));
-
-  if (!result.success) {
-    const errorMsg = result.error || "기록 병합에 실패했습니다";
-    const debugInfo = result.debug_step ? ` (step: ${result.debug_step})` : "";
-    throw new Error(`${errorMsg}${debugInfo}`);
-  }
-
-  revalidatePath("/dashboard");
-  revalidatePath("/profile");
-
-  return {
-    success: true,
-    recordsUpdated: result.records_updated,
-    goalsUpdated: result.goals_updated,
-    assistsUpdated: result.assists_updated,
-  };
 }
 
 /**

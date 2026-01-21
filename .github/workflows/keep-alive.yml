@@ -1,0 +1,43 @@
+name: Keep Alive Cron
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 UTC 00:00 (KST 09:00)
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Keep-Alive API
+        id: call-api
+        run: |
+          echo "🕐 Starting keep-alive cron at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "🇰🇷 KST: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S KST')"
+          
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.SITE_URL }}/api/cron/keep-alive")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "📡 HTTP Status: $HTTP_CODE"
+          echo "📦 Response: $BODY"
+          
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Keep-alive successful!"
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Keep-alive failed with status $HTTP_CODE"
+            echo "status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Summary
+        run: |
+          echo "## 🏃 Keep-Alive Cron Result" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ steps.call-api.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time (UTC)**: $(date -u '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time (KST)**: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_STEP_SUMMARY

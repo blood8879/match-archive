@@ -100,21 +100,21 @@ export function LockerRoomTabs({
   return (
     <>
       {/* Sub Tabs */}
-      <div className="mb-6">
-        <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1 border border-white/5 w-fit">
+      <div className="mb-4 md:mb-6 overflow-x-auto scrollbar-hide -mx-3 px-3 md:mx-0 md:px-0">
+        <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1 border border-white/5 w-fit min-w-max">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                className={`px-2.5 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all flex items-center gap-1.5 md:gap-2 whitespace-nowrap ${
                   activeTab === tab.id
                     ? "bg-[#00e677] text-[#0f2319] shadow-sm shadow-[#00e677]/20"
                     : "text-white/70 hover:text-white hover:bg-white/10"
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 {tab.label}
               </button>
             );

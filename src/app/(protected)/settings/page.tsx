@@ -46,10 +46,10 @@ export default async function SettingsPage() {
       <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#00e677]/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#214a36]/20 rounded-full blur-[80px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-black text-white mb-2">설정</h1>
-          <p className="text-white/60">계정 정보와 개인 설정을 관리하세요.</p>
+      <div className="relative z-10 max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2">설정</h1>
+          <p className="text-white/60 text-sm sm:text-base">계정 정보와 개인 설정을 관리하세요.</p>
         </div>
 
         <SettingsForm user={typedProfile} teams={teamList} />

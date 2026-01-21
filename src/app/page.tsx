@@ -1,13 +1,18 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { BarChart3, Users, Archive, PlayCircle, ArrowRight, ChevronLeft, ChevronRight, Star, Menu } from "lucide-react";
+import { BarChart3, Users, Archive, PlayCircle, ArrowRight, ChevronLeft, ChevronRight, Star, Menu, X } from "lucide-react";
 
 export default function Home() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="bg-[#0f2319] text-white font-sans antialiased overflow-x-hidden">
       <nav className="fixed top-0 left-0 right-0 z-50 h-16 bg-[#0f2319]/85 backdrop-blur-xl border-b border-white/[0.08]">
         <div className="h-full flex items-center justify-between px-4 md:px-10 lg:px-40 max-w-[1440px] mx-auto">
-          <Link href="/" className="flex items-center gap-4 text-white">
-            <div className="size-8 text-[#00e677]">
+          <Link href="/" className="flex items-center gap-2 md:gap-4 text-white">
+            <div className="size-7 md:size-8 text-[#00e677]">
               <svg className="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_6_535)">
                   <path clipRule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fillRule="evenodd"></path>
@@ -17,7 +22,7 @@ export default function Home() {
                 </defs>
               </svg>
             </div>
-            <h2 className="text-white text-xl font-bold leading-tight tracking-tight">Match Archive</h2>
+            <h2 className="text-white text-lg md:text-xl font-bold leading-tight tracking-tight">Match Archive</h2>
           </Link>
           <div className="hidden md:flex flex-1 justify-end gap-8 items-center">
             <div className="flex items-center gap-8">
@@ -34,49 +39,68 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <button className="md:hidden text-white">
-            <Menu className="w-6 h-6" />
+          <button className="md:hidden text-white p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </nav>
 
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div className="fixed inset-0 bg-black/60" onClick={() => setMobileMenuOpen(false)} />
+          <div className="fixed top-16 left-0 right-0 bg-[#0f2319] border-b border-white/10 p-4 flex flex-col gap-4">
+            <a className="text-white text-base font-medium py-2" href="#features" onClick={() => setMobileMenuOpen(false)}>기능</a>
+            <a className="text-white text-base font-medium py-2" href="#stats" onClick={() => setMobileMenuOpen(false)}>통계</a>
+            <a className="text-white text-base font-medium py-2" href="#reviews" onClick={() => setMobileMenuOpen(false)}>후기</a>
+            <div className="flex flex-col gap-3 pt-4 border-t border-white/10">
+              <Link href="/login" className="flex items-center justify-center rounded-xl h-11 bg-white/5 text-white text-sm font-bold" onClick={() => setMobileMenuOpen(false)}>
+                로그인
+              </Link>
+              <Link href="/signup" className="flex items-center justify-center rounded-xl h-11 bg-[#00e677] text-[#0f2319] text-sm font-bold" onClick={() => setMobileMenuOpen(false)}>
+                회원가입
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="flex flex-col min-h-screen pt-16">
-        <section className="relative w-full flex justify-center py-12 md:py-24 lg:py-32 overflow-hidden">
+        <section className="relative w-full flex justify-center py-8 md:py-24 lg:py-32 overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-4xl bg-[radial-gradient(circle_at_center,_rgba(0,230,119,0.15)_0%,_rgba(15,35,25,0)_70%)] opacity-60 pointer-events-none z-0"></div>
           <div className="flex flex-col max-w-[1280px] w-full px-4 md:px-10 lg:px-40 z-10">
-            <div className="flex flex-col gap-10 px-4 py-6 md:gap-12 lg:flex-row items-center">
-              <div className="flex flex-col gap-6 min-w-0 md:min-w-[400px] md:gap-8 flex-1">
-                <div className="flex flex-col gap-4 text-left">
+            <div className="flex flex-col gap-8 py-4 md:gap-12 lg:flex-row items-center">
+              <div className="flex flex-col gap-5 min-w-0 md:min-w-[400px] md:gap-8 flex-1">
+                <div className="flex flex-col gap-3 md:gap-4 text-left">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00e677]/10 border border-[#00e677]/20 w-fit">
                     <span className="w-2 h-2 rounded-full bg-[#00e677] animate-pulse"></span>
                     <span className="text-[#00e677] text-xs font-bold uppercase tracking-wider">라이브 베타</span>
                   </div>
-                  <h1 className="text-white text-4xl font-black leading-[1.1] tracking-[-0.033em] md:text-5xl lg:text-6xl break-keep">
+                  <h1 className="text-white text-3xl font-black leading-[1.1] tracking-[-0.033em] md:text-5xl lg:text-6xl break-keep">
                     당신의 아마추어 경기를 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e677] to-teal-400">한 단계 높이세요.</span>
                   </h1>
-                  <h2 className="text-gray-400 text-lg font-normal leading-relaxed max-w-xl break-keep">
+                  <h2 className="text-gray-400 text-base md:text-lg font-normal leading-relaxed max-w-xl break-keep">
                     흩어진 아마추어 축구 기록을 체계적으로 관리하고, 데이터 기반으로 즐기는 축구 라이프
                   </h2>
                 </div>
-                <div className="flex flex-wrap gap-4">
-                  <Link href="/signup" className="flex min-w-[140px] cursor-pointer items-center justify-center rounded-xl h-12 px-6 bg-[#00e677] hover:bg-[#00cc6a] text-[#0f2319] text-base font-bold shadow-[0_0_20px_rgba(0,230,119,0.4)] hover:shadow-[0_0_30px_rgba(0,230,119,0.6)] transition-all transform hover:-translate-y-0.5">
-                    <span className="truncate">시즌 시작하기</span>
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+                  <Link href="/signup" className="flex cursor-pointer items-center justify-center rounded-xl h-12 px-6 bg-[#00e677] hover:bg-[#00cc6a] text-[#0f2319] text-base font-bold shadow-[0_0_20px_rgba(0,230,119,0.4)] hover:shadow-[0_0_30px_rgba(0,230,119,0.6)] transition-all transform hover:-translate-y-0.5">
+                    <span>시즌 시작하기</span>
                   </Link>
-                  <button className="flex min-w-[140px] cursor-pointer items-center justify-center rounded-xl h-12 px-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-base font-bold backdrop-blur-sm transition-all">
+                  <button className="flex cursor-pointer items-center justify-center rounded-xl h-12 px-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-base font-bold backdrop-blur-sm transition-all">
                     <span className="flex items-center gap-2">
                       <PlayCircle className="w-5 h-5" />
-                      <span className="truncate">데모 보기</span>
+                      <span>데모 보기</span>
                     </span>
                   </button>
                 </div>
-                <div className="flex items-center gap-4 mt-2">
-                  <div className="flex -space-x-3">
-                    <div className="w-10 h-10 rounded-full border-2 border-[#0f2319] bg-gray-700"></div>
-                    <div className="w-10 h-10 rounded-full border-2 border-[#0f2319] bg-gray-600"></div>
-                    <div className="w-10 h-10 rounded-full border-2 border-[#0f2319] bg-gray-500"></div>
-                    <div className="w-10 h-10 rounded-full border-2 border-[#0f2319] bg-[#00e677] flex items-center justify-center text-[#0f2319] font-bold text-xs">+500</div>
+                <div className="flex items-center gap-3 md:gap-4 mt-2">
+                  <div className="flex -space-x-2 md:-space-x-3">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-[#0f2319] bg-gray-700"></div>
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-[#0f2319] bg-gray-600"></div>
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-[#0f2319] bg-gray-500"></div>
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-[#0f2319] bg-[#00e677] flex items-center justify-center text-[#0f2319] font-bold text-[10px] md:text-xs">+500</div>
                   </div>
-                  <p className="text-gray-400 text-sm">개의 팀이 이미 함께하고 있습니다</p>
+                  <p className="text-gray-400 text-xs md:text-sm">개의 팀이 이미 함께하고 있습니다</p>
                 </div>
               </div>
               <div className="w-full flex-1 mt-8 lg:mt-0 relative group">
@@ -207,15 +231,15 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-16">
+        <section className="py-10 md:py-16">
           <div className="flex justify-center">
-            <div className="max-w-[960px] w-full px-4 md:px-10 lg:px-40">
-              <div className="bg-[#162e23]/60 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-10 text-center relative overflow-hidden">
+            <div className="max-w-[960px] w-full px-4 md:px-10">
+              <div className="bg-[#162e23]/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl md:rounded-3xl p-6 md:p-10 text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-[#00e677]/5"></div>
-                <div className="relative z-10 flex flex-col items-center gap-6">
-                  <h2 className="text-3xl md:text-5xl font-black text-white">킥오프 준비되셨나요?</h2>
-                  <p className="text-gray-300 text-lg max-w-lg break-keep">오늘 바로 수천 명의 아마추어 선수들과 함께 수준 높은 경기를 시작하세요.</p>
-                  <Link href="/signup" className="flex min-w-[180px] cursor-pointer items-center justify-center rounded-xl h-14 px-8 bg-[#00e677] hover:bg-[#00cc6a] text-[#0f2319] text-lg font-bold shadow-[0_0_25px_rgba(0,230,119,0.5)] transition-all">
+                <div className="relative z-10 flex flex-col items-center gap-4 md:gap-6">
+                  <h2 className="text-2xl md:text-5xl font-black text-white">킥오프 준비되셨나요?</h2>
+                  <p className="text-gray-300 text-sm md:text-lg max-w-lg break-keep">오늘 바로 수천 명의 아마추어 선수들과 함께 수준 높은 경기를 시작하세요.</p>
+                  <Link href="/signup" className="flex cursor-pointer items-center justify-center rounded-xl h-12 md:h-14 px-6 md:px-8 bg-[#00e677] hover:bg-[#00cc6a] text-[#0f2319] text-base md:text-lg font-bold shadow-[0_0_25px_rgba(0,230,119,0.5)] transition-all w-full sm:w-auto">
                     무료 계정 만들기
                   </Link>
                   <p className="text-xs text-gray-500">기본 팀 생성에는 신용카드가 필요하지 않습니다.</p>
@@ -225,9 +249,9 @@ export default function Home() {
           </div>
         </section>
 
-        <footer className="border-t border-white/10 bg-[#0f2319] pt-12 pb-8">
+        <footer className="border-t border-white/10 bg-[#0f2319] pt-8 md:pt-12 pb-8">
           <div className="flex flex-col max-w-[1280px] mx-auto px-4 md:px-10 lg:px-40">
-            <div className="flex flex-col md:flex-row justify-between gap-10 mb-12">
+            <div className="flex flex-col md:flex-row justify-between gap-8 md:gap-10 mb-8 md:mb-12">
               <div className="flex flex-col gap-4 max-w-xs">
                 <div className="flex items-center gap-2 text-white">
                   <div className="size-6 text-[#00e677]">
@@ -244,28 +268,28 @@ export default function Home() {
                 </div>
                 <p className="text-gray-500 text-sm break-keep">전문 데이터 도구로 아마추어 축구를 혁신합니다. 당신만의 레거시를 만드세요.</p>
               </div>
-              <div className="flex gap-16 flex-wrap">
-                <div className="flex flex-col gap-4">
-                  <h4 className="text-white font-bold text-sm uppercase tracking-wider">제품</h4>
-                  <a className="text-gray-400 hover:text-[#00e677] text-sm transition-colors" href="#">기능</a>
-                  <a className="text-gray-400 hover:text-[#00e677] text-sm transition-colors" href="#">가격</a>
-                  <a className="text-gray-400 hover:text-[#00e677] text-sm transition-colors" href="#">연동</a>
+              <div className="grid grid-cols-3 gap-6 md:gap-16">
+                <div className="flex flex-col gap-3 md:gap-4">
+                  <h4 className="text-white font-bold text-xs md:text-sm uppercase tracking-wider">제품</h4>
+                  <a className="text-gray-400 hover:text-[#00e677] text-xs md:text-sm transition-colors" href="#">기능</a>
+                  <a className="text-gray-400 hover:text-[#00e677] text-xs md:text-sm transition-colors" href="#">가격</a>
+                  <a className="text-gray-400 hover:text-[#00e677] text-xs md:text-sm transition-colors" href="#">연동</a>
                 </div>
-                <div className="flex flex-col gap-4">
-                  <h4 className="text-white font-bold text-sm uppercase tracking-wider">회사</h4>
-                  <a className="text-gray-400 hover:text-[#00e677] text-sm transition-colors" href="#">회사 소개</a>
-                  <a className="text-gray-400 hover:text-[#00e677] text-sm transition-colors" href="#">채용</a>
-                  <a className="text-gray-400 hover:text-[#00e677] text-sm transition-colors" href="#">블로그</a>
+                <div className="flex flex-col gap-3 md:gap-4">
+                  <h4 className="text-white font-bold text-xs md:text-sm uppercase tracking-wider">회사</h4>
+                  <a className="text-gray-400 hover:text-[#00e677] text-xs md:text-sm transition-colors" href="#">소개</a>
+                  <a className="text-gray-400 hover:text-[#00e677] text-xs md:text-sm transition-colors" href="#">채용</a>
+                  <a className="text-gray-400 hover:text-[#00e677] text-xs md:text-sm transition-colors" href="#">블로그</a>
                 </div>
-                <div className="flex flex-col gap-4">
-                  <h4 className="text-white font-bold text-sm uppercase tracking-wider">지원</h4>
-                  <a className="text-gray-400 hover:text-[#00e677] text-sm transition-colors" href="#">고객센터</a>
-                  <a className="text-gray-400 hover:text-[#00e677] text-sm transition-colors" href="#">이용약관</a>
-                  <a className="text-gray-400 hover:text-[#00e677] text-sm transition-colors" href="#">개인정보처리방침</a>
+                <div className="flex flex-col gap-3 md:gap-4">
+                  <h4 className="text-white font-bold text-xs md:text-sm uppercase tracking-wider">지원</h4>
+                  <a className="text-gray-400 hover:text-[#00e677] text-xs md:text-sm transition-colors" href="#">고객센터</a>
+                  <a className="text-gray-400 hover:text-[#00e677] text-xs md:text-sm transition-colors" href="#">약관</a>
+                  <a className="text-gray-400 hover:text-[#00e677] text-xs md:text-sm transition-colors" href="#">개인정보</a>
                 </div>
               </div>
             </div>
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-white/5">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-6 md:pt-8 border-t border-white/5">
               <p className="text-gray-600 text-xs">© 2024 Match Archive Inc. All rights reserved.</p>
               <div className="flex gap-4">
                 <a className="text-gray-500 hover:text-white transition-colors" href="#"><span className="sr-only">Twitter</span></a>

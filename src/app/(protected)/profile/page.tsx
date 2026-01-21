@@ -120,12 +120,12 @@ export default async function ProfilePage() {
       <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#00e677]/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#214a36]/20 rounded-full blur-[80px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div className="relative z-10 max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* 프로필 헤더 */}
-        <section className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6 md:p-8">
-          <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
+        <section className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8">
+          <div className="flex flex-col md:flex-row gap-4 sm:gap-6 items-center md:items-start">
             <div className="relative">
-              <div className="size-28 md:size-32 rounded-full bg-gradient-to-br from-[#214a36] to-[#0f2319] p-1 shadow-2xl ring-2 ring-white/10 overflow-hidden">
+              <div className="size-20 sm:size-28 md:size-32 rounded-full bg-gradient-to-br from-[#214a36] to-[#0f2319] p-1 shadow-2xl ring-2 ring-white/10 overflow-hidden">
                 {typedProfile?.avatar_url ? (
                   <img
                     src={typedProfile.avatar_url}
@@ -134,26 +134,26 @@ export default async function ProfilePage() {
                   />
                 ) : (
                   <div className="w-full h-full rounded-full bg-[#1a4031] flex items-center justify-center">
-                    <span className="text-4xl md:text-5xl font-bold text-[#00e677]">
+                    <span className="text-2xl sm:text-4xl md:text-5xl font-bold text-[#00e677]">
                       {typedProfile?.nickname?.charAt(0) || "U"}
                     </span>
                   </div>
                 )}
               </div>
               {badges.length > 0 && (
-                <div className="absolute -bottom-1 -right-1 bg-[#00e677]/20 text-[#00e677] text-xs font-bold px-2.5 py-1 rounded-full border-2 border-[#10231a]">
+                <div className="absolute -bottom-1 -right-1 bg-[#00e677]/20 text-[#00e677] text-[10px] sm:text-xs font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border-2 border-[#10231a]">
                   {badges.length}개 뱃지
                 </div>
               )}
             </div>
 
-            <div className="flex-1 text-center md:text-left">
-              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
-                <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+            <div className="flex-1 text-center md:text-left min-w-0">
+              <div className="flex flex-col md:flex-row md:items-center gap-1.5 sm:gap-2 md:gap-4 mb-2">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight truncate">
                   {typedProfile?.nickname || "사용자"}
                 </h1>
                 {typedProfile?.position && (
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-bold w-fit mx-auto md:mx-0 ${
+                  <span className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg text-xs sm:text-sm font-bold w-fit mx-auto md:mx-0 ${
                     typedProfile.position === "FW" ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" :
                     typedProfile.position === "MF" ? "bg-green-500/20 text-green-400 border border-green-500/30" :
                     typedProfile.position === "DF" ? "bg-orange-500/20 text-orange-400 border border-orange-500/30" :
@@ -164,11 +164,11 @@ export default async function ProfilePage() {
                 )}
               </div>
 
-              <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-[#8eccae] text-sm md:text-base mb-4">
+              <div className="flex flex-col md:flex-row items-center gap-1.5 sm:gap-2 md:gap-4 text-[#8eccae] text-xs sm:text-sm md:text-base mb-3 sm:mb-4">
                 {firstTeam ? (
-                  <span className="flex items-center gap-1.5">
-                    <Users className="w-4 h-4" />
-                    {firstTeam.name}
+                  <span className="flex items-center gap-1 sm:gap-1.5">
+                    <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="truncate max-w-[150px] sm:max-w-none">{firstTeam.name}</span>
                     {myTeams && myTeams.length > 1 && (
                       <span className="text-white/50">외 {myTeams.length - 1}팀</span>
                     )}
@@ -182,16 +182,16 @@ export default async function ProfilePage() {
               </div>
 
               {/* 자기소개 */}
-              <p className="text-gray-400 text-sm max-w-md mx-auto md:mx-0 mb-4">
+              <p className="text-gray-400 text-xs sm:text-sm max-w-md mx-auto md:mx-0 mb-3 sm:mb-4 line-clamp-2 sm:line-clamp-none">
                 {typedProfile?.bio || "자기소개가 없습니다. 프로필을 편집하여 자기소개를 추가해보세요."}
               </p>
 
-              <div className="flex gap-3 justify-center md:justify-start">
+              <div className="flex gap-2 sm:gap-3 justify-center md:justify-start">
                 <Link
                   href="/settings"
-                  className="flex items-center gap-2 h-10 px-5 rounded-xl bg-[#00e677] hover:bg-[#00e677]/90 text-[#0f2319] font-bold text-sm transition-all shadow-[0_0_15px_rgba(6,224,118,0.2)]"
+                  className="flex items-center gap-1.5 sm:gap-2 h-9 sm:h-10 px-4 sm:px-5 rounded-xl bg-[#00e677] hover:bg-[#00e677]/90 text-[#0f2319] font-bold text-xs sm:text-sm transition-all shadow-[0_0_15px_rgba(6,224,118,0.2)]"
                 >
-                  <Settings className="w-4 h-4" />
+                  <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   프로필 편집
                 </Link>
               </div>
@@ -200,43 +200,44 @@ export default async function ProfilePage() {
         </section>
 
         {/* 통계 카드 */}
-        <section className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
-          <StatCard icon={<Calendar className="w-5 h-5" />} label="경기 수" value={matchesPlayed} />
-          <StatCard icon={<Target className="w-5 h-5" />} label="골" value={totalGoals} highlight />
-          <StatCard icon={<TrendingUp className="w-5 h-5" />} label="어시스트" value={totalAssists} />
-          <StatCard icon={<Star className="w-5 h-5" />} label="MOM" value={totalMom} />
-          <StatCard icon={<Shield className="w-5 h-5" />} label="클린시트" value={totalCleanSheets} className="col-span-2 md:col-span-1" />
+        <section className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+          <StatCard icon={<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />} label="경기 수" value={matchesPlayed} />
+          <StatCard icon={<Target className="w-4 h-4 sm:w-5 sm:h-5" />} label="골" value={totalGoals} highlight />
+          <StatCard icon={<TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />} label="어시스트" value={totalAssists} />
+          <StatCard icon={<Star className="w-4 h-4 sm:w-5 sm:h-5" />} label="MOM" value={totalMom} className="hidden sm:block" />
+          <StatCard icon={<Shield className="w-4 h-4 sm:w-5 sm:h-5" />} label="클린시트" value={totalCleanSheets} className="hidden sm:block" />
+        </section>
+        {/* Mobile only: MOM & 클린시트 */}
+        <section className="grid grid-cols-2 gap-2 sm:hidden">
+          <StatCard icon={<Star className="w-4 h-4" />} label="MOM" value={totalMom} />
+          <StatCard icon={<Shield className="w-4 h-4" />} label="클린시트" value={totalCleanSheets} />
         </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* 왼쪽 영역 - 자기소개 & 뱃지 */}
-          <section className="lg:col-span-2 space-y-6">
-            {/* 프로필 상세 정보 */}
-            <div className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6">
-              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-[#00e677]" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <section className="lg:col-span-2 space-y-4 sm:space-y-6">
+            <div className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-bold text-white mb-4 sm:mb-6 flex items-center gap-2">
+                <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-[#00e677]" />
                 프로필 정보
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* 축구 경력 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {typedProfile?.soccer_experience && (
-                  <div className="space-y-2">
-                    <p className="text-sm text-[#8eccae]">축구 경력</p>
-                    <p className="text-white">{typedProfile.soccer_experience}</p>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <p className="text-xs sm:text-sm text-[#8eccae]">축구 경력</p>
+                    <p className="text-white text-sm sm:text-base">{typedProfile.soccer_experience}</p>
                   </div>
                 )}
 
-                {/* 선호 시간대 */}
                 {typedProfile?.preferred_times && typedProfile.preferred_times.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-sm text-[#8eccae] flex items-center gap-1.5">
-                      <Clock className="w-4 h-4" />
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <p className="text-xs sm:text-sm text-[#8eccae] flex items-center gap-1 sm:gap-1.5">
+                      <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       선호 시간대
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {typedProfile.preferred_times.map((time, idx) => (
-                        <span key={idx} className="px-3 py-1.5 rounded-lg bg-white/5 text-white text-sm border border-white/10">
+                        <span key={idx} className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-white/5 text-white text-xs sm:text-sm border border-white/10">
                           {time}
                         </span>
                       ))}
@@ -244,20 +245,19 @@ export default async function ProfilePage() {
                   </div>
                 )}
 
-                {/* 포지션별 출전 현황 */}
                 {Object.keys(positionCounts).length > 0 && (
-                  <div className="space-y-2 md:col-span-2">
-                    <p className="text-sm text-[#8eccae] flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4" />
+                  <div className="space-y-1.5 sm:space-y-2 md:col-span-2">
+                    <p className="text-xs sm:text-sm text-[#8eccae] flex items-center gap-1 sm:gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       포지션별 출전
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {Object.entries(positionCounts)
                         .sort(([, a], [, b]) => b - a)
                         .map(([pos, count]) => (
                           <span
                             key={pos}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${
+                            className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium border ${
                               pos === "FW" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
                               pos === "MF" ? "bg-green-500/10 text-green-400 border-green-500/20" :
                               pos === "DF" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
@@ -272,15 +272,14 @@ export default async function ProfilePage() {
                 )}
               </div>
 
-              {/* 플레이 스타일 태그 */}
               {typedProfile?.play_style_tags && typedProfile.play_style_tags.length > 0 && (
-                <div className="mt-6 pt-6 border-t border-white/5">
-                  <p className="text-sm text-[#8eccae] mb-3">플레이 스타일</p>
-                  <div className="flex flex-wrap gap-2">
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-white/5">
+                  <p className="text-xs sm:text-sm text-[#8eccae] mb-2 sm:mb-3">플레이 스타일</p>
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {typedProfile.play_style_tags.map((tag, idx) => (
                       <span
                         key={idx}
-                        className="px-3 py-1.5 rounded-lg bg-[#00e677]/10 text-[#00e677] text-sm font-medium border border-[#00e677]/20"
+                        className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-[#00e677]/10 text-[#00e677] text-xs sm:text-sm font-medium border border-[#00e677]/20"
                       >
                         #{tag}
                       </span>
@@ -290,52 +289,49 @@ export default async function ProfilePage() {
               )}
             </div>
 
-            {/* 뱃지 섹션 */}
-            <div className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6">
-              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                <Award className="w-5 h-5 text-[#00e677]" />
+            <div className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-bold text-white mb-4 sm:mb-6 flex items-center gap-2">
+                <Award className="w-4 h-4 sm:w-5 sm:h-5 text-[#00e677]" />
                 획득한 뱃지
-                <span className="text-sm font-normal text-white/50">({badges.length}개)</span>
+                <span className="text-xs sm:text-sm font-normal text-white/50">({badges.length}개)</span>
               </h3>
 
               {badges.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
                   {badges.map((badge) => {
                     const info = BADGE_DEFINITIONS[badge.badge_type];
                     return (
                       <div
                         key={badge.id}
-                        className={`flex items-center gap-3 p-3 rounded-xl border ${info.color}`}
+                        className={`flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg sm:rounded-xl border ${info.color}`}
                       >
-                        <span className="text-2xl">{info.icon}</span>
+                        <span className="text-xl sm:text-2xl">{info.icon}</span>
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-sm truncate">{info.name}</p>
-                          <p className="text-xs opacity-70 truncate">{info.description}</p>
+                          <p className="font-bold text-xs sm:text-sm truncate">{info.name}</p>
+                          <p className="text-[10px] sm:text-xs opacity-70 truncate">{info.description}</p>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <div className="py-8 text-center">
-                  <p className="text-gray-500 text-sm">아직 획득한 뱃지가 없습니다</p>
-                  <p className="text-gray-600 text-xs mt-1">경기에 참여하고 기록을 쌓아 뱃지를 획득하세요!</p>
+                <div className="py-6 sm:py-8 text-center">
+                  <p className="text-gray-500 text-xs sm:text-sm">아직 획득한 뱃지가 없습니다</p>
+                  <p className="text-gray-600 text-[10px] sm:text-xs mt-1">경기에 참여하고 기록을 쌓아 뱃지를 획득하세요!</p>
                 </div>
               )}
             </div>
           </section>
 
-          {/* 오른쪽 영역 - 팀 활동 & 최근 경기 */}
-          <div className="space-y-6">
-            {/* 팀 활동 이력 */}
-            <section className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6">
-              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <Users className="w-5 h-5 text-[#00e677]" />
+          <div className="space-y-4 sm:space-y-6">
+            <section className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4 flex items-center gap-2">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#00e677]" />
                 팀 활동
               </h3>
 
               {myTeams && myTeams.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {myTeams.slice(0, 5).map((membership) => {
                     const team = membership.team;
                     if (!team) return null;
@@ -344,48 +340,47 @@ export default async function ProfilePage() {
                       <Link
                         key={membership.id}
                         href={`/teams/${team.id}`}
-                        className="flex items-center gap-3 p-3 rounded-xl bg-black/20 hover:bg-black/30 transition-colors group"
+                        className="flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-black/20 hover:bg-black/30 transition-colors group"
                       >
-                        <div className="size-10 rounded-lg bg-[#1a4031] flex items-center justify-center overflow-hidden">
+                        <div className="size-8 sm:size-10 rounded-lg bg-[#1a4031] flex items-center justify-center overflow-hidden shrink-0">
                           {team.emblem_url ? (
                             <img src={team.emblem_url} alt={team.name} className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-lg font-bold text-[#00e677]">{team.name.charAt(0)}</span>
+                            <span className="text-sm sm:text-lg font-bold text-[#00e677]">{team.name.charAt(0)}</span>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-white text-sm font-medium truncate">{team.name}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-white text-xs sm:text-sm font-medium truncate">{team.name}</p>
+                          <p className="text-[10px] sm:text-xs text-gray-500">
                             {membership.role === "OWNER" ? "팀장" : membership.role === "MANAGER" ? "매니저" : "멤버"}
                             {membership.back_number && ` · #${membership.back_number}`}
                           </p>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-[#00e677] transition-colors" />
+                        <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 group-hover:text-[#00e677] transition-colors shrink-0" />
                       </Link>
                     );
                   })}
                 </div>
               ) : (
-                <div className="py-8 text-center">
-                  <p className="text-gray-500 text-sm">소속 팀이 없습니다</p>
+                <div className="py-6 sm:py-8 text-center">
+                  <p className="text-gray-500 text-xs sm:text-sm">소속 팀이 없습니다</p>
                 </div>
               )}
             </section>
 
-            {/* 최근 경기 */}
-            <section className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-[#00e677]" />
+            <section className="bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-[#00e677]" />
                   최근 경기
                 </h3>
-                <Link href="/matches" className="text-xs text-[#8eccae] hover:text-white transition-colors">
+                <Link href="/matches" className="text-[10px] sm:text-xs text-[#8eccae] hover:text-white transition-colors">
                   전체보기
                 </Link>
               </div>
 
               {recentMatches.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {recentMatches.map((record) => {
                     const match = record.match;
                     if (!match) return null;
@@ -400,10 +395,10 @@ export default async function ProfilePage() {
                       <Link
                         key={record.id}
                         href={`/matches/${match.id}`}
-                        className="flex items-center justify-between p-3 rounded-xl bg-black/20 hover:bg-black/30 transition-colors group"
+                        className="flex items-center justify-between p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-black/20 hover:bg-black/30 transition-colors group"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className={`size-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                          <div className={`size-7 sm:size-8 rounded-lg flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0 ${
                             result === "WIN" ? "bg-[#00e677]/20 text-[#00e677]" :
                             result === "DRAW" ? "bg-gray-500/20 text-gray-400" :
                             result === "LOSE" ? "bg-red-500/20 text-red-400" :
@@ -411,31 +406,31 @@ export default async function ProfilePage() {
                           }`}>
                             {result === "WIN" ? "W" : result === "DRAW" ? "D" : result === "LOSE" ? "L" : "-"}
                           </div>
-                          <div>
-                            <p className="text-white text-sm font-medium">vs {match.opponent_name}</p>
-                            <p className="text-xs text-gray-500">
+                          <div className="min-w-0">
+                            <p className="text-white text-xs sm:text-sm font-medium truncate">vs {match.opponent_name}</p>
+                            <p className="text-[10px] sm:text-xs text-gray-500">
                               {new Date(match.match_date).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                           {match.status === "FINISHED" && (
-                            <span className="text-sm text-gray-400">
+                            <span className="text-[10px] sm:text-sm text-gray-400">
                               {record.goals > 0 && `${record.goals}G`}
                               {record.goals > 0 && record.assists > 0 && " "}
                               {record.assists > 0 && `${record.assists}A`}
                               {record.goals === 0 && record.assists === 0 && "-"}
                             </span>
                           )}
-                          <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-[#00e677] transition-colors" />
+                          <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 group-hover:text-[#00e677] transition-colors" />
                         </div>
                       </Link>
                     );
                   })}
                 </div>
               ) : (
-                <div className="py-8 text-center">
-                  <p className="text-gray-500 text-sm">경기 기록이 없습니다</p>
+                <div className="py-6 sm:py-8 text-center">
+                  <p className="text-gray-500 text-xs sm:text-sm">경기 기록이 없습니다</p>
                 </div>
               )}
             </section>
@@ -448,12 +443,12 @@ export default async function ProfilePage() {
 
 function StatCard({ icon, label, value, highlight = false, className = "" }: { icon: React.ReactNode; label: string; value: number; highlight?: boolean; className?: string }) {
   return (
-    <div className={`bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-xl p-4 ${className}`}>
-      <div className="flex items-center gap-2 mb-2">
+    <div className={`bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15 rounded-lg sm:rounded-xl p-2.5 sm:p-4 ${className}`}>
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
         <div className={`${highlight ? "text-[#00e677]" : "text-[#8eccae]"}`}>{icon}</div>
-        <span className="text-xs text-gray-400 font-medium">{label}</span>
+        <span className="text-[10px] sm:text-xs text-gray-400 font-medium">{label}</span>
       </div>
-      <p className={`text-2xl md:text-3xl font-black ${highlight ? "text-[#00e677]" : "text-white"}`}>{value}</p>
+      <p className={`text-xl sm:text-2xl md:text-3xl font-black ${highlight ? "text-[#00e677]" : "text-white"}`}>{value}</p>
     </div>
   );
 }

@@ -305,12 +305,12 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
 
   return (
     <>
-      <div className="glass-panel rounded-2xl p-6 lg:p-10 shadow-xl bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15">
+      <div className="glass-panel rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-10 shadow-xl bg-[#214a36]/40 backdrop-blur-xl border border-[#8eccae]/15">
         {/* Profile Header */}
-        <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-8">
-          <div className="flex items-center gap-6">
+        <div className="mb-6 sm:mb-10 flex flex-col gap-4 sm:gap-6 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-6 sm:pb-8">
+          <div className="flex items-center gap-4 sm:gap-6">
             <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-              <div className="size-24 rounded-full bg-gradient-to-br from-[#214a36] to-[#0f2319] p-1 shadow-2xl ring-4 ring-[#00e677]/20 overflow-hidden">
+              <div className="size-16 sm:size-24 rounded-full bg-gradient-to-br from-[#214a36] to-[#0f2319] p-1 shadow-2xl ring-2 sm:ring-4 ring-[#00e677]/20 overflow-hidden">
                 {avatarPreview ? (
                   <img
                     src={avatarPreview}
@@ -319,15 +319,15 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
                   />
                 ) : (
                   <div className="w-full h-full rounded-full bg-[#1a4031] flex items-center justify-center">
-                    <User className="w-12 h-12 text-[#00e677]" />
+                    <User className="w-8 h-8 sm:w-12 sm:h-12 text-[#00e677]" />
                   </div>
                 )}
               </div>
               <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
                 {uploadingAvatar ? (
-                  <Upload className="w-6 h-6 text-white animate-bounce" />
+                  <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-bounce" />
                 ) : (
-                  <Edit className="w-6 h-6 text-white" />
+                  <Edit className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 )}
               </div>
             </div>
@@ -338,22 +338,22 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
               onChange={handleFileChange}
               className="hidden"
             />
-            <div className="flex flex-col">
-              <h3 className="text-2xl font-bold text-white">{user.nickname || "사용자"}</h3>
-              <p className="text-[#00e677] font-medium">
+            <div className="flex flex-col min-w-0">
+              <h3 className="text-xl sm:text-2xl font-bold text-white truncate">{user.nickname || "사용자"}</h3>
+              <p className="text-[#00e677] font-medium text-sm sm:text-base">
                 {preferredPosition ? getPositionLabel(preferredPosition) : "포지션 미지정"}
               </p>
-              <p className="text-sm text-white/50">
+              <p className="text-xs sm:text-sm text-white/50">
                 가입일: {new Date(user.created_at).toLocaleDateString("ko-KR")}
               </p>
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <button
               type="button"
               onClick={handleAvatarClick}
               disabled={uploadingAvatar}
-              className="flex items-center justify-center rounded-xl bg-white/10 px-5 py-2.5 text-sm font-bold text-white hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center rounded-xl bg-white/10 px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {uploadingAvatar ? "업로드 중..." : "사진 변경"}
             </button>
@@ -361,7 +361,7 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
               type="button"
               onClick={handleDeleteAvatar}
               disabled={uploadingAvatar || !avatarPreview}
-              className="flex items-center justify-center rounded-xl border border-white/10 px-5 py-2.5 text-sm font-bold text-white/70 hover:text-white hover:border-white/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center rounded-xl border border-white/10 px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white/70 hover:text-white hover:border-white/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               삭제
             </button>
@@ -369,18 +369,18 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-          <div className="grid gap-6 md:grid-cols-2">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6 sm:gap-8">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
             {/* Nickname */}
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-white/80">닉네임</span>
+            <label className="flex flex-col gap-1.5 sm:gap-2">
+              <span className="text-xs sm:text-sm font-semibold text-white/80">닉네임</span>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                <User className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-white/40" />
                 <input
                   type="text"
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-white placeholder-white/30 focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
+                  className="w-full rounded-xl border border-white/10 bg-black/20 py-3 sm:py-3.5 pl-10 sm:pl-12 pr-4 text-sm sm:text-base text-white placeholder-white/30 focus:border-[#00e677] focus:bg-black/30 focus:ring-1 focus:ring-[#00e677] outline-none transition-all"
                   placeholder="닉네임을 입력하세요"
                   required
                 />
@@ -749,24 +749,24 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
       </div>
 
       {/* Destructive Area */}
-      <div className="mt-10 rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
-        <h3 className="text-lg font-bold text-red-400 mb-2">계정 관리</h3>
-        <p className="text-sm text-white/60 mb-6">
+      <div className="mt-6 sm:mt-10 rounded-xl sm:rounded-2xl border border-red-500/20 bg-red-500/5 p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-bold text-red-400 mb-1.5 sm:mb-2">계정 관리</h3>
+        <p className="text-xs sm:text-sm text-white/60 mb-4 sm:mb-6">
           계정을 로그아웃하거나 영구적으로 삭제합니다. 이 작업은 되돌릴 수 없습니다.
         </p>
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-2 rounded-lg border border-red-500/30 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+            className="flex items-center justify-center sm:justify-start gap-2 rounded-lg border border-red-500/30 px-4 py-2 text-xs sm:text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             로그아웃
           </button>
           <button
             onClick={handleDeleteAccount}
-            className="flex items-center gap-2 rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-colors"
+            className="flex items-center justify-center sm:justify-start gap-2 rounded-lg bg-red-500/10 px-4 py-2 text-xs sm:text-sm font-medium text-red-400 hover:bg-red-500/20 transition-colors"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             회원 탈퇴
           </button>
         </div>

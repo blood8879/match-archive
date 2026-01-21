@@ -68,9 +68,9 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background-dark)]">
       <header className="w-full border-b border-[var(--border-dark)] bg-[var(--background-dark)]/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="px-6 md:px-10 py-4 flex items-center justify-between max-w-[960px] mx-auto w-full">
-          <Link href="/" className="flex items-center gap-4 text-white hover:opacity-80 transition-opacity">
-            <div className="size-8 text-[var(--primary)]">
+        <div className="px-4 sm:px-6 md:px-10 py-3 sm:py-4 flex items-center justify-between max-w-[960px] mx-auto w-full">
+          <Link href="/" className="flex items-center gap-2 sm:gap-4 text-white hover:opacity-80 transition-opacity">
+            <div className="size-7 sm:size-8 text-[var(--primary)]">
               <svg className="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_6_535)">
                   <path clipRule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fillRule="evenodd"></path>
@@ -80,15 +80,15 @@ export default function SignupPage() {
                 </defs>
               </svg>
             </div>
-            <h2 className="text-white text-xl font-bold leading-tight tracking-[-0.015em]">Match Archive</h2>
+            <h2 className="text-white text-lg sm:text-xl font-bold leading-tight tracking-[-0.015em]">Match Archive</h2>
           </Link>
-          <Link href="#" className="text-[var(--text-muted)] hover:text-white text-sm font-medium transition-colors hidden sm:block">
+          <Link href="#" className="text-[var(--text-muted)] hover:text-white text-xs sm:text-sm font-medium transition-colors hidden sm:block">
             도움이 필요하신가요?
           </Link>
         </div>
       </header>
 
-      <main className="flex-1 flex items-center justify-center p-4 relative">
+      <main className="flex-1 flex items-center justify-center p-3 sm:p-4 relative">
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[var(--primary)]/5 rounded-full blur-[100px]"></div>
           <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[var(--primary)]/10 rounded-full blur-[120px]"></div>
@@ -101,14 +101,14 @@ export default function SignupPage() {
         </div>
 
         <div className="flex flex-col max-w-[480px] w-full bg-[var(--background-dark)]/80 backdrop-blur-sm border border-[var(--border-dark)] rounded-xl shadow-lg relative z-10 overflow-hidden animate-fade-in">
-          <div className="pt-8 px-6 text-center">
-            <h1 className="text-white tracking-tight text-[32px] font-bold leading-tight pb-2">계정 만들기</h1>
-            <p className="text-[var(--text-muted)] text-base font-normal leading-normal px-4">
+          <div className="pt-6 sm:pt-8 px-4 sm:px-6 text-center">
+            <h1 className="text-white tracking-tight text-2xl sm:text-[32px] font-bold leading-tight pb-1.5 sm:pb-2">계정 만들기</h1>
+            <p className="text-[var(--text-muted)] text-sm sm:text-base font-normal leading-normal px-2 sm:px-4">
               팀의 기록과 통계를 관리하세요.
             </p>
           </div>
 
-          <div className="pt-6 px-6">
+          <div className="pt-4 sm:pt-6 px-4 sm:px-6">
             <div className="flex border-b border-[var(--border-dark)] justify-between">
               <Link
                 href="/login"
@@ -125,27 +125,27 @@ export default function SignupPage() {
             </div>
           </div>
 
-          <form className="flex flex-col gap-5 px-6 py-6" onSubmit={handleSubmit}>
-            <label className="flex flex-col gap-2">
-              <span className="text-white text-base font-medium leading-normal">이메일</span>
+          <form className="flex flex-col gap-4 sm:gap-5 px-4 sm:px-6 py-4 sm:py-6" onSubmit={handleSubmit}>
+            <label className="flex flex-col gap-1.5 sm:gap-2">
+              <span className="text-white text-sm sm:text-base font-medium leading-normal">이메일</span>
               <div className="relative">
                 <input
-                  className="flex w-full resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-2 focus:ring-[var(--primary)]/50 border border-[var(--border-dark)] bg-[var(--surface-800)] focus:border-[var(--primary)] h-14 placeholder:text-[var(--text-muted)]/50 p-[15px] pr-12 text-base font-normal leading-normal transition-colors"
+                  className="flex w-full resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-2 focus:ring-[var(--primary)]/50 border border-[var(--border-dark)] bg-[var(--surface-800)] focus:border-[var(--primary)] h-12 sm:h-14 placeholder:text-[var(--text-muted)]/50 p-3 sm:p-[15px] pr-10 sm:pr-12 text-sm sm:text-base font-normal leading-normal transition-colors"
                   placeholder="user@example.com"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
-                <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none w-5 h-5" />
+                <Mail className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </label>
 
-            <label className="flex flex-col gap-2">
-              <span className="text-white text-base font-medium leading-normal">비밀번호</span>
+            <label className="flex flex-col gap-1.5 sm:gap-2">
+              <span className="text-white text-sm sm:text-base font-medium leading-normal">비밀번호</span>
               <div className="relative">
                 <input
-                  className="flex w-full resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-2 focus:ring-[var(--primary)]/50 border border-[var(--border-dark)] bg-[var(--surface-800)] focus:border-[var(--primary)] h-14 placeholder:text-[var(--text-muted)]/50 p-[15px] pr-12 text-base font-normal leading-normal transition-colors"
+                  className="flex w-full resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-2 focus:ring-[var(--primary)]/50 border border-[var(--border-dark)] bg-[var(--surface-800)] focus:border-[var(--primary)] h-12 sm:h-14 placeholder:text-[var(--text-muted)]/50 p-3 sm:p-[15px] pr-10 sm:pr-12 text-sm sm:text-base font-normal leading-normal transition-colors"
                   placeholder="6자 이상 입력하세요"
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -155,18 +155,18 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-white transition-colors flex items-center justify-center"
+                  className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-white transition-colors flex items-center justify-center"
                 >
-                  {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+                  {showPassword ? <Eye className="w-4 h-4 sm:w-5 sm:h-5" /> : <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
             </label>
 
-            <label className="flex flex-col gap-2">
-              <span className="text-white text-base font-medium leading-normal">비밀번호 확인</span>
+            <label className="flex flex-col gap-1.5 sm:gap-2">
+              <span className="text-white text-sm sm:text-base font-medium leading-normal">비밀번호 확인</span>
               <div className="relative">
                 <input
-                  className="flex w-full resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-2 focus:ring-[var(--primary)]/50 border border-[var(--border-dark)] bg-[var(--surface-800)] focus:border-[var(--primary)] h-14 placeholder:text-[var(--text-muted)]/50 p-[15px] pr-12 text-base font-normal leading-normal transition-colors"
+                  className="flex w-full resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-2 focus:ring-[var(--primary)]/50 border border-[var(--border-dark)] bg-[var(--surface-800)] focus:border-[var(--primary)] h-12 sm:h-14 placeholder:text-[var(--text-muted)]/50 p-3 sm:p-[15px] pr-10 sm:pr-12 text-sm sm:text-base font-normal leading-normal transition-colors"
                   placeholder="비밀번호를 다시 입력하세요"
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
@@ -176,39 +176,39 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-white transition-colors flex items-center justify-center"
+                  className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-white transition-colors flex items-center justify-center"
                 >
-                  {showConfirmPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+                  {showConfirmPassword ? <Eye className="w-4 h-4 sm:w-5 sm:h-5" /> : <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
             </label>
 
             {error && (
-              <p className="text-sm text-[var(--color-error)] text-center animate-fade-in">{error}</p>
+              <p className="text-xs sm:text-sm text-[var(--color-error)] text-center animate-fade-in">{error}</p>
             )}
 
-            <div className="pt-2 flex flex-col gap-4">
+            <div className="pt-1 sm:pt-2 flex flex-col gap-3 sm:gap-4">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-[var(--background-dark)] text-base font-bold leading-normal tracking-[0.015em] transition-all shadow-md hover:shadow-lg shadow-[var(--primary)]/10 active:scale-[0.99] disabled:opacity-50"
+                className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-11 sm:h-12 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-[var(--background-dark)] text-sm sm:text-base font-bold leading-normal tracking-[0.015em] transition-all shadow-md hover:shadow-lg shadow-[var(--primary)]/10 active:scale-[0.99] disabled:opacity-50"
               >
                 <span className="truncate">{isLoading ? "가입 중..." : "가입하기"}</span>
               </button>
 
-              <div className="relative flex py-2 items-center">
+              <div className="relative flex py-1.5 sm:py-2 items-center">
                 <div className="flex-grow border-t border-[var(--border-dark)]"></div>
-                <span className="flex-shrink-0 mx-4 text-[var(--text-muted)] text-xs uppercase font-bold tracking-wider">또는 다음으로 계속</span>
+                <span className="flex-shrink-0 mx-3 sm:mx-4 text-[var(--text-muted)] text-[10px] sm:text-xs uppercase font-bold tracking-wider">또는 다음으로 계속</span>
                 <div className="flex-grow border-t border-[var(--border-dark)]"></div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => handleSocialLogin("google")}
-                  className="flex items-center justify-center gap-2 rounded-xl h-12 border border-[var(--border-dark)] bg-[var(--surface-800)] hover:bg-[var(--surface-700)] text-white transition-all font-medium text-sm"
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl h-10 sm:h-12 border border-[var(--border-dark)] bg-[var(--surface-800)] hover:bg-[var(--surface-700)] text-white transition-all font-medium text-xs sm:text-sm"
                 >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M20.283 10.356h-8.327v3.451h4.792c-.446 2.193-2.313 3.453-4.792 3.453a5.27 5.27 0 0 1-5.279-5.28 5.27 5.27 0 0 1 5.279-5.279c1.259 0 2.397.447 3.29 1.178l2.6-2.599c-1.584-1.381-3.615-2.233-5.89-2.233a8.908 8.908 0 0 0-8.934 8.934 8.907 8.907 0 0 0 8.934 8.934c4.467 0 8.529-3.249 8.529-8.934 0-.528-.081-1.097-.202-1.625z"></path>
                   </svg>
                   Google
@@ -216,9 +216,9 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => handleSocialLogin("kakao")}
-                  className="flex items-center justify-center gap-2 rounded-xl h-12 border border-[var(--border-dark)] bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] transition-all font-medium text-sm"
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl h-10 sm:h-12 border border-[var(--border-dark)] bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] transition-all font-medium text-xs sm:text-sm"
                 >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 3C6.477 3 2 6.463 2 10.742c0 2.748 1.826 5.165 4.586 6.546-.152.537-.978 3.453-.999 3.669 0 0-.02.166.088.23.108.063.235.013.235.013.31-.043 3.586-2.355 4.153-2.761.614.089 1.251.135 1.906.135 5.523 0 10-3.463 10-7.832C22 6.463 17.523 3 12 3z"/>
                   </svg>
                   카카오
@@ -227,8 +227,8 @@ export default function SignupPage() {
             </div>
           </form>
 
-          <div className="pb-6 text-center">
-            <p className="text-[var(--text-muted)] text-sm">
+          <div className="pb-4 sm:pb-6 text-center">
+            <p className="text-[var(--text-muted)] text-xs sm:text-sm">
               이미 계정이 있으신가요?{" "}
               <Link href="/login" className="text-[var(--primary)] hover:underline font-bold">
                 로그인
@@ -238,9 +238,9 @@ export default function SignupPage() {
         </div>
       </main>
 
-      <footer className="w-full py-6 border-t border-[var(--border-dark)] mt-auto bg-[var(--background-dark)]/50 z-10 relative">
-        <div className="px-10 flex justify-center">
-          <p className="text-[var(--text-muted)]/60 text-xs text-center">© 2024 Match Archive. All rights reserved.</p>
+      <footer className="w-full py-4 sm:py-6 border-t border-[var(--border-dark)] mt-auto bg-[var(--background-dark)]/50 z-10 relative">
+        <div className="px-4 sm:px-10 flex justify-center">
+          <p className="text-[var(--text-muted)]/60 text-[10px] sm:text-xs text-center">© 2024 Match Archive. All rights reserved.</p>
         </div>
       </footer>
     </div>

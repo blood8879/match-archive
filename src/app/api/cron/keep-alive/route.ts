@@ -27,14 +27,16 @@ export async function GET(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { count, error } = await supabase
+    const { data, error } = await supabase
       .from("teams")
-      .select("*", { count: "exact", head: true });
+      .select("id, name")
+      .limit(1)
+      .single();
 
     const timestamp = new Date().toISOString();
     const kstTime = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
 
-    if (error) {
+    if (error && error.code !== "PGRST116") {
       console.error("Keep-alive query failed:", error);
       
       await supabase.from("cron_logs").insert({
@@ -47,20 +49,21 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    console.log(`Keep-alive: ${count} teams found at ${timestamp}`);
+    const teamName = data?.name || "no teams";
+    console.log(`Keep-alive: pinged at ${timestamp}, team: ${teamName}`);
 
     await supabase.from("cron_logs").insert({
       job_name: "keep-alive",
       status: "success",
-      message: `${count} teams found`,
-      details: { teamsCount: count, kstTime },
+      message: `Database alive - ${teamName}`,
+      details: { teamId: data?.id, teamName, kstTime },
     });
     
     return NextResponse.json({ 
       success: true, 
       timestamp,
       kstTime,
-      teamsCount: count,
+      teamName,
     });
   } catch (err) {
     console.error("Keep-alive unexpected error:", err);

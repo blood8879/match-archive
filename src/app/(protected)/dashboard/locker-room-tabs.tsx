@@ -37,7 +37,7 @@ import {
   Legend,
 } from "recharts";
 import type { Team, TeamMember, User, Venue } from "@/types/supabase";
-import type { TeamDetailedStats } from "@/services/team-stats";
+import type { TeamDetailedStats, TeamSeasonSummary } from "@/services/team-stats";
 import { fetchTeamStatsBySeason } from "./actions";
 import { formatDateTime } from "@/lib/utils";
 
@@ -46,13 +46,7 @@ type TeamMemberWithUser = TeamMember & {
   user: Pick<User, "id" | "nickname" | "avatar_url" | "position"> | null;
 };
 
-type SeasonStats = {
-  wins: number;
-  draws: number;
-  losses: number;
-  totalMatches: number;
-  seasonYear: number;
-};
+
 
 interface LockerRoomTabsProps {
   firstTeam: Team | null;
@@ -60,17 +54,16 @@ interface LockerRoomTabsProps {
   typedProfile: User | null;
   recentMatches: any[];
   nextMatch: any;
-  totalGoals: number;
-  totalAssists: number;
-  matchesPlayed: number;
-  consecutiveAppearances: number;
-  attendanceRate: number;
+  allTimeGoals: number;
+  allTimeAssists: number;
+  allTimeMatchesPlayed: number;
+  allTimeAttendanceRate: number;
   members: TeamMemberWithUser[];
   venues: Venue[];
   isManager: boolean;
-  seasonStats: SeasonStats;
   teamDetailedStats: TeamDetailedStats | null;
   availableYears: number[];
+  teamSeasonSummary: TeamSeasonSummary;
 }
 
 type TabType = "locker" | "stats" | "team-stats" | "squad" | "venue";
@@ -81,17 +74,16 @@ export function LockerRoomTabs({
   typedProfile,
   recentMatches,
   nextMatch,
-  totalGoals,
-  totalAssists,
-  matchesPlayed,
-  consecutiveAppearances,
-  attendanceRate,
+  allTimeGoals,
+  allTimeAssists,
+  allTimeMatchesPlayed,
+  allTimeAttendanceRate,
   members,
   venues,
   isManager,
-  seasonStats,
   teamDetailedStats,
   availableYears,
+  teamSeasonSummary,
 }: LockerRoomTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("locker");
 
@@ -138,22 +130,18 @@ export function LockerRoomTabs({
           typedProfile={typedProfile}
           recentMatches={recentMatches}
           nextMatch={nextMatch}
-          totalGoals={totalGoals}
-          totalAssists={totalAssists}
-          matchesPlayed={matchesPlayed}
-          consecutiveAppearances={consecutiveAppearances}
+          teamSeasonSummary={teamSeasonSummary}
           isManager={isManager}
         />
       )}
 
       {activeTab === "stats" && (
         <StatsContent
-          totalGoals={totalGoals}
-          totalAssists={totalAssists}
-          matchesPlayed={matchesPlayed}
-          attendanceRate={attendanceRate}
+          allTimeGoals={allTimeGoals}
+          allTimeAssists={allTimeAssists}
+          allTimeMatchesPlayed={allTimeMatchesPlayed}
+          allTimeAttendanceRate={allTimeAttendanceRate}
           typedProfile={typedProfile}
-          seasonStats={seasonStats}
         />
       )}
 
@@ -176,17 +164,13 @@ export function LockerRoomTabs({
   );
 }
 
-// 라커룸 탭 콘텐츠
 function LockerContent({
   firstTeam,
   myTeams,
   typedProfile: _typedProfile,
   recentMatches,
   nextMatch,
-  totalGoals,
-  totalAssists,
-  matchesPlayed,
-  consecutiveAppearances,
+  teamSeasonSummary,
   isManager,
 }: {
   firstTeam: Team | null;
@@ -194,10 +178,7 @@ function LockerContent({
   typedProfile: User | null;
   recentMatches: any[];
   nextMatch: any;
-  totalGoals: number;
-  totalAssists: number;
-  matchesPlayed: number;
-  consecutiveAppearances: number;
+  teamSeasonSummary: TeamSeasonSummary;
   isManager: boolean;
 }) {
   return (
@@ -234,7 +215,7 @@ function LockerContent({
             <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-end">
               <span className="text-sm text-white/60">총 경기 수</span>
               <span className="text-2xl font-bold text-[#00e677]">
-                {matchesPlayed}
+                {teamSeasonSummary.totalMatches}
                 <span className="text-sm font-normal text-white/40 ml-1">경기</span>
               </span>
             </div>
@@ -259,23 +240,23 @@ function LockerContent({
       <div className="mb-8">
         <h2 className="text-white text-xl font-bold mb-4 flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-[#00e677]" />
-          시즌 성과
+          {firstTeam?.name || "팀"} {teamSeasonSummary.seasonYear} 시즌 성과
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             icon={<Trophy className="w-12 h-12" />}
-            label="총 득점"
-            value={totalGoals}
+            label="팀 총득점"
+            value={teamSeasonSummary.totalGoals}
           />
           <StatCard
             icon={<TrendingUp className="w-12 h-12" />}
-            label="총 어시스트"
-            value={totalAssists}
+            label="팀 총어시스트"
+            value={teamSeasonSummary.totalAssists}
           />
           <StatCard
             icon={<Shield className="w-12 h-12" />}
-            label="경기 수"
-            value={matchesPlayed}
+            label="팀 경기수"
+            value={teamSeasonSummary.totalMatches}
             subtext="이번 시즌"
           />
           <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-0 rounded-xl relative overflow-hidden flex flex-col">
@@ -285,16 +266,16 @@ function LockerContent({
                   <Flame className="w-3 h-3 inline-block mr-1" />
                   STREAK
                 </span>
-                <p className="text-white/60 text-sm font-medium">연속 출전</p>
+                <p className="text-white/60 text-sm font-medium">최다연승</p>
               </div>
               <p className="text-4xl font-black text-white mt-2">
-                {consecutiveAppearances}
-                <span className="text-sm font-medium text-white/50 ml-2">경기</span>
+                {teamSeasonSummary.maxWinStreak}
+                <span className="text-sm font-medium text-white/50 ml-2">연승</span>
               </p>
               <p className="text-xs text-white/40 mt-2">
-                {consecutiveAppearances > 0
-                  ? "경기 연속으로 출전 중!"
-                  : "다음 경기 출전을 노려보세요"}
+                {teamSeasonSummary.maxWinStreak > 0
+                  ? `시즌 최다 ${teamSeasonSummary.maxWinStreak}연승 달성!`
+                  : "연승 기록을 만들어보세요"}
               </p>
             </div>
             <div className="absolute right-[-20px] bottom-[-20px] size-32 opacity-20 bg-gradient-to-tr from-orange-500 to-transparent rounded-full blur-2xl"></div>
@@ -433,67 +414,47 @@ function LockerContent({
 }
 
 function StatsContent({
-  totalGoals,
-  totalAssists,
-  matchesPlayed,
-  attendanceRate,
+  allTimeGoals,
+  allTimeAssists,
+  allTimeMatchesPlayed,
+  allTimeAttendanceRate,
   typedProfile,
-  seasonStats,
 }: {
-  totalGoals: number;
-  totalAssists: number;
-  matchesPlayed: number;
-  attendanceRate: number;
+  allTimeGoals: number;
+  allTimeAssists: number;
+  allTimeMatchesPlayed: number;
+  allTimeAttendanceRate: number;
   typedProfile: User | null;
-  seasonStats: SeasonStats;
 }) {
-  const { wins, draws, losses, seasonYear } = seasonStats;
-
   return (
     <div className="space-y-6">
+      <div className="flex items-center gap-2 mb-2">
+        <BarChart3 className="w-5 h-5 text-[#00e677]" />
+        <h2 className="text-xl font-bold text-white">통산 기록</h2>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={<Trophy className="w-12 h-12" />}
-          label="총 득점"
-          value={totalGoals}
+          label="통산 득점"
+          value={allTimeGoals}
         />
         <StatCard
           icon={<TrendingUp className="w-12 h-12" />}
-          label="총 어시스트"
-          value={totalAssists}
+          label="통산 어시스트"
+          value={allTimeAssists}
         />
         <StatCard
           icon={<Shield className="w-12 h-12" />}
-          label="경기 수"
-          value={matchesPlayed}
+          label="통산 경기수"
+          value={allTimeMatchesPlayed}
         />
         <StatCard
           icon={<UserCheck className="w-12 h-12" />}
-          label="출석률"
-          value={attendanceRate}
+          label="통산 출석률"
+          value={allTimeAttendanceRate}
           suffix="%"
         />
-      </div>
-
-      <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6 rounded-xl">
-        <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-[#00e677]" />
-          {seasonYear} 시즌 요약
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-4 rounded-xl bg-[#00e677]/10 border border-[#00e677]/20">
-            <p className="text-4xl font-black text-[#00e677]">{wins}</p>
-            <p className="text-sm text-white/60 mt-1">승리</p>
-          </div>
-          <div className="text-center p-4 rounded-xl bg-white/5 border border-white/10">
-            <p className="text-4xl font-black text-white">{draws}</p>
-            <p className="text-sm text-white/60 mt-1">무승부</p>
-          </div>
-          <div className="text-center p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-            <p className="text-4xl font-black text-red-400">{losses}</p>
-            <p className="text-sm text-white/60 mt-1">패배</p>
-          </div>
-        </div>
       </div>
 
       <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6 rounded-xl">
@@ -506,13 +467,13 @@ function StatsContent({
           <div className="flex items-center justify-between">
             <span className="text-white/60">경기당 득점</span>
             <span className="text-white font-bold">
-              {matchesPlayed > 0 ? (totalGoals / matchesPlayed).toFixed(2) : "0.00"}
+              {allTimeMatchesPlayed > 0 ? (allTimeGoals / allTimeMatchesPlayed).toFixed(2) : "0.00"}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-white/60">경기당 어시스트</span>
             <span className="text-white font-bold">
-              {matchesPlayed > 0 ? (totalAssists / matchesPlayed).toFixed(2) : "0.00"}
+              {allTimeMatchesPlayed > 0 ? (allTimeAssists / allTimeMatchesPlayed).toFixed(2) : "0.00"}
             </span>
           </div>
         </div>

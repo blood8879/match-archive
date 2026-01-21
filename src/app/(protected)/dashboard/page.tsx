@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Users, Calendar, Zap } from "lucide-react";
 import type { Team, TeamMember, User, Venue } from "@/types/supabase";
-import { getRecentMatches, getNextMatch, getSeasonStatistics, getTeamDetailedStats, getTeamAvailableYears, type TeamDetailedStats } from "@/services/team-stats";
+import { getRecentMatches, getNextMatch, getTeamDetailedStats, getTeamAvailableYears, getTeamSeasonSummary, type TeamDetailedStats, type TeamSeasonSummary } from "@/services/team-stats";
 import { getTeamMembers } from "@/services/teams";
 import { getNotifications } from "@/services/notifications";
 import { LockerRoomTabs } from "./locker-room-tabs";
@@ -60,16 +60,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const currentMembershipId = currentMembership?.id;
   const currentTeam = currentMembership?.team;
 
-  let totalGoals = 0;
-  let totalAssists = 0;
-  let matchesPlayed = 0;
-  let consecutiveAppearances = 0;
-  let teamTotalMatches = 0;
-  let attendanceRate = 0;
-
-  const currentYear = new Date().getFullYear();
-  const seasonStart = `${currentYear}-01-01`;
-  const seasonEnd = `${currentYear}-12-31`;
+  let allTimeGoals = 0;
+  let allTimeAssists = 0;
+  let allTimeMatchesPlayed = 0;
+  let allTimeAttendanceRate = 0;
 
   if (currentMembershipId && currentTeam) {
     const { data: myStats } = await supabase
@@ -78,74 +72,38 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       .eq("team_member_id", currentMembershipId);
 
     if (myStats) {
-      const finishedMatches = myStats.filter((record: any) => {
-        if (record.match?.status !== "FINISHED") return false;
-        const matchDate = record.match?.match_date;
-        if (!matchDate) return false;
-        const matchYear = new Date(matchDate).getFullYear();
-        return matchYear === currentYear;
-      });
-
-      totalGoals = finishedMatches.reduce((sum: number, r: any) => sum + (r.goals || 0), 0);
-      totalAssists = finishedMatches.reduce((sum: number, r: any) => sum + (r.assists || 0), 0);
-      matchesPlayed = finishedMatches.length;
+      const finishedMatches = myStats.filter((record: any) => record.match?.status === "FINISHED");
+      allTimeGoals = finishedMatches.reduce((sum: number, r: any) => sum + (r.goals || 0), 0);
+      allTimeAssists = finishedMatches.reduce((sum: number, r: any) => sum + (r.assists || 0), 0);
+      allTimeMatchesPlayed = finishedMatches.length;
     }
 
-    const { count: totalMatchCount } = await supabase
+    const { count: allTimeTeamMatchCount } = await supabase
       .from("matches")
       .select("id", { count: "exact", head: true })
       .eq("team_id", currentTeam.id)
-      .eq("status", "FINISHED")
-      .gte("match_date", seasonStart)
-      .lte("match_date", seasonEnd);
+      .eq("status", "FINISHED");
 
-    teamTotalMatches = totalMatchCount || 0;
-    attendanceRate = teamTotalMatches > 0 ? Math.round((matchesPlayed / teamTotalMatches) * 100) : 0;
-
-    const { data: teamMatches } = await supabase
-      .from("matches")
-      .select("id, match_date")
-      .eq("team_id", currentTeam.id)
-      .eq("status", "FINISHED")
-      .gte("match_date", seasonStart)
-      .lte("match_date", seasonEnd)
-      .order("match_date", { ascending: false })
-      .limit(20);
-
-    if (teamMatches && teamMatches.length > 0) {
-      const { data: myAppearances } = await supabase
-        .from("match_records")
-        .select("match_id")
-        .eq("team_member_id", currentMembershipId);
-
-      const myMatchIds = new Set(myAppearances?.map((r) => r.match_id) || []);
-
-      for (const match of teamMatches) {
-        if (myMatchIds.has(match.id)) {
-          consecutiveAppearances++;
-        } else {
-          break;
-        }
-      }
-    }
+    const allTimeTeamMatches = allTimeTeamMatchCount || 0;
+    allTimeAttendanceRate = allTimeTeamMatches > 0 ? Math.round((allTimeMatchesPlayed / allTimeTeamMatches) * 100) : 0;
   }
 
   let recentMatches: any[] = [];
   let nextMatch: any = null;
   let members: TeamMemberWithUser[] = [];
   let venues: Venue[] = [];
-  let seasonStats = { wins: 0, draws: 0, losses: 0, totalMatches: 0, seasonYear: new Date().getFullYear() };
   let teamDetailedStats: TeamDetailedStats | null = null;
   let availableYears: number[] = [];
+  let teamSeasonSummary: TeamSeasonSummary = { totalGoals: 0, totalAssists: 0, totalMatches: 0, maxWinStreak: 0, seasonYear: new Date().getFullYear() };
 
   if (currentTeam) {
     try {
       recentMatches = await getRecentMatches(currentTeam.id, 5);
       nextMatch = await getNextMatch(currentTeam.id);
       members = await getTeamMembers(currentTeam.id);
-      seasonStats = await getSeasonStatistics(currentTeam.id);
       availableYears = await getTeamAvailableYears(currentTeam.id);
       teamDetailedStats = await getTeamDetailedStats(currentTeam.id);
+      teamSeasonSummary = await getTeamSeasonSummary(currentTeam.id);
 
       const { data: venueData } = await supabase
         .from("venues")
@@ -263,17 +221,16 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           typedProfile={typedProfile}
           recentMatches={recentMatches}
           nextMatch={nextMatch}
-          totalGoals={totalGoals}
-          totalAssists={totalAssists}
-          matchesPlayed={matchesPlayed}
-          consecutiveAppearances={consecutiveAppearances}
-          attendanceRate={attendanceRate}
+          allTimeGoals={allTimeGoals}
+          allTimeAssists={allTimeAssists}
+          allTimeMatchesPlayed={allTimeMatchesPlayed}
+          allTimeAttendanceRate={allTimeAttendanceRate}
           members={members}
           venues={venues}
           isManager={isManager}
-          seasonStats={seasonStats}
           teamDetailedStats={teamDetailedStats}
           availableYears={availableYears}
+          teamSeasonSummary={teamSeasonSummary}
         />
       </main>
     </div>

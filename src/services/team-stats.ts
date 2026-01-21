@@ -22,6 +22,108 @@ export type SeasonStats = {
   seasonYear: number;
 };
 
+export type TeamSeasonSummary = {
+  totalGoals: number;
+  totalAssists: number;
+  totalMatches: number;
+  maxWinStreak: number;
+  seasonYear: number;
+};
+
+/**
+ * 현재 시즌의 팀 종합 통계를 반환합니다 (팀 총득점, 총어시스트, 경기수, 최다연승)
+ */
+export async function getTeamSeasonSummary(teamId: string): Promise<TeamSeasonSummary> {
+  const supabase = await createClient();
+  const { start, end, year } = getCurrentSeasonRange();
+
+  // 홈 경기 조회
+  const { data: homeMatches } = await supabase
+    .from("matches")
+    .select("id, home_score, away_score, match_date")
+    .eq("team_id", teamId)
+    .eq("status", "FINISHED")
+    .gte("match_date", start)
+    .lte("match_date", end)
+    .order("match_date", { ascending: true });
+
+  // 원정 경기 조회
+  const { data: awayMatches } = await supabase
+    .from("matches")
+    .select("id, home_score, away_score, match_date")
+    .eq("opponent_team_id", teamId)
+    .eq("status", "FINISHED")
+    .gte("match_date", start)
+    .lte("match_date", end)
+    .order("match_date", { ascending: true });
+
+  // 모든 경기 합치고 날짜순 정렬 (최다연승 계산용)
+  type MatchResult = { matchDate: string; isWin: boolean; goalsScored: number };
+  const allMatchResults: MatchResult[] = [];
+
+  (homeMatches || []).forEach((m) => {
+    const home = m.home_score || 0;
+    const away = m.away_score || 0;
+    allMatchResults.push({
+      matchDate: m.match_date,
+      isWin: home > away,
+      goalsScored: home,
+    });
+  });
+
+  (awayMatches || []).forEach((m) => {
+    const home = m.home_score || 0;
+    const away = m.away_score || 0;
+    allMatchResults.push({
+      matchDate: m.match_date,
+      isWin: away > home,
+      goalsScored: away,
+    });
+  });
+
+  // 날짜순 정렬
+  allMatchResults.sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
+
+  // 최다연승 계산
+  let maxWinStreak = 0;
+  let currentStreak = 0;
+  for (const match of allMatchResults) {
+    if (match.isWin) {
+      currentStreak++;
+      maxWinStreak = Math.max(maxWinStreak, currentStreak);
+    } else {
+      currentStreak = 0;
+    }
+  }
+
+  // 팀 총득점 (모든 경기에서 얻은 골)
+  const totalGoals = allMatchResults.reduce((sum, m) => sum + m.goalsScored, 0);
+
+  // 팀 총어시스트 계산 (match_records에서)
+  const matchIds = [
+    ...(homeMatches || []).map((m) => m.id),
+    ...(awayMatches || []).map((m) => m.id),
+  ];
+
+  let totalAssists = 0;
+  if (matchIds.length > 0) {
+    const { data: records } = await supabase
+      .from("match_records")
+      .select("assists")
+      .in("match_id", matchIds);
+
+    totalAssists = (records || []).reduce((sum, r) => sum + (r.assists || 0), 0);
+  }
+
+  return {
+    totalGoals,
+    totalAssists,
+    totalMatches: allMatchResults.length,
+    maxWinStreak,
+    seasonYear: year,
+  };
+}
+
 function getCurrentSeasonRange(): { start: string; end: string; year: number } {
   const now = new Date();
   const year = now.getFullYear();

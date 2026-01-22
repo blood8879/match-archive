@@ -135,18 +135,6 @@ export function PreviousMeetings({
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-6 py-2">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xl font-bold text-[#00e677]">{stats.homeGoals}</span>
-            <span className="text-[10px] text-[#8eccae]">득점</span>
-          </div>
-          <div className="text-[#8eccae]/30">|</div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xl font-bold text-red-400">{stats.awayGoals}</span>
-            <span className="text-[10px] text-[#8eccae]">실점</span>
-          </div>
-        </div>
-
         {stats.recentMatches.length > 0 && (
           <div className="pt-4 border-t border-[#214a36]/50">
             <div className="space-y-2">

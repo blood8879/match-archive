@@ -100,23 +100,33 @@ export function PreviousMeetings({
 
         <div className="flex items-start justify-between">
           <div className="text-center flex-1">
-            <p className="text-4xl font-black text-[#00e677]">{stats.homeWins}</p>
+            <div className="flex items-baseline justify-center gap-1">
+              <p className="text-4xl font-black text-[#00e677]">{stats.homeWins}</p>
+              <p className="text-sm font-medium text-[#00e677]/70">
+                ({stats.homeWinsAtHome}/{stats.homeWinsAway})
+              </p>
+            </div>
             <p className="text-xs text-[#8eccae] mt-1">승리</p>
             <p className="text-[10px] text-[#8eccae]/50 mt-0.5">
-              홈 {stats.homeWinsAtHome} · 원정 {stats.homeWinsAway}
+              홈/원정
             </p>
           </div>
           
           <div className="text-center flex-1">
             <p className="text-4xl font-black text-[#8eccae]">{stats.draws}</p>
-            <p className="text-xs text-[#8eccae] mt-1">무승부</p>
+            <p className="text-xs text-[#8eccae] mt-1">무</p>
           </div>
           
           <div className="text-center flex-1">
-            <p className="text-4xl font-black text-red-400">{stats.awayWins}</p>
-            <p className="text-xs text-[#8eccae] mt-1">패배</p>
+            <div className="flex items-baseline justify-center gap-1">
+              <p className="text-4xl font-black text-red-400">{stats.awayWins}</p>
+              <p className="text-sm font-medium text-red-400/70">
+                ({stats.awayWinsAtHome}/{stats.awayWinsAway})
+              </p>
+            </div>
+            <p className="text-xs text-[#8eccae] mt-1">승리</p>
             <p className="text-[10px] text-[#8eccae]/50 mt-0.5">
-              홈 {stats.awayWinsAtHome} · 원정 {stats.awayWinsAway}
+              홈/원정
             </p>
           </div>
         </div>

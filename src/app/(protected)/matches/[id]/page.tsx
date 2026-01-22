@@ -8,6 +8,7 @@ import {
   getHeadToHeadStats,
   getTeamForm,
 } from "@/services/matches";
+import { getWeather } from "@/services/weather";
 import { getOpponentPlayers } from "@/services/opponent-players";
 import { getTeamById, getTeamMembers } from "@/services/teams";
 import { createClient } from "@/lib/supabase/server";
@@ -20,6 +21,7 @@ import { OpponentLineup } from "./opponent-lineup";
 import { DeleteMatchButton } from "./delete-match-button";
 import { PreviousMeetings } from "./previous-meetings";
 import { TeamFormSection } from "./team-form";
+import { MatchWeather } from "./match-weather";
 
 interface MatchDetailPageProps {
   params: Promise<{ id: string }>;
@@ -102,6 +104,18 @@ export default async function MatchDetailPage({
       : venue.address
     : match.location;
 
+  // 날씨 정보 (경기장 좌표가 있는 경우만)
+  let weather = null;
+  if (venue?.latitude && venue?.longitude) {
+    const matchTime = match.match_date.split("T")[1]?.substring(0, 5);
+    weather = await getWeather(
+      venue.latitude,
+      venue.longitude,
+      match.match_date.split("T")[0],
+      matchTime
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0f2319] relative">
       <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#00e677]/5 rounded-full blur-[100px] pointer-events-none" />
@@ -137,6 +151,11 @@ export default async function MatchDetailPage({
                     {venue?.name && venueAddress && <span className="mx-1">·</span>}
                     {venueAddress && <span>{venueAddress}</span>}
                   </p>
+                </div>
+              )}
+              {weather && (
+                <div className="mt-2">
+                  <MatchWeather weather={weather} />
                 </div>
               )}
             </div>

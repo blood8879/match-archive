@@ -30,7 +30,7 @@ export async function getMatchById(id: string): Promise<Match | null> {
     .select(`
       *,
       opponent_team:teams!matches_opponent_team_id_fkey(id, name, emblem_url),
-      venue:venues!matches_venue_id_fkey(id, name, address, address_detail)
+      venue:venues!matches_venue_id_fkey(id, name, address, address_detail, latitude, longitude)
     `)
     .eq("id", id)
     .single();

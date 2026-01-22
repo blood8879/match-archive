@@ -132,7 +132,7 @@ export default async function MatchDetailPage({
             <span>경기 목록으로</span>
           </Link>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
             <div className="flex-1 min-w-0">
               <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                 라인업 및 경기 관리
@@ -153,14 +153,11 @@ export default async function MatchDetailPage({
                   </p>
                 </div>
               )}
-              {weather && (
-                <div className="mt-2">
-                  <MatchWeather weather={weather} />
-                </div>
-              )}
             </div>
-            {isManager && (
-              <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              {weather && <MatchWeather weather={weather} />}
+              {isManager && (
+                <div className="flex items-center gap-2">
                 <Link
                   href={`/matches/${match.id}/edit`}
                   className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-[#214a36] hover:bg-[#2b5d45] text-white text-xs sm:text-sm font-medium transition-colors"
@@ -170,8 +167,9 @@ export default async function MatchDetailPage({
                   <span className="xs:hidden">수정</span>
                 </Link>
                 <DeleteMatchButton matchId={match.id} teamId={match.team_id} />
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

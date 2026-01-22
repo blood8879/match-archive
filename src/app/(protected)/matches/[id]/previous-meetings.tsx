@@ -99,35 +99,39 @@ export function PreviousMeetings({
         </div>
 
         <div className="flex items-start justify-between">
-          <div className="text-center flex-1">
-            <div className="flex items-baseline justify-center gap-1">
-              <p className="text-4xl font-black text-[#00e677]">{stats.homeWins}</p>
-              <p className="text-sm font-medium text-[#00e677]/70">
-                ({stats.homeWinsAtHome}/{stats.homeWinsAway})
-              </p>
+          <div className="flex items-end gap-3">
+            <div className="text-left">
+              <p className="text-[10px] text-[#8eccae]/70 mb-0.5">승리</p>
+              <p className="text-3xl font-black text-[#00e677]">{stats.homeWins}</p>
             </div>
-            <p className="text-xs text-[#8eccae] mt-1">승리</p>
-            <p className="text-[10px] text-[#8eccae]/50 mt-0.5">
-              홈/원정
-            </p>
+            <div className="text-left pb-0.5">
+              <p className="text-[10px] text-[#8eccae]/50 mb-0.5">홈</p>
+              <p className="text-sm font-semibold text-[#00e677]/70">{stats.homeWinsAtHome}</p>
+            </div>
+            <div className="text-left pb-0.5">
+              <p className="text-[10px] text-[#8eccae]/50 mb-0.5">원정</p>
+              <p className="text-sm font-semibold text-[#00e677]/70">{stats.homeWinsAway}</p>
+            </div>
           </div>
           
-          <div className="text-center flex-1">
-            <p className="text-4xl font-black text-[#8eccae]">{stats.draws}</p>
-            <p className="text-xs text-[#8eccae] mt-1">무</p>
+          <div className="text-center">
+            <p className="text-[10px] text-[#8eccae]/70 mb-0.5">무승부</p>
+            <p className="text-3xl font-black text-[#8eccae]">{stats.draws}</p>
           </div>
           
-          <div className="text-center flex-1">
-            <div className="flex items-baseline justify-center gap-1">
-              <p className="text-4xl font-black text-red-400">{stats.awayWins}</p>
-              <p className="text-sm font-medium text-red-400/70">
-                ({stats.awayWinsAtHome}/{stats.awayWinsAway})
-              </p>
+          <div className="flex items-end gap-3">
+            <div className="text-right pb-0.5">
+              <p className="text-[10px] text-[#8eccae]/50 mb-0.5">원정</p>
+              <p className="text-sm font-semibold text-red-400/70">{stats.awayWinsAway}</p>
             </div>
-            <p className="text-xs text-[#8eccae] mt-1">승리</p>
-            <p className="text-[10px] text-[#8eccae]/50 mt-0.5">
-              홈/원정
-            </p>
+            <div className="text-right pb-0.5">
+              <p className="text-[10px] text-[#8eccae]/50 mb-0.5">홈</p>
+              <p className="text-sm font-semibold text-red-400/70">{stats.awayWinsAtHome}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] text-[#8eccae]/70 mb-0.5">승리</p>
+              <p className="text-3xl font-black text-red-400">{stats.awayWins}</p>
+            </div>
           </div>
         </div>
 

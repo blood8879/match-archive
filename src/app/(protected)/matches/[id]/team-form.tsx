@@ -123,25 +123,26 @@ export function TeamFormSection({ homeTeamForm, awayTeamForm, isGuestOpponent = 
         <span className="text-[10px] text-[#8eccae]/60">최근 5경기</span>
       </div>
 
-      <div className="p-4">
-        <div className="flex gap-3">
+      <div className="p-3 sm:p-4">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-3">
           <div className="flex-1 min-w-0">
             {homeTeamForm ? (
               <TeamFormCard form={homeTeamForm} label="HOME" />
             ) : (
-              <div className="text-center py-8">
+              <div className="text-center py-6 sm:py-8">
                 <p className="text-[#8eccae]/60 text-xs">경기 기록 없음</p>
               </div>
             )}
           </div>
 
-          <div className="w-px bg-[#214a36]/50 self-stretch" />
+          <div className="hidden sm:block w-px bg-[#214a36]/50 self-stretch" />
+          <div className="sm:hidden h-px bg-[#214a36]/50 w-full" />
 
           <div className="flex-1 min-w-0">
             {awayTeamForm ? (
               <TeamFormCard form={awayTeamForm} label="AWAY" />
             ) : (
-              <div className="text-center py-8">
+              <div className="text-center py-6 sm:py-8">
                 <p className="text-[#8eccae]/60 text-xs">
                   {isGuestOpponent
                     ? "게스트팀 전적 미제공"

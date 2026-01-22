@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { Venue } from "@/types/supabase";
+import { geocodeAddress } from "./geocoding";
 
 export async function getTeamVenues(teamId: string): Promise<Venue[]> {
   const supabase = await createClient();
@@ -55,6 +56,8 @@ export async function createVenue(formData: FormData): Promise<Venue> {
   const postalCode = formData.get("postal_code") as string | null;
   const isPrimary = formData.get("is_primary") === "true";
 
+  const coordinates = await geocodeAddress(address);
+
   const { data: venue, error } = await supabase
     .from("venues")
     .insert({
@@ -64,6 +67,8 @@ export async function createVenue(formData: FormData): Promise<Venue> {
       address_detail: addressDetail,
       postal_code: postalCode,
       is_primary: isPrimary,
+      latitude: coordinates?.latitude ?? null,
+      longitude: coordinates?.longitude ?? null,
     })
     .select()
     .single();
@@ -91,15 +96,37 @@ export async function updateVenue(
   const postalCode = formData.get("postal_code") as string | null;
   const isPrimary = formData.get("is_primary") === "true";
 
+  const existingVenue = await supabase
+    .from("venues")
+    .select("address")
+    .eq("id", id)
+    .single();
+
+  let coordinates = null;
+  const addressChanged = existingVenue.data?.address !== address;
+  if (addressChanged) {
+    coordinates = await geocodeAddress(address);
+  }
+
+  const updateData: Record<string, unknown> = {
+    name,
+    address,
+    address_detail: addressDetail,
+    postal_code: postalCode,
+    is_primary: isPrimary,
+  };
+
+  if (addressChanged && coordinates) {
+    updateData.latitude = coordinates.latitude;
+    updateData.longitude = coordinates.longitude;
+  } else if (addressChanged) {
+    updateData.latitude = null;
+    updateData.longitude = null;
+  }
+
   const { data: venue, error } = await supabase
     .from("venues")
-    .update({
-      name,
-      address,
-      address_detail: addressDetail,
-      postal_code: postalCode,
-      is_primary: isPrimary,
-    })
+    .update(updateData)
     .eq("id", id)
     .select()
     .single();

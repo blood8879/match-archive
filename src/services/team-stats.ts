@@ -417,7 +417,7 @@ export async function getNextMatch(teamId: string): Promise<MatchWithOpponentTea
     .select(`
       *,
       opponent_team:teams!matches_opponent_team_id_fkey(id, name, emblem_url),
-      venue:venues!matches_venue_id_fkey(id, name, address)
+      venue:venues!matches_venue_id_fkey(id, name, address, latitude, longitude)
     `)
     .eq("team_id", teamId)
     .eq("status", "SCHEDULED")
@@ -431,7 +431,7 @@ export async function getNextMatch(teamId: string): Promise<MatchWithOpponentTea
     .select(`
       *,
       home_team:teams!matches_team_id_fkey(id, name, emblem_url),
-      venue:venues!matches_venue_id_fkey(id, name, address)
+      venue:venues!matches_venue_id_fkey(id, name, address, latitude, longitude)
     `)
     .eq("opponent_team_id", teamId)
     .eq("status", "SCHEDULED")

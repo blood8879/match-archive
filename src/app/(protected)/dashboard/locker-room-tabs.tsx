@@ -23,6 +23,12 @@ import {
   Star,
   Handshake,
   X,
+  Sun,
+  Cloud,
+  CloudRain,
+  CloudSnow,
+  Thermometer,
+  Wind,
 } from "lucide-react";
 import {
   PieChart as RechartsPie,
@@ -38,6 +44,7 @@ import {
 } from "recharts";
 import type { Team, TeamMember, User, Venue } from "@/types/supabase";
 import type { TeamDetailedStats, TeamSeasonSummary } from "@/services/team-stats";
+import type { WeatherData } from "@/services/weather";
 import { fetchTeamStatsBySeason } from "./actions";
 import { formatDateTime } from "@/lib/utils";
 
@@ -54,6 +61,7 @@ interface LockerRoomTabsProps {
   typedProfile: User | null;
   recentMatches: any[];
   nextMatch: any;
+  nextMatchWeather: WeatherData | null;
   allTimeGoals: number;
   allTimeAssists: number;
   allTimeMatchesPlayed: number;
@@ -74,6 +82,7 @@ export function LockerRoomTabs({
   typedProfile,
   recentMatches,
   nextMatch,
+  nextMatchWeather,
   allTimeGoals,
   allTimeAssists,
   allTimeMatchesPlayed,
@@ -130,6 +139,7 @@ export function LockerRoomTabs({
           typedProfile={typedProfile}
           recentMatches={recentMatches}
           nextMatch={nextMatch}
+          nextMatchWeather={nextMatchWeather}
           teamSeasonSummary={teamSeasonSummary}
           isManager={isManager}
         />
@@ -170,6 +180,7 @@ function LockerContent({
   typedProfile: _typedProfile,
   recentMatches,
   nextMatch,
+  nextMatchWeather,
   teamSeasonSummary,
   isManager,
 }: {
@@ -178,6 +189,7 @@ function LockerContent({
   typedProfile: User | null;
   recentMatches: any[];
   nextMatch: any;
+  nextMatchWeather: WeatherData | null;
   teamSeasonSummary: TeamSeasonSummary;
   isManager: boolean;
 }) {
@@ -233,7 +245,7 @@ function LockerContent({
           </div>
         </div>
         <div className="col-span-1 lg:col-span-8">
-          <NextMatchCard firstTeam={firstTeam} nextMatch={nextMatch} isManager={isManager} />
+          <NextMatchCard firstTeam={firstTeam} nextMatch={nextMatch} nextMatchWeather={nextMatchWeather} isManager={isManager} />
         </div>
       </div>
 
@@ -733,7 +745,7 @@ function VenueContent({
 }
 
 // 공통 컴포넌트들
-function NextMatchCard({ firstTeam, nextMatch, isManager }: { firstTeam: Team | null; nextMatch: any; isManager: boolean }) {
+function NextMatchCard({ firstTeam, nextMatch, nextMatchWeather, isManager }: { firstTeam: Team | null; nextMatch: any; nextMatchWeather: WeatherData | null; isManager: boolean }) {
   return (
     <div className="relative w-full h-full min-h-[340px] rounded-2xl overflow-hidden group shadow-2xl shadow-black/50 border border-white/10">
       <div className="absolute inset-0 bg-gradient-to-br from-[#173627] to-[#0f2319]"></div>
@@ -824,6 +836,26 @@ function NextMatchCard({ firstTeam, nextMatch, isManager }: { firstTeam: Team | 
                       "예정된 경기가 없습니다"
                     )}
                   </div>
+                  {nextMatchWeather && (
+                    <div className="flex items-center gap-3 mt-2 px-3 py-1.5 bg-white/5 rounded-lg w-fit">
+                      <div className="flex items-center gap-1.5">
+                        {nextMatchWeather.icon === "sun" && <Sun className="w-4 h-4 text-yellow-400" />}
+                        {nextMatchWeather.icon === "cloud" && <Cloud className="w-4 h-4 text-gray-400" />}
+                        {nextMatchWeather.icon === "cloud-rain" && <CloudRain className="w-4 h-4 text-blue-400" />}
+                        {nextMatchWeather.icon === "cloud-snow" && <CloudSnow className="w-4 h-4 text-blue-200" />}
+                        {!["sun", "cloud", "cloud-rain", "cloud-snow"].includes(nextMatchWeather.icon) && <Cloud className="w-4 h-4 text-gray-400" />}
+                        <span className="text-white/70 text-xs">{nextMatchWeather.description}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Thermometer className="w-3 h-3 text-red-400" />
+                        <span className="text-white text-xs font-medium">{nextMatchWeather.temperature}°C</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Wind className="w-3 h-3 text-[#8eccae]" />
+                        <span className="text-white/70 text-xs">{nextMatchWeather.windSpeed}km/h</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-3">
                   {nextMatch ? (

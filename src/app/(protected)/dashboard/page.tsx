@@ -5,6 +5,7 @@ import type { Team, TeamMember, User, Venue } from "@/types/supabase";
 import { getRecentMatches, getNextMatch, getTeamDetailedStats, getTeamAvailableYears, getTeamSeasonSummary, type TeamDetailedStats, type TeamSeasonSummary } from "@/services/team-stats";
 import { getTeamMembers } from "@/services/teams";
 import { getNotifications } from "@/services/notifications";
+import { getWeather, type WeatherData } from "@/services/weather";
 import { LockerRoomTabs } from "./locker-room-tabs";
 import { TeamSwitcher } from "./team-switcher";
 import { NotificationDropdown } from "./notification-dropdown";
@@ -96,6 +97,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   let availableYears: number[] = [];
   let teamSeasonSummary: TeamSeasonSummary = { totalGoals: 0, totalAssists: 0, totalMatches: 0, maxWinStreak: 0, seasonYear: new Date().getFullYear() };
 
+  let nextMatchWeather: WeatherData | null = null;
+
   if (currentTeam) {
     try {
       recentMatches = await getRecentMatches(currentTeam.id, 5);
@@ -113,6 +116,16 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         .order("is_primary", { ascending: false });
 
       venues = (venueData || []) as Venue[];
+
+      if (nextMatch?.venue?.latitude && nextMatch?.venue?.longitude) {
+        const matchTime = nextMatch.match_date.split("T")[1]?.substring(0, 5);
+        nextMatchWeather = await getWeather(
+          nextMatch.venue.latitude,
+          nextMatch.venue.longitude,
+          nextMatch.match_date.split("T")[0],
+          matchTime
+        );
+      }
     } catch (error) {
       console.error("Failed to fetch team data:", error);
     }
@@ -223,6 +236,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           typedProfile={typedProfile}
           recentMatches={recentMatches}
           nextMatch={nextMatch}
+          nextMatchWeather={nextMatchWeather}
           allTimeGoals={allTimeGoals}
           allTimeAssists={allTimeAssists}
           allTimeMatchesPlayed={allTimeMatchesPlayed}

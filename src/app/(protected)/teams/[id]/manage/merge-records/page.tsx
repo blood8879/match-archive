@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { getTeamById } from "@/services/teams";
+import { getTeamById, getTeamMembers } from "@/services/teams";
 import { createClient } from "@/lib/supabase/server";
 import {
   getTeamGuestMembers,
@@ -30,6 +30,7 @@ export default async function MergeRecordsPage({
   let team;
   let guestMembers;
   let pendingRequests;
+  let teamMembers;
 
   try {
     team = await getTeamById(id);
@@ -49,6 +50,7 @@ export default async function MergeRecordsPage({
 
     guestMembers = await getTeamGuestMembers(id);
     pendingRequests = await getTeamMergeRequests(id);
+    teamMembers = await getTeamMembers(id);
   } catch {
     notFound();
   }
@@ -126,7 +128,7 @@ export default async function MergeRecordsPage({
         </div>
 
         {guestsWithRecords.length > 0 ? (
-          <GuestMembersList guests={guestsWithRecords} teamId={id} />
+          <GuestMembersList guests={guestsWithRecords} teamId={id} teamMembers={teamMembers || []} />
         ) : (
           <div className="text-center py-12">
             <Zap className="w-12 h-12 text-text-muted mx-auto mb-4" />

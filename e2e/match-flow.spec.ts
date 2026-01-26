@@ -490,7 +490,7 @@ test.describe("Complete Match Flow E2E", () => {
     await waitForNavigation(page, /\/dashboard/);
 
     const teamId = await createTeam(page, testTeamName);
-    const matchId = await createMatch(page, teamId, "Test FC", "Test Stadium");
+    await createMatch(page, teamId, "Test FC", "Test Stadium");
 
     // Select lineup
     await page.locator('input[type="checkbox"]').first().check();
@@ -562,7 +562,7 @@ test.describe("Complete Match Flow E2E", () => {
     await waitForNavigation(page, /\/dashboard/);
 
     const teamId = await createTeam(page, testTeamName);
-    const matchId = await createMatch(page, teamId, "Assist Test FC", "Stadium");
+    await createMatch(page, teamId, "Assist Test FC", "Stadium");
 
     // For this test, we need at least 2 players
     // Since we only have 1 (the creator), we'll record a goal with assist from same player

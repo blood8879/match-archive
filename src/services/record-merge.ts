@@ -370,9 +370,117 @@ export async function rejectMergeRequest(requestId: string): Promise<void> {
   revalidatePath("/dashboard");
 }
 
-/**
- * 기록 병합 요청 취소 (팀 관리자)
- */
+export async function checkUserTeamMembership(
+  teamId: string,
+  userId: string
+): Promise<{
+  isMember: boolean;
+  status: "active" | "pending" | "left" | null;
+  memberId: string | null;
+}> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("team_members")
+    .select("id, status")
+    .eq("team_id", teamId)
+    .eq("user_id", userId)
+    .eq("is_guest", false)
+    .order("status", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) {
+    return { isMember: false, status: null, memberId: null };
+  }
+
+  return {
+    isMember: data.status === "active",
+    status: data.status as "active" | "pending" | "left",
+    memberId: data.id,
+  };
+}
+
+export async function directMergeGuestRecords(
+  teamId: string,
+  guestMemberId: string,
+  targetUserId: string
+): Promise<{
+  success: boolean;
+  recordsUpdated?: number;
+  recordsMerged?: number;
+  goalsUpdated?: number;
+  assistsUpdated?: number;
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "로그인이 필요합니다" };
+  }
+
+  const { data: myMembership } = await supabase
+    .from("team_members")
+    .select("role")
+    .eq("team_id", teamId)
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .single();
+
+  if (!myMembership || !["OWNER", "MANAGER"].includes(myMembership.role)) {
+    return { success: false, error: "팀 관리자만 직접 병합할 수 있습니다" };
+  }
+
+  const membership = await checkUserTeamMembership(teamId, targetUserId);
+  if (!membership.isMember) {
+    return {
+      success: false,
+      error: "대상 사용자가 팀의 활성 멤버가 아닙니다. 병합 요청을 사용하세요.",
+    };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.rpc as any)("process_direct_merge", {
+    p_team_id: teamId,
+    p_guest_member_id: guestMemberId,
+    p_target_user_id: targetUserId,
+    p_manager_id: user.id,
+  });
+
+  if (error) {
+    console.error("[directMergeGuestRecords] RPC Error:", error.message);
+    return { success: false, error: `RPC 에러: ${error.message}` };
+  }
+
+  const result = data as {
+    success: boolean;
+    target_member_id?: string;
+    records_updated?: number;
+    records_merged?: number;
+    goals_updated?: number;
+    assists_updated?: number;
+    error?: string;
+  };
+
+  if (!result.success) {
+    return { success: false, error: result.error || "직접 병합에 실패했습니다" };
+  }
+
+  revalidatePath(`/teams/${teamId}`);
+  revalidatePath("/dashboard");
+
+  return {
+    success: true,
+    recordsUpdated: result.records_updated,
+    recordsMerged: result.records_merged,
+    goalsUpdated: result.goals_updated,
+    assistsUpdated: result.assists_updated,
+  };
+}
+
 export async function cancelMergeRequest(requestId: string): Promise<void> {
   const supabase = await createClient();
   const {

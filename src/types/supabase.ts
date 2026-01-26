@@ -19,7 +19,13 @@ export type NotificationType =
   | "match_reminder"
   | "join_request"
   | "join_accepted"
-  | "join_rejected";
+  | "join_rejected"
+  | "team_merge_request"
+  | "team_merge_dispute"
+  | "team_merge_score_submit"
+  | "team_merge_resolved"
+  | "team_merge_approved"
+  | "team_merge_rejected";
 
 // 뱃지 타입
 export type BadgeType =
@@ -257,6 +263,8 @@ export interface Database {
           home_score: number;
           away_score: number;
           is_home: boolean;
+          source_type: "original" | "merged";
+          linked_match_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -274,6 +282,8 @@ export interface Database {
           home_score?: number;
           away_score?: number;
           is_home?: boolean;
+          source_type?: "original" | "merged";
+          linked_match_id?: string | null;
           created_at?: string;
         };
         Update: {
@@ -291,6 +301,8 @@ export interface Database {
           home_score?: number;
           away_score?: number;
           is_home?: boolean;
+          source_type?: "original" | "merged";
+          linked_match_id?: string | null;
           created_at?: string;
         };
         Relationships: [
@@ -718,6 +730,8 @@ export interface Database {
           related_invite_id: string | null;
           related_merge_request_id: string | null;
           related_match_id: string | null;
+          related_team_merge_id: string | null;
+          related_dispute_id: string | null;
           metadata: Record<string, unknown>;
           created_at: string;
           read_at: string | null;
@@ -733,6 +747,8 @@ export interface Database {
           related_invite_id?: string | null;
           related_merge_request_id?: string | null;
           related_match_id?: string | null;
+          related_team_merge_id?: string | null;
+          related_dispute_id?: string | null;
           metadata?: Record<string, unknown>;
           created_at?: string;
           read_at?: string | null;
@@ -748,6 +764,8 @@ export interface Database {
           related_invite_id?: string | null;
           related_merge_request_id?: string | null;
           related_match_id?: string | null;
+          related_team_merge_id?: string | null;
+          related_dispute_id?: string | null;
           metadata?: Record<string, unknown>;
           created_at?: string;
           read_at?: string | null;
@@ -816,6 +834,231 @@ export interface Database {
           }
         ];
       };
+      team_merge_requests: {
+        Row: {
+          id: string;
+          requester_team_id: string;
+          requester_user_id: string;
+          guest_team_id: string | null;
+          target_team_id: string;
+          approver_user_id: string | null;
+          status: "pending" | "dispute" | "approved" | "rejected" | "cancelled";
+          matches_created: number;
+          matches_linked: number;
+          created_at: string;
+          processed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          requester_team_id: string;
+          requester_user_id: string;
+          guest_team_id?: string | null;
+          target_team_id: string;
+          approver_user_id?: string | null;
+          status?: "pending" | "dispute" | "approved" | "rejected" | "cancelled";
+          matches_created?: number;
+          matches_linked?: number;
+          created_at?: string;
+          processed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          requester_team_id?: string;
+          requester_user_id?: string;
+          guest_team_id?: string | null;
+          target_team_id?: string;
+          approver_user_id?: string | null;
+          status?: "pending" | "dispute" | "approved" | "rejected" | "cancelled";
+          matches_created?: number;
+          matches_linked?: number;
+          created_at?: string;
+          processed_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "team_merge_requests_requester_team_id_fkey";
+            columns: ["requester_team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_merge_requests_requester_user_id_fkey";
+            columns: ["requester_user_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_merge_requests_target_team_id_fkey";
+            columns: ["target_team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_merge_requests_guest_team_id_fkey";
+            columns: ["guest_team_id"];
+            referencedRelation: "guest_teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_merge_requests_approver_user_id_fkey";
+            columns: ["approver_user_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      team_merge_match_mappings: {
+        Row: {
+          id: string;
+          merge_request_id: string;
+          source_match_id: string;
+          source_team_id: string;
+          mapping_type: "create_new" | "link_existing" | "skip" | "dispute";
+          existing_match_id: string | null;
+          created_match_id: string | null;
+          status: "pending" | "dispute" | "processed" | "skipped";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          merge_request_id: string;
+          source_match_id: string;
+          source_team_id: string;
+          mapping_type?: "create_new" | "link_existing" | "skip" | "dispute";
+          existing_match_id?: string | null;
+          created_match_id?: string | null;
+          status?: "pending" | "dispute" | "processed" | "skipped";
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          merge_request_id?: string;
+          source_match_id?: string;
+          source_team_id?: string;
+          mapping_type?: "create_new" | "link_existing" | "skip" | "dispute";
+          existing_match_id?: string | null;
+          created_match_id?: string | null;
+          status?: "pending" | "dispute" | "processed" | "skipped";
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "team_merge_match_mappings_merge_request_id_fkey";
+            columns: ["merge_request_id"];
+            referencedRelation: "team_merge_requests";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_merge_match_mappings_source_match_id_fkey";
+            columns: ["source_match_id"];
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_merge_match_mappings_source_team_id_fkey";
+            columns: ["source_team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_merge_match_mappings_existing_match_id_fkey";
+            columns: ["existing_match_id"];
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_merge_match_mappings_created_match_id_fkey";
+            columns: ["created_match_id"];
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      team_merge_disputes: {
+        Row: {
+          id: string;
+          mapping_id: string;
+          requester_home_score: number;
+          requester_away_score: number;
+          target_home_score: number | null;
+          target_away_score: number | null;
+          requester_submitted_home: number | null;
+          requester_submitted_away: number | null;
+          requester_submitted_at: string | null;
+          requester_submitted_by: string | null;
+          target_submitted_home: number | null;
+          target_submitted_away: number | null;
+          target_submitted_at: string | null;
+          target_submitted_by: string | null;
+          status: "pending" | "resolved" | "cancelled";
+          resolved_home_score: number | null;
+          resolved_away_score: number | null;
+          resolved_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          mapping_id: string;
+          requester_home_score: number;
+          requester_away_score: number;
+          target_home_score?: number | null;
+          target_away_score?: number | null;
+          requester_submitted_home?: number | null;
+          requester_submitted_away?: number | null;
+          requester_submitted_at?: string | null;
+          requester_submitted_by?: string | null;
+          target_submitted_home?: number | null;
+          target_submitted_away?: number | null;
+          target_submitted_at?: string | null;
+          target_submitted_by?: string | null;
+          status?: "pending" | "resolved" | "cancelled";
+          resolved_home_score?: number | null;
+          resolved_away_score?: number | null;
+          resolved_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          mapping_id?: string;
+          requester_home_score?: number;
+          requester_away_score?: number;
+          target_home_score?: number | null;
+          target_away_score?: number | null;
+          requester_submitted_home?: number | null;
+          requester_submitted_away?: number | null;
+          requester_submitted_at?: string | null;
+          requester_submitted_by?: string | null;
+          target_submitted_home?: number | null;
+          target_submitted_away?: number | null;
+          target_submitted_at?: string | null;
+          target_submitted_by?: string | null;
+          status?: "pending" | "resolved" | "cancelled";
+          resolved_home_score?: number | null;
+          resolved_away_score?: number | null;
+          resolved_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "team_merge_disputes_mapping_id_fkey";
+            columns: ["mapping_id"];
+            referencedRelation: "team_merge_match_mappings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_merge_disputes_requester_submitted_by_fkey";
+            columns: ["requester_submitted_by"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_merge_disputes_target_submitted_by_fkey";
+            columns: ["target_submitted_by"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -838,6 +1081,34 @@ export interface Database {
           records_updated?: number;
           goals_updated?: number;
           assists_updated?: number;
+          error?: string;
+        };
+      };
+      process_team_merge: {
+        Args: {
+          p_request_id: string;
+          p_approver_id: string;
+        };
+        Returns: {
+          success: boolean;
+          matches_created?: number;
+          matches_linked?: number;
+          error?: string;
+        };
+      };
+      submit_dispute_score: {
+        Args: {
+          p_dispute_id: string;
+          p_user_id: string;
+          p_home_score: number;
+          p_away_score: number;
+        };
+        Returns: {
+          success: boolean;
+          resolved?: boolean;
+          final_score?: string;
+          submitted_by?: string;
+          waiting_for?: string;
           error?: string;
         };
       };

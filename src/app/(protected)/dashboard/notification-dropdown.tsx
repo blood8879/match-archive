@@ -20,6 +20,8 @@ interface NotificationDropdownProps {
   notifications: NotificationWithDetails[];
 }
 
+import { Link2, AlertTriangle } from "lucide-react";
+
 const notificationIcons: Record<NotificationType, { icon: typeof Bell; color: string; bg: string }> = {
   team_invite: { icon: Mail, color: "text-[#FFC400]", bg: "bg-[#FFC400]/20" },
   merge_request: { icon: GitMerge, color: "text-purple-400", bg: "bg-purple-500/20" },
@@ -33,6 +35,12 @@ const notificationIcons: Record<NotificationType, { icon: typeof Bell; color: st
   join_request: { icon: UserPlus, color: "text-cyan-400", bg: "bg-cyan-500/20" },
   join_accepted: { icon: Check, color: "text-green-400", bg: "bg-green-500/20" },
   join_rejected: { icon: X, color: "text-red-400", bg: "bg-red-500/20" },
+  team_merge_request: { icon: Link2, color: "text-purple-400", bg: "bg-purple-500/20" },
+  team_merge_dispute: { icon: AlertTriangle, color: "text-[#FFC400]", bg: "bg-[#FFC400]/20" },
+  team_merge_score_submit: { icon: Check, color: "text-blue-400", bg: "bg-blue-500/20" },
+  team_merge_resolved: { icon: Check, color: "text-green-400", bg: "bg-green-500/20" },
+  team_merge_approved: { icon: Check, color: "text-purple-400", bg: "bg-purple-500/20" },
+  team_merge_rejected: { icon: X, color: "text-red-400", bg: "bg-red-500/20" },
 };
 
 export function NotificationDropdown({

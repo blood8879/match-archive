@@ -12,6 +12,9 @@ export type GuestTeam = {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  is_merged?: boolean;
+  merged_to_team_id?: string | null;
+  merged_at?: string | null;
 };
 
 /**
@@ -19,14 +22,19 @@ export type GuestTeam = {
  * @param teamId - The team ID
  * @returns Array of guest teams
  */
-export async function getGuestTeams(teamId: string): Promise<GuestTeam[]> {
+export async function getGuestTeams(teamId: string, includeMerged = false): Promise<GuestTeam[]> {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("guest_teams")
     .select("*")
-    .eq("team_id", teamId)
-    .order("name", { ascending: true });
+    .eq("team_id", teamId);
+  
+  if (!includeMerged) {
+    query = query.or("is_merged.is.null,is_merged.eq.false");
+  }
+
+  const { data, error } = await query.order("name", { ascending: true });
 
   if (error) {
     console.error("[getGuestTeams] Error:", error);

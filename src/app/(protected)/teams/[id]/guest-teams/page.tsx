@@ -3,7 +3,7 @@ import { getTeamById, getTeamMembers } from "@/services/teams";
 import { getGuestTeams } from "@/services/guest-teams";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { ArrowLeft, Users, Shield } from "lucide-react";
+import { ArrowLeft, Users, Shield, Link2 } from "lucide-react";
 import { GuestTeamList } from "./guest-team-list";
 
 interface GuestTeamsPageProps {
@@ -61,11 +61,20 @@ export default async function GuestTeamsPage({ params }: GuestTeamsPageProps) {
             <ArrowLeft className="h-4 w-4" />
             <span>팀으로 돌아가기</span>
           </Link>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-[#00e677]/20 rounded-lg">
-              <Users className="h-6 w-6 text-[#00e677]" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-[#00e677]/20 rounded-lg">
+                <Users className="h-6 w-6 text-[#00e677]" />
+              </div>
+              <h1 className="text-3xl font-black text-white">게스트팀 관리</h1>
             </div>
-            <h1 className="text-3xl font-black text-white">게스트팀 관리</h1>
+            <Link
+              href={`/teams/${id}/merge-teams`}
+              className="flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium rounded-xl transition-colors"
+            >
+              <Link2 className="w-4 h-4" />
+              <span className="hidden sm:inline">기록 통합</span>
+            </Link>
           </div>
           <p className="text-white/60">
             시스템에 등록되지 않은 상대팀을 게스트팀으로 관리하세요.

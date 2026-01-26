@@ -888,9 +888,11 @@ export async function getHeadToHeadStats(
     } else if (match.home_score < match.away_score) {
       awayWins++;
       if (isHome) {
-        awayWinsAtHome++;
-      } else {
+        // 우리가 홈에서 짐 = 상대 입장에서는 원정 승리
         awayWinsAway++;
+      } else {
+        // 우리가 원정에서 짐 = 상대 입장에서는 홈 승리
+        awayWinsAtHome++;
       }
     } else {
       draws++;

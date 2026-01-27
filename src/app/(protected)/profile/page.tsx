@@ -79,22 +79,20 @@ export default async function ProfilePage() {
   if (memberIds.length > 0) {
     const { data: myRecords } = await supabase
       .from("match_records")
-      .select("*, match:matches(*, team:teams!matches_team_id_fkey(*))")
+      .select("*, match:matches!inner(*, team:teams!matches_team_id_fkey(*))")
       .in("team_member_id", memberIds)
-      .order("created_at", { ascending: false })
-      .limit(20);
+      .eq("match.status", "FINISHED")
+      .order("created_at", { ascending: false });
 
     if (myRecords) {
       const typedRecords = myRecords as MatchRecordWithMatch[];
-      // FINISHED 상태의 경기만 필터링
-      const finishedRecords = typedRecords.filter((r) => r.match?.status === "FINISHED");
 
-      totalGoals = finishedRecords.reduce((sum, r) => sum + r.goals, 0);
-      totalAssists = finishedRecords.reduce((sum, r) => sum + r.assists, 0);
-      totalMom = finishedRecords.filter((r) => r.is_mom).length;
-      totalCleanSheets = finishedRecords.filter((r) => r.clean_sheet).length;
-      matchesPlayed = finishedRecords.length;
-      recentMatches = finishedRecords.slice(0, 5);
+      totalGoals = typedRecords.reduce((sum, r) => sum + r.goals, 0);
+      totalAssists = typedRecords.reduce((sum, r) => sum + r.assists, 0);
+      totalMom = typedRecords.filter((r) => r.is_mom).length;
+      totalCleanSheets = typedRecords.filter((r) => r.clean_sheet).length;
+      matchesPlayed = typedRecords.length;
+      recentMatches = typedRecords.slice(0, 5);
     }
   }
 

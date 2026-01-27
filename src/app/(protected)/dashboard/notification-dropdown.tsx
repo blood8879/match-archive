@@ -208,20 +208,31 @@ export function NotificationDropdown({
     }
   };
 
+  const handleNotificationClick = async (notification: NotificationWithDetails) => {
+    if (notification.type === "match_created" && notification.related_match_id) {
+      if (!notification.is_read) {
+        await markNotificationAsRead(notification.id);
+      }
+      setIsOpen(false);
+      router.push(`/matches/${notification.related_match_id}`);
+    }
+  };
+
   const renderNotificationContent = (notification: NotificationWithDetails) => {
     const { type } = notification;
     const iconConfig = notificationIcons[type] || notificationIcons.team_invite;
     const Icon = iconConfig.icon;
 
-    // 액션이 필요한 알림인지 확인
     const isActionable = type === "team_invite" || type === "merge_request";
+    const isClickable = type === "match_created" && notification.related_match_id;
 
     return (
       <div
         key={notification.id}
+        onClick={() => isClickable && handleNotificationClick(notification)}
         className={`p-4 border-b border-white/5 hover:bg-white/5 transition-colors ${
           !notification.is_read ? "bg-white/[0.02]" : ""
-        }`}
+        } ${isClickable ? "cursor-pointer" : ""}`}
       >
         <div className="flex items-start gap-3">
           <div className={`p-2 ${iconConfig.bg} rounded-lg shrink-0`}>

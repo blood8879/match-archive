@@ -802,12 +802,10 @@ export type HeadToHeadStats = {
 export async function getHeadToHeadStats(
   teamId: string,
   opponentName: string,
-  opponentTeamId: string | null,
-  currentMatchId?: string
+  opponentTeamId: string | null
 ): Promise<HeadToHeadStats> {
   const supabase = await createClient();
 
-  // 상대팀과의 모든 경기 조회 (완료된 경기만)
   let query = supabase
     .from("matches")
     .select("id, match_date, home_score, away_score, status, is_home")
@@ -815,7 +813,6 @@ export async function getHeadToHeadStats(
     .eq("status", "FINISHED")
     .order("match_date", { ascending: false });
 
-  // opponent_team_id가 있으면 우선 사용, 없으면 이름으로 검색
   if (opponentTeamId) {
     query = query.eq("opponent_team_id", opponentTeamId);
   } else {
@@ -841,10 +838,7 @@ export async function getHeadToHeadStats(
     };
   }
 
-  // 현재 경기는 제외
-  const filteredMatches = currentMatchId
-    ? matches.filter((m) => m.id !== currentMatchId)
-    : matches;
+  const filteredMatches = matches || [];
 
   let homeWins = 0;
   let awayWins = 0;

@@ -64,12 +64,10 @@ export default async function MatchDetailPage({
   const team = await getTeamById(match.team_id);
   const teamMembers = await getTeamMembers(match.team_id);
 
-  // 상대전적 통계 가져오기
   const headToHeadStats = await getHeadToHeadStats(
     match.team_id,
     match.opponent_name,
-    match.opponent_team_id,
-    match.id
+    match.opponent_team_id
   );
 
   // Team Form 가져오기 (항상 표시)

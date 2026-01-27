@@ -8,6 +8,7 @@ import {
   getPlayerStatsByYear,
   getRecentMatchesByYear,
 } from "@/services/player-stats";
+import { getAllBadgesWithStatus } from "@/services/badges";
 import type { MonthlyStats, RecentMatch } from "@/services/player-stats";
 import { ArrowLeft } from "lucide-react";
 import { PlayerStatsTabs } from "./player-stats-tabs";
@@ -54,6 +55,9 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   const careerStats = user
     ? await getCareerStats(user.id, teamMember.team_id)
     : [];
+
+  // 뱃지 데이터 가져오기
+  const badges = user ? await getAllBadgesWithStatus(user.id) : [];
 
   // 모든 시즌의 데이터 가져오기
   const availableSeasons = careerStats.map((s) => s.season);
@@ -283,6 +287,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         currentYear={currentYear}
         allSeasonStats={allSeasonStats}
         availableSeasons={availableSeasons}
+        badges={badges}
       />
     </main>
   );

@@ -10,8 +10,21 @@ import {
   Shield,
   ChevronDown,
   X,
+  Award,
+  Lock,
 } from "lucide-react";
 import type { MonthlyStats, RecentMatch, SeasonStats } from "@/services/player-stats";
+import type { BadgeType } from "@/types/supabase";
+
+type BadgeWithStatus = {
+  type: BadgeType;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  earned: boolean;
+  earnedAt?: string;
+};
 
 interface PlayerStatsTabsProps {
   stats: {
@@ -39,6 +52,7 @@ interface PlayerStatsTabsProps {
     recentMatches: RecentMatch[];
   }>;
   availableSeasons: number[];
+  badges: BadgeWithStatus[];
 }
 
 export function PlayerStatsTabs({
@@ -49,8 +63,12 @@ export function PlayerStatsTabs({
   currentYear,
   allSeasonStats,
   availableSeasons,
+  badges,
 }: PlayerStatsTabsProps) {
-  const [activeTab, setActiveTab] = useState<"season" | "matches">("season");
+  const [activeTab, setActiveTab] = useState<"season" | "matches" | "badges">("season");
+  
+  const earnedBadges = badges.filter(b => b.earned);
+  const unearnedBadges = badges.filter(b => !b.earned);
   const [selectedSeason, setSelectedSeason] = useState(currentYear);
   const [isSeasonModalOpen, setIsSeasonModalOpen] = useState(false);
 
@@ -204,6 +222,24 @@ export function PlayerStatsTabs({
           }`}
         >
           경기 기록
+        </button>
+        <button
+          onClick={() => setActiveTab("badges")}
+          className={`px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
+            activeTab === "badges"
+              ? "bg-primary text-[#0f2319]"
+              : "bg-[#214a36] text-[#8eccae] hover:bg-[#2b5d45]"
+          }`}
+        >
+          <Award className="w-4 h-4" />
+          업적
+          {earnedBadges.length > 0 && (
+            <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+              activeTab === "badges" ? "bg-[#0f2319]/30" : "bg-primary/20 text-primary"
+            }`}>
+              {earnedBadges.length}
+            </span>
+          )}
         </button>
       </div>
 
@@ -496,6 +532,78 @@ export function PlayerStatsTabs({
             )}
           </section>
         </>
+      )}
+
+      {/* Badges Tab - 업적 */}
+      {activeTab === "badges" && (
+        <div className="space-y-8">
+          {/* 획득한 업적 */}
+          <section className="bg-card-dark rounded-2xl p-6 border border-[#2d5842]/30">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-white text-lg font-bold flex items-center gap-2">
+                <Award className="w-5 h-5 text-primary" />
+                획득한 업적
+              </h3>
+              <span className="text-sm text-text-secondary">
+                {earnedBadges.length}개 획득
+              </span>
+            </div>
+
+            {earnedBadges.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {earnedBadges.map((badge) => (
+                  <div
+                    key={badge.type}
+                    className={`p-4 rounded-xl border ${badge.color} transition-all hover:scale-105`}
+                  >
+                    <div className="text-3xl mb-2">{badge.icon}</div>
+                    <h4 className="font-bold text-white text-sm mb-1">{badge.name}</h4>
+                    <p className="text-xs text-text-secondary mb-2">{badge.description}</p>
+                    {badge.earnedAt && (
+                      <p className="text-[10px] text-text-secondary/70">
+                        {new Date(badge.earnedAt).toLocaleDateString("ko-KR")} 획득
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Award className="w-12 h-12 text-text-secondary/30 mx-auto mb-3" />
+                <p className="text-text-secondary">아직 획득한 업적이 없습니다</p>
+                <p className="text-xs text-text-secondary/70 mt-1">경기에 참여하고 기록을 쌓아 업적을 획득하세요!</p>
+              </div>
+            )}
+          </section>
+
+          {/* 미획득 업적 */}
+          {unearnedBadges.length > 0 && (
+            <section className="bg-card-dark rounded-2xl p-6 border border-[#2d5842]/30">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-white text-lg font-bold flex items-center gap-2">
+                  <Lock className="w-5 h-5 text-text-secondary" />
+                  도전 가능한 업적
+                </h3>
+                <span className="text-sm text-text-secondary">
+                  {unearnedBadges.length}개 남음
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {unearnedBadges.map((badge) => (
+                  <div
+                    key={badge.type}
+                    className="p-4 rounded-xl border border-[#2d5842]/30 bg-[#0f2319]/50 opacity-60 transition-all hover:opacity-80"
+                  >
+                    <div className="text-3xl mb-2 grayscale">{badge.icon}</div>
+                    <h4 className="font-bold text-text-secondary text-sm mb-1">{badge.name}</h4>
+                    <p className="text-xs text-text-secondary/70">{badge.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       )}
 
       {/* Matches Tab - 전체 경기 기록 */}

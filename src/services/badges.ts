@@ -4,9 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { BADGE_DEFINITIONS } from "@/lib/badge-definitions";
 import type { UserBadge, BadgeType } from "@/types/supabase";
 
-// Re-export badge definitions for convenience
-export { BADGE_DEFINITIONS };
-
 /**
  * 사용자의 뱃지 목록 조회
  */

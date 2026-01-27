@@ -45,7 +45,10 @@ export type BadgeType =
   | "goals_10"
   | "goals_50"
   | "assists_10"
-  | "assists_50";
+  | "assists_50"
+  | "hat_trick"
+  | "poker"
+  | "iron_man";
 
 export interface Database {
   public: {

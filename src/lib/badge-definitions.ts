@@ -109,6 +109,24 @@ export const BADGE_DEFINITIONS: Record<BadgeType, {
     icon: "🎁",
     color: "bg-pink-500/20 text-pink-400 border-pink-500/30",
   },
+  hat_trick: {
+    name: "해트트릭",
+    description: "한 경기에서 3골을 기록했습니다",
+    icon: "🎩",
+    color: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+  },
+  poker: {
+    name: "포트트릭",
+    description: "한 경기에서 4골 이상을 기록했습니다",
+    icon: "🃏",
+    color: "bg-red-600/20 text-red-400 border-red-600/30",
+  },
+  iron_man: {
+    name: "철강왕",
+    description: "특정 연도의 모든 경기에 출석했습니다",
+    icon: "🦾",
+    color: "bg-slate-500/20 text-slate-300 border-slate-500/30",
+  },
 };
 
 /**

@@ -256,13 +256,13 @@ export default async function MatchDetailPage({
           </section>
         )}
 
-        {/* Attendance Manager - 운영진용 */}
         {isManager && (
           <AttendanceManager
             matchId={match.id}
             teamMembers={teamMembers}
             attendance={attendance}
             isFinished={isFinished}
+            isManager={isManager}
           />
         )}
 

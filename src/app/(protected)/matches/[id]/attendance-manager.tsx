@@ -11,6 +11,7 @@ interface AttendanceManagerProps {
   teamMembers: TeamMemberWithUser[];
   attendance: MatchAttendanceWithMember[];
   isFinished: boolean;
+  isManager: boolean;
 }
 
 type AttendanceStatus = "attending" | "maybe" | "absent";
@@ -20,6 +21,7 @@ export function AttendanceManager({
   teamMembers,
   attendance,
   isFinished,
+  isManager,
 }: AttendanceManagerProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -59,11 +61,13 @@ export function AttendanceManager({
     .filter((m) => getAttendanceStatus(m.id) === null)
     .sort(sortByName);
 
+  const canEdit = !isFinished || isManager;
+
   const handleStatusChange = async (
     memberId: string,
     status: AttendanceStatus
   ) => {
-    if (isFinished) return;
+    if (!canEdit) return;
 
     setLoadingMemberId(memberId);
 
@@ -120,7 +124,7 @@ export function AttendanceManager({
             <>
               <button
                 onClick={() => handleStatusChange(member.id, "attending")}
-                disabled={isFinished || isPending}
+                disabled={!canEdit || isPending}
                 className={`p-1.5 rounded-md transition-colors ${
                   currentStatus === "attending"
                     ? "bg-[#00e677]/20 text-[#00e677]"
@@ -132,7 +136,7 @@ export function AttendanceManager({
               </button>
               <button
                 onClick={() => handleStatusChange(member.id, "maybe")}
-                disabled={isFinished || isPending}
+                disabled={!canEdit || isPending}
                 className={`p-1.5 rounded-md transition-colors ${
                   currentStatus === "maybe"
                     ? "bg-yellow-500/20 text-yellow-400"
@@ -144,7 +148,7 @@ export function AttendanceManager({
               </button>
               <button
                 onClick={() => handleStatusChange(member.id, "absent")}
-                disabled={isFinished || isPending}
+                disabled={!canEdit || isPending}
                 className={`p-1.5 rounded-md transition-colors ${
                   currentStatus === "absent"
                     ? "bg-red-500/20 text-red-400"
@@ -205,9 +209,14 @@ export function AttendanceManager({
 
       {isExpanded && (
         <div className="p-5 space-y-4">
-          {isFinished && (
+          {isFinished && !isManager && (
             <p className="text-sm text-yellow-400 bg-yellow-500/10 rounded-lg px-3 py-2">
               경기가 종료되어 참석 상태를 변경할 수 없습니다.
+            </p>
+          )}
+          {isFinished && isManager && (
+            <p className="text-sm text-blue-400 bg-blue-500/10 rounded-lg px-3 py-2">
+              운영진은 종료된 경기의 참석 상태를 수정할 수 있습니다.
             </p>
           )}
 

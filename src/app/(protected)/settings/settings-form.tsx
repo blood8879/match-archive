@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useMemo } from "react";
-import { User, Mail, Phone, Zap, Edit, Trash2, LogOut, Upload, Hash, Copy, Check, Globe, Footprints, Clock, Tag, Briefcase, X, Plus, Shield } from "lucide-react";
+import { User, Mail, Phone, Zap, Edit, Trash2, LogOut, Upload, Hash, Copy, Check, Globe, Footprints, Clock, Tag, Briefcase, X, Plus, Shield, Bell } from "lucide-react";
 import { DatePicker } from "@/components/ui/date-picker";
 import { updateUserProfile, signOut } from "@/services/auth";
 import { createClient } from "@/lib/supabase/client";
@@ -10,6 +10,7 @@ import type { User as UserType } from "@/types/supabase";
 import { countries, TCountryCode } from "countries-list";
 import { AlertModal, type AlertType } from "@/components/ui/alert-modal";
 import { Select, SelectItem } from "@/components/ui/select";
+import { PushNotificationToggle } from "@/components/push-notification-toggle";
 
 // ISO 국가 코드를 국기 이모지로 변환
 function countryCodeToEmoji(code: string): string {
@@ -726,6 +727,19 @@ export function SettingsForm({ user, teams }: SettingsFormProps) {
                 />
                 <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00e677]"></div>
               </label>
+            </div>
+
+            <div className="flex items-center justify-between py-2 border-t border-white/10 mt-2 pt-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary-500/20 flex items-center justify-center">
+                  <Bell className="w-5 h-5 text-primary-400" />
+                </div>
+                <div>
+                  <p className="text-white font-medium">푸시 알림</p>
+                  <p className="text-xs text-white/50">새 경기 등록 등 중요 소식을 푸시로 받습니다.</p>
+                </div>
+              </div>
+              <PushNotificationToggle showLabel={false} />
             </div>
           </div>
 

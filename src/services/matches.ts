@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { Match, MatchRecord, Goal, TeamMember, MatchAttendance, User } from "@/types/supabase";
+import { sendMatchCreatedNotification } from "@/services/push-notifications";
 
 export type MatchWithRecords = Match & {
   records: (MatchRecord & { team_member: TeamMember | null })[];
@@ -101,10 +102,32 @@ export async function createMatch(formData: FormData): Promise<Match> {
     throw error;
   }
 
+  const createdMatch = data as Match;
+
+  // 팀 이름 조회 및 푸시 알림 전송 (비동기, 실패해도 경기 생성에 영향 없음)
+  const { data: { user } } = await supabase.auth.getUser();
+  supabase
+    .from("teams")
+    .select("name")
+    .eq("id", teamId)
+    .single()
+    .then(({ data: team }) => {
+      if (team && user) {
+        sendMatchCreatedNotification(
+          teamId,
+          team.name,
+          createdMatch.id,
+          matchDate,
+          opponentName,
+          user.id
+        ).catch((err) => console.error("[Push] Failed to send match notification:", err));
+      }
+    });
+
   revalidatePath(`/teams/${teamId}`);
   revalidatePath("/matches");
 
-  return data as Match;
+  return createdMatch;
 }
 
 export async function updateMatch(

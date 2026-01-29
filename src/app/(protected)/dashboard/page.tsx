@@ -9,6 +9,7 @@ import { getWeather, type WeatherData } from "@/services/weather";
 import { LockerRoomTabs } from "./locker-room-tabs";
 import { TeamSwitcher } from "./team-switcher";
 import { NotificationDropdown } from "./notification-dropdown";
+import { PushNotificationBanner } from "@/components/push-notification-toggle";
 
 type TeamMemberWithTeam = TeamMember & { team: Team | null };
 type TeamMemberWithUser = TeamMember & {
@@ -194,6 +195,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       </header>
 
       <main className="flex-1 px-3 md:px-10 py-4 md:py-8 w-full max-w-[1440px] mx-auto">
+        <PushNotificationBanner />
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-6 md:mb-8">
           <div>
             <div className="flex items-center gap-2 mb-1">

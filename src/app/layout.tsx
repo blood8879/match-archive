@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { PostHogPageView } from "@/components/providers/posthog-pageview";
+import { OneSignalProvider } from "@/components/providers/onesignal-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,8 +34,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <PostHogProvider>
-          <PostHogPageView />
-          {children}
+          <OneSignalProvider>
+            <PostHogPageView />
+            {children}
+          </OneSignalProvider>
         </PostHogProvider>
       </body>
     </html>

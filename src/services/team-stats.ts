@@ -520,6 +520,7 @@ export type TeamDetailedStats = {
   allMom: PlayerRanking[];
   allAppearances: PlayerRanking[];
   scorerAssistPairs: ScorerAssistPair[];
+  allScorerAssistPairs: ScorerAssistPair[];
   goalDistribution: PlayerRanking[];
   totalGoals: number;
   seasonYear: number;
@@ -557,6 +558,7 @@ export async function getTeamDetailedStats(
       allMom: [],
       allAppearances: [],
       scorerAssistPairs: [],
+      allScorerAssistPairs: [],
       goalDistribution: [],
       totalGoals: 0,
       seasonYear,
@@ -687,9 +689,10 @@ export async function getTeamDetailedStats(
     }
   });
 
-  const scorerAssistPairs: ScorerAssistPair[] = Object.values(pairMap)
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5);
+  const allScorerAssistPairs: ScorerAssistPair[] = Object.values(pairMap)
+    .sort((a, b) => b.count - a.count);
+
+  const scorerAssistPairs = allScorerAssistPairs.slice(0, 5);
 
   const goalDistribution: PlayerRanking[] = Object.entries(playerGoals)
     .sort((a, b) => b[1].goals - a[1].goals)
@@ -712,6 +715,7 @@ export async function getTeamDetailedStats(
     allMom,
     allAppearances,
     scorerAssistPairs,
+    allScorerAssistPairs,
     goalDistribution,
     totalGoals: totalGoalsCount,
     seasonYear,

@@ -1025,6 +1025,7 @@ function TeamStatsContent({
     allMom = [],
     allAppearances = [],
     scorerAssistPairs = [],
+    allScorerAssistPairs = [],
     goalDistribution = [],
     totalGoals = 0,
   } = stats || {};
@@ -1186,32 +1187,10 @@ function TeamStatsContent({
             />
           </div>
 
-          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6 rounded-xl">
-            <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-              <Handshake className="w-4 h-4 text-[#00e677]" />
-              영혼의 파트너 (득점-도움 조합)
-            </h4>
-            {scorerAssistPairs.length > 0 ? (
-              <div className="space-y-3">
-                {scorerAssistPairs.map((pair, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 rounded-lg bg-white/5"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-[#00e677] font-bold text-sm w-6">{index + 1}</span>
-                      <span className="text-white font-medium">
-                        {pair.scorerName} <span className="text-white/40">←</span> {pair.assistName}
-                      </span>
-                    </div>
-                    <span className="text-[#00e677] font-bold">{pair.count}회</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-white/40 text-sm text-center py-4">데이터 없음</p>
-            )}
-          </div>
+          <ScorerAssistPairCard
+            pairs={scorerAssistPairs}
+            allPairs={allScorerAssistPairs}
+          />
 
           <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6 rounded-xl">
             <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
@@ -1405,7 +1384,7 @@ function GoalDistributionPieChart({
     );
   };
 
-  return (
+   return (
     <div className="h-[400px] relative">
       <ResponsiveContainer width="100%" height="100%">
         <RechartsPie>
@@ -1450,5 +1429,103 @@ function GoalDistributionPieChart({
         </div>
       )}
     </div>
+  );
+}
+
+function ScorerAssistPairCard({
+  pairs,
+  allPairs,
+}: {
+  pairs: { scorerName: string; assistName: string; count: number }[];
+  allPairs: { scorerName: string; assistName: string; count: number }[];
+}) {
+  const [showModal, setShowModal] = useState(false);
+
+  return (
+    <>
+      <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6 rounded-xl">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-sm font-bold text-white flex items-center gap-2">
+            <Handshake className="w-4 h-4 text-[#00e677]" />
+            영혼의 파트너 (득점-도움 조합)
+          </h4>
+          {allPairs.length > 5 && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="text-xs text-[#00e677] hover:text-[#00e677]/80 font-medium"
+            >
+              전체 보기
+            </button>
+          )}
+        </div>
+        {pairs.length > 0 ? (
+          <div className="space-y-3">
+            {pairs.map((pair, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 rounded-lg bg-white/5"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-[#00e677] font-bold text-sm w-6">{index + 1}</span>
+                  <span className="text-white font-medium">
+                    {pair.scorerName} <span className="text-white/40">←</span> {pair.assistName}
+                  </span>
+                </div>
+                <span className="text-[#00e677] font-bold">{pair.count}회</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-white/40 text-sm text-center py-4">데이터 없음</p>
+        )}
+      </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowModal(false)}>
+          <div className="bg-[#0f2319] border border-white/10 rounded-2xl w-full max-w-md max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h3 className="text-white font-bold flex items-center gap-2">
+                <Handshake className="w-4 h-4 text-[#00e677]" />
+                영혼의 파트너 전체 순위
+              </h3>
+              <button onClick={() => setShowModal(false)} className="text-white/60 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
+              <div className="space-y-2">
+                {allPairs.map((pair, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                  >
+                    <span
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                        index === 0
+                          ? "bg-[#fbbf24] text-[#0f2319]"
+                          : index === 1
+                          ? "bg-[#94a3b8] text-[#0f2319]"
+                          : index === 2
+                          ? "bg-[#f97316] text-white"
+                          : "bg-white/10 text-white/60"
+                      }`}
+                    >
+                      {index + 1}
+                    </span>
+                    <span className="flex-1 text-white font-medium truncate">
+                      {pair.scorerName} <span className="text-white/40">←</span> {pair.assistName}
+                    </span>
+                    <span className="text-[#00e677] font-bold">
+                      {pair.count}
+                      <span className="text-white/40 text-xs ml-1">회</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

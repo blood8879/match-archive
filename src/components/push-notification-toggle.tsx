@@ -6,6 +6,7 @@ import {
   requestPushPermission,
   unsubscribePush,
   isPushSubscribed,
+  isOneSignalConfigured,
 } from "@/components/providers/onesignal-provider";
 
 interface PushNotificationToggleProps {
@@ -72,7 +73,7 @@ export function PushNotificationToggle({
     }
   };
 
-  if (!isSupported) {
+  if (!isSupported || !isOneSignalConfigured()) {
     return null;
   }
 
@@ -184,7 +185,7 @@ export function PushNotificationBanner() {
     localStorage.setItem("push-banner-dismissed", "true");
   };
 
-  if (!isSupported || isSubscribed || isDismissed || isLoading) {
+  if (!isSupported || !isOneSignalConfigured() || isSubscribed || isDismissed || isLoading) {
     return null;
   }
 

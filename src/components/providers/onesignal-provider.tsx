@@ -9,6 +9,11 @@ declare global {
   }
 }
 
+export function isOneSignalConfigured(): boolean {
+  const appId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
+  return !!(appId && appId !== "your_onesignal_app_id");
+}
+
 interface OneSignalProviderProps {
   children: React.ReactNode;
 }
